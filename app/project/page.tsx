@@ -2,12 +2,15 @@ import { ProjectTable } from "@/components/project/project-table.";
 import { Suspense } from "react";
 import { SearchForm } from "@/components/project/search-form";
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams: { q: string };
-}) {
-  const query = searchParams.q;
+type PageProps = {
+  searchParams: Promise<{ q?: string | undefined }>;
+}
+
+
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams; // Await the promise
+  const query = params?.q;
+
   return (
     <div>
       {/* Main Content */}

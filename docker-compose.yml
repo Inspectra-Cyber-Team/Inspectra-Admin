@@ -1,0 +1,13 @@
+version: '3'
+services:
+  inspectra-admin:
+    container_name: inspectra-admin
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "4013:3000"
+    environment:
+      - NODE_ENV=production
+      - GENERATE_SOURCEMAP=false
