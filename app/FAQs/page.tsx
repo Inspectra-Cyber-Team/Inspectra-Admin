@@ -3,12 +3,14 @@ import { FAQsTable } from "@/components/faqs/faqs-table"
 import { SearchForm } from "@/components/faqs/search-form"
 import { CreatefaqButton } from "@/components/faqs/create-faq-button"
 
-export default function Page({
-  searchParams
-}: {
-  searchParams: { q: string }
-}) {
-  const query = searchParams.q
+type PageProps = {
+  searchParams: Promise<{ q?: string | undefined }>;
+}
+
+
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams; // Await the promise
+  const query = params?.q;
 
   return (
     <div>

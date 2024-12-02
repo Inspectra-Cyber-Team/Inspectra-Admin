@@ -43,7 +43,7 @@ async function fetchBlogs(query: string): Promise<Blog[]> {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const allBlogs = [
+  const allBlogs:Blog[] = [
     {
       id: 1,
       title: "10 AI-Powered Python Libraries to...",
