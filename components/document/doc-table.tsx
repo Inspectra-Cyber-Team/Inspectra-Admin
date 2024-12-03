@@ -27,8 +27,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface Document {
-  id: number;
-  name: string;
+  uuid: string;
+  documentCategoryName: string;
+  title: string;
   createdAt: string;
 }
 
@@ -38,47 +39,51 @@ async function fetchDocuments(query: string): Promise<Document[]> {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const allDocuments = [
+  const allDocuments: Document[] = [
     {
-      id: 1,
-      name: "Introduction",
+      uuid: "1",
+      documentCategoryName: "Getting Started",
+      title: "Introduction",
       createdAt: "Nov, 21, 2024",
     },
     {
-      id: 2,
-      name: "Getting Started",
-      createdAt: "Nov, 21, 2024",
+      uuid: "2",
+      documentCategoryName: "Tutorial",
+      title: "Getting Started Guide",
+      createdAt: "Nov, 22, 2024",
     },
     {
-      id: 3,
-      name: "User Guide",
-      createdAt: "Nov, 21, 2024",
+      uuid: "3",
+      documentCategoryName: "Guides",
+      title: "User Guide",
+      createdAt: "Nov, 23, 2024",
     },
     {
-      id: 4,
-      name: "Technical Guide",
-      createdAt: "Nov, 21, 2024",
+      uuid: "4",
+      documentCategoryName: "Technical",
+      title: "Technical Documentation",
+      createdAt: "Nov, 24, 2024",
     },
     {
-      id: 5,
-      name: "API Reference",
-      createdAt: "Nov, 21, 2024",
+      uuid: "5",
+      documentCategoryName: "API",
+      title: "API Reference",
+      createdAt: "Nov, 25, 2024",
     },
   ];
 
   if (!query) return allDocuments;
 
   return allDocuments.filter((document) =>
-    document.name.toLowerCase().includes(query.toLowerCase())
+    document.documentCategoryName.toLowerCase().includes(query.toLowerCase())
   );
 }
 
 export function DocumentsTable({ query = "" }) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
+  const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
 
   useEffect(() => {
     const loadDocuments = async () => {
@@ -102,15 +107,15 @@ export function DocumentsTable({ query = "" }) {
     if (selectedDocuments.length === currentDocuments.length) {
       setSelectedDocuments([]);
     } else {
-      setSelectedDocuments(currentDocuments.map((document) => document.id));
+      setSelectedDocuments(currentDocuments.map((document) => document.uuid));
     }
   };
 
-  const handleSelectDocument = (documentId: number) => {
+  const handleSelectDocument = (documentUUId: string) => {
     setSelectedDocuments((prev) =>
-      prev.includes(documentId)
-        ? prev.filter((id) => id !== documentId)
-        : [...prev, documentId]
+      prev.includes(documentUUId)
+        ? prev.filter((uuid) => uuid !== documentUUId)
+        : [...prev, documentUUId]
     );
   };
 
@@ -130,20 +135,22 @@ export function DocumentsTable({ query = "" }) {
               />
             </TableHead>
             <TableHead>Categories</TableHead>
+            <TableHead>Title</TableHead>
             <TableHead>Created At</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentDocuments.map((document) => (
-            <TableRow key={document.id}>
+            <TableRow key={document.uuid}>
               <TableCell>
                 <Checkbox
-                  checked={selectedDocuments.includes(document.id)}
-                  onCheckedChange={() => handleSelectDocument(document.id)}
+                  checked={selectedDocuments.includes(document.uuid)}
+                  onCheckedChange={() => handleSelectDocument(document.uuid)}
                 />
               </TableCell>
-              <TableCell>{document.name}</TableCell>
+              <TableCell>{document.documentCategoryName}</TableCell>
+              <TableCell>{document.title}</TableCell>
               <TableCell>{document.createdAt}</TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -159,17 +166,7 @@ export function DocumentsTable({ query = "" }) {
                       <Edit className="h-5 w-5 mr-2" />
                       Edit
                     </DropdownMenuItem>
-
-                    {/* Modal Component */}
-                    {/* {isModalOpen && (
-                      <CreateDocumentModal
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                      />
-                    )} */}
-
                     <DropdownMenuSeparator />
-
                     <DropdownMenuItem className="text-red-600">
                       <Trash className="h-5 w-5 mr-2" />
                       Delete

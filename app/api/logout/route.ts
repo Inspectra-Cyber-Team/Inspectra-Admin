@@ -1,3 +1,4 @@
+
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -20,6 +21,7 @@ export async function POST() {
   const refreshToken = credential.value;
 
   if (refreshToken) {
+
     cookieStore.delete(cookieName);
 
     return NextResponse.json(
@@ -28,6 +30,7 @@ export async function POST() {
       },
       {
         status: 200,
+      
       },
     );
   }
