@@ -9,7 +9,7 @@ interface FeedbackItem {
   id: string;
   author: {
     name: string;
-    avatar: string;
+    avatar: string; 
   };
   date: string;
   content: string;
@@ -60,7 +60,7 @@ export default function FeedbackDashboard() {
 
   return (
     <div className="flex flex-col">
-      <main className="flex-1">
+      <main className="flex-1"> 
         <div className="space-y-4">
           {currentFeedback.map((item) => (
             <Card key={item.id} className="border-none shadow-none">
