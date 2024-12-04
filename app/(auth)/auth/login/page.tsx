@@ -5,6 +5,13 @@ import * as Yup from "yup";
 import { IoEyeOffSharp } from "react-icons/io5";
 import { IoEyeSharp } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import ParticlesComponent from "@/components/ParticleBackground";
+import Link from "next/link"
+import {
+  Card,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card"
 
 type FormValues = {
   email: string;
@@ -58,78 +65,104 @@ const LogIn = () => {
 
   return (
     <section>
-      <div className="h-screen flex justify-center items-center gap-8">
-        <div className="border border-gray-200 bg-white drop-shadow-lg w-[550px] h-fit p-[50px] block rounded-xl">
-          <p className="text-gray-500 text-center  my-5">
-            Please enter your details.
-          </p>
-          {isSubmitting && <p>Testing</p>}
+       <div className="h-screen flex flex-wrap justify-center items-center p-4 bg-black">
+       <ParticlesComponent id="particles"/>
+  {/* Card Component */}
+  <Card className="bg-white drop-shadow-lg w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
+    <CardTitle className="text-center text-2xl font-semibold text-gray-800">
+      Login to your account
+    </CardTitle>
+    <CardDescription className="text-center text-gray-500 mt-2">
+      Please enter your details to proceed.
+    </CardDescription>
+    {isSubmitting && (
+      <p className="text-center text-sm mt-4 text-green-500">Processing...</p>
+    )}
 
-          <Formik
-            initialValues={{ email: "", password: "" }}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ isSubmitting }) => (
-              <Form className="mx-auto mb-0 mt-8 max-w-md space-y-4">
-                <div>
-                  <label htmlFor="email">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    className="w-full my-2 rounded-lg border border-gray-200 p-4 pe-12 text-sm shadow-sm bg-white"
-                    name="email"
-                    placeholder="Enter email "
-                    type="email"
-                  />
-                  <ErrorMessage
-                    className="text-red-500"
-                    component="div"
-                    name="email"
-                  />
-                </div>
+    <Formik
+      initialValues={{ email: "", password: "" }}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ isSubmitting }) => (
+        <Form className="grid gap-6 mt-6">
+          {/* Email Field */}
+          <div className="grid gap-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email Address <span className="text-red-500">*</span>
+            </label>
+            <Field
+              className="w-full rounded-lg border border-gray-300 p-4 text-sm shadow-sm focus:border-primary focus:ring focus:ring-primary bg-gray-50"
+              name="email"
+              placeholder="Enter your email"
+              type="email"
+            />
+            <ErrorMessage
+              className="text-red-500 text-sm mt-1"
+              component="div"
+              name="email"
+            />
+          </div>
 
-                <div className="relative">
-                  <label htmlFor="password">
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    className="w-full my-2 rounded-lg border border-gray-200 p-4 pe-12 text-sm shadow-sm bg-white"
-                    name="password"
-                    placeholder="Enter pasword"
-                    type={showPassword ? "text" : "password"}
-                  />
-                  {!showPassword ? (
-                    <IoEyeOffSharp
-                      className="cursor-pointer absolute right-2 top-[54px]"
-                      onClick={() => handleShowPassword()}
-                    />
-                  ) : (
-                    <IoEyeSharp
-                      className="cursor-pointer absolute right-2 top-[54px]"
-                      onClick={() => handleShowPassword()}
-                    />
-                  )}
-                  <ErrorMessage
-                    className="text-red-500"
-                    component="div"
-                    name="password"
-                  />
-                </div>
-
-                <button
-                  className="inline-block w-full rounded-lg bg-primary px-5 py-3 text-sm font-medium text-white"
-                  disabled={isSubmitting}
-                  type="submit"
-                >
-                  {isSubmitting ? "Signing in..." : "Sign in"}
-                </button>
-              </Form>
+          {/* Password Field */}
+          <div className="grid gap-2 relative">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password <span className="text-red-500">*</span>
+            </label>
+            <Field
+              className="w-full rounded-lg border border-gray-300 p-4 text-sm shadow-sm focus:border-primary focus:ring focus:ring-primary bg-gray-50"
+              name="password"
+              placeholder="Enter your password"
+              type={showPassword ? "text" : "password"}
+            />
+            {!showPassword ? (
+              <IoEyeOffSharp
+                className="cursor-pointer absolute right-4 top-[42px] text-gray-500"
+                onClick={() => handleShowPassword()}
+                size={20}
+              />
+            ) : (
+              <IoEyeSharp
+                className="cursor-pointer absolute right-4 top-[42px] text-gray-500"
+                onClick={() => handleShowPassword()}
+                size={20}
+              />
             )}
-          </Formik>
-        </div>
-      </div>
+            <ErrorMessage
+              className="text-red-500 text-sm mt-1"
+              component="div"
+              name="password"
+            />
+            <Link
+              href="#"
+              className="text-sm text-blue-500 underline mt-2 text-right"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            className="inline-block w-full rounded-lg px-5 py-3 text-sm font-medium bg-primary "
+            disabled={isSubmitting}
+            type="submit"
+          >
+            {isSubmitting ? "Signing in..." : "Sign in"}
+          </button>
+        </Form>
+      )}
+    </Formik>
+  </Card>
+</div>
+
     </section>
+    
   );
 };
 
