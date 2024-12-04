@@ -19,7 +19,7 @@ export function SearchForm({ initialQuery = '' }) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className='rounded-md  bg-card'>
       <Input
         type="search"
         placeholder="Type to search ..."

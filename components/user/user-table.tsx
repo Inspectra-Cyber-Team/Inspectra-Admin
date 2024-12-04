@@ -140,11 +140,11 @@ export function UsersTable({ query = "" }) {
   const getStatusBadge = (status: User["status"]) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-500">Active</Badge>;
+        return <Badge className="bg-primary">Active</Badge>;
       case "inactive":
-        return <Badge className="bg-gray-500">Inactive</Badge>;
+        return <Badge className="bg-accent">Inactive</Badge>;
       case "pending":
-        return <Badge className="bg-yellow-500">Pending</Badge>;
+        return <Badge className="bg-secondary">Pending</Badge>;
       default:
         return null;
     }
@@ -155,7 +155,7 @@ export function UsersTable({ query = "" }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>

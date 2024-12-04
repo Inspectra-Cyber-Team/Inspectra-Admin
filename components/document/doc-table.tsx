@@ -124,7 +124,7 @@ export function DocumentsTable({ query = "" }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>

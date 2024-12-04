@@ -39,7 +39,7 @@ export default function DashboardPage() {
           />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4">
+          <Card className="col-span-4 border-none shadow-none">
             <CardHeader>
               <CardTitle>Traffic by month</CardTitle>
             </CardHeader>
@@ -47,7 +47,7 @@ export default function DashboardPage() {
               <Overview />
             </CardContent>
           </Card>
-          <Card className="col-span-3">
+          <Card className="col-span-3 border-none shadow-none">
             <CardHeader>
               <CardTitle>Overall Traffic</CardTitle>
             </CardHeader>

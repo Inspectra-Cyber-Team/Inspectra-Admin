@@ -122,7 +122,7 @@ export function FAQsTable({ query = "" }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md bg-card">
       <Table>
         <TableHeader>
           <TableRow>
