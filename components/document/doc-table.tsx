@@ -11,20 +11,23 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-  MoreHorizontal,
-  Trash,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit3, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Input } from "../ui/input";
 
 interface Document {
   uuid: string;
@@ -36,47 +39,21 @@ interface Document {
 const ITEMS_PER_PAGE = 10;
 
 async function fetchDocuments(query: string): Promise<Document[]> {
-  // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   const allDocuments: Document[] = [
-    {
-      uuid: "1",
-      documentCategoryName: "Getting Started",
-      title: "Introduction",
-      createdAt: "Nov, 21, 2024",
-    },
-    {
-      uuid: "2",
-      documentCategoryName: "Tutorial",
-      title: "Getting Started Guide",
-      createdAt: "Nov, 22, 2024",
-    },
-    {
-      uuid: "3",
-      documentCategoryName: "Guides",
-      title: "User Guide",
-      createdAt: "Nov, 23, 2024",
-    },
-    {
-      uuid: "4",
-      documentCategoryName: "Technical",
-      title: "Technical Documentation",
-      createdAt: "Nov, 24, 2024",
-    },
-    {
-      uuid: "5",
-      documentCategoryName: "API",
-      title: "API Reference",
-      createdAt: "Nov, 25, 2024",
-    },
+    { uuid: "1", documentCategoryName: "Getting Started", title: "Introduction", createdAt: "Nov, 21, 2024" },
+    { uuid: "2", documentCategoryName: "Tutorial", title: "Getting Started Guide", createdAt: "Nov, 22, 2024" },
+    { uuid: "3", documentCategoryName: "Guides", title: "User Guide", createdAt: "Nov, 23, 2024" },
+    { uuid: "4", documentCategoryName: "Technical", title: "Technical Documentation", createdAt: "Nov, 24, 2024" },
+    { uuid: "5", documentCategoryName: "API", title: "API Reference", createdAt: "Nov, 25, 2024" },
   ];
 
-  if (!query) return allDocuments;
-
-  return allDocuments.filter((document) =>
-    document.documentCategoryName.toLowerCase().includes(query.toLowerCase())
-  );
+  return !query
+    ? allDocuments
+    : allDocuments.filter((doc) =>
+        doc.documentCategoryName.toLowerCase().includes(query.toLowerCase())
+      );
 }
 
 export function DocumentsTable({ query = "" }) {
@@ -84,6 +61,13 @@ export function DocumentsTable({ query = "" }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const [selectedItem, setSelectedItem] = useState<Document | null>(null);
+  const [editedTitle, setEditedTitle] = useState("");
 
   useEffect(() => {
     const loadDocuments = async () => {
@@ -94,7 +78,6 @@ export function DocumentsTable({ query = "" }) {
       setSelectedDocuments([]);
       setIsLoading(false);
     };
-
     loadDocuments();
   }, [query]);
 
@@ -104,19 +87,35 @@ export function DocumentsTable({ query = "" }) {
   const currentDocuments = documents.slice(startIndex, endIndex);
 
   const handleSelectAll = () => {
-    if (selectedDocuments.length === currentDocuments.length) {
-      setSelectedDocuments([]);
-    } else {
-      setSelectedDocuments(currentDocuments.map((document) => document.uuid));
-    }
+    setSelectedDocuments(
+      selectedDocuments.length === currentDocuments.length ? [] : currentDocuments.map((doc) => doc.uuid)
+    );
   };
 
-  const handleSelectDocument = (documentUUId: string) => {
+  const handleSelectDocument = (uuid: string) => {
     setSelectedDocuments((prev) =>
-      prev.includes(documentUUId)
-        ? prev.filter((uuid) => uuid !== documentUUId)
-        : [...prev, documentUUId]
+      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
     );
+  };
+
+  const handleEdit = () => {
+    if (selectedItem) {
+      console.log("Editing document:", selectedItem.uuid, "New title:", editedTitle);
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.uuid === selectedItem.uuid ? { ...doc, title: editedTitle } : doc
+        )
+      );
+    }
+    setEditModalOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (selectedItem) {
+      console.log("Deleting document:", selectedItem.uuid);
+      setDocuments((prev) => prev.filter((doc) => doc.uuid !== selectedItem.uuid));
+    }
+    setDeleteModalOpen(false);
   };
 
   if (isLoading) {
@@ -160,15 +159,37 @@ export function DocumentsTable({ query = "" }) {
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem className="text-yellow-600">
-                      <Edit className="h-5 w-5 mr-2" />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedItem(document);
+                        setViewModalOpen(true);
+                      }}
+                    >
+                      <Eye/>
+                      View
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator/>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedItem(document);
+                        setEditedTitle(document.title);
+                        setEditModalOpen(true);
+                      }}
+                      className="text-yellow-600"
+                    >
+                      <Edit3/>
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash className="h-5 w-5 mr-2" />
+                    <DropdownMenuSeparator/>
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => {
+                        setSelectedItem(document);
+                        setDeleteModalOpen(true);
+                      }}
+                    >
+                      <Trash2/>
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -178,14 +199,83 @@ export function DocumentsTable({ query = "" }) {
           ))}
         </TableBody>
       </Table>
+
+      {/* View Modal */}
+      <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Item Details</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="font-medium">Category:</span>
+                <span className="col-span-3">{selectedItem.documentCategoryName}</span>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="font-medium">Title:</span>
+                <span className="col-span-3">{selectedItem.title}</span>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="font-medium">Created At:</span>
+                <span className="col-span-3">{selectedItem.createdAt}</span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Item</DialogTitle>
+            <DialogDescription>Make changes to the item here.</DialogDescription>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="font-medium">Title:</span>
+                <Input
+                  className="col-span-3"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEdit}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the item.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleDelete}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex items-center justify-between px-4 py-2 border-t">
-        <div className="text-sm text-muted-foreground">
-          Rows per page: {ITEMS_PER_PAGE}
-        </div>
+        <div className="text-sm text-muted-foreground">Rows per page: {ITEMS_PER_PAGE}</div>
         <div className="flex items-center space-x-2 text-sm">
           <span>
-            {startIndex + 1}-{Math.min(endIndex, documents.length)} of{" "}
-            {documents.length}
+            {startIndex + 1}-{Math.min(endIndex, documents.length)} of {documents.length}
           </span>
           <div className="flex items-center space-x-1">
             <Button
@@ -199,9 +289,7 @@ export function DocumentsTable({ query = "" }) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
               <ChevronRight className="h-4 w-4" />

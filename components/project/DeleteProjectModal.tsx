@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import {  Trash2 } from "lucide-react";
 
 type DeleteProjectConfirmationModalProps = {
   isOpen: boolean; 
@@ -34,20 +34,20 @@ const DeleteProjectConfirmationModal =
           <DialogTrigger asChild>
             <Trash2
               onClick={() => setIsModalOpen(true)}
-              className="text-red-500 cursor-pointer"
+              className="text-destructive cursor-pointer"
             />
           </DialogTrigger>
 
           {/* Modal content */}
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm Delete</DialogTitle>
-              <DialogDescription>
+            <DialogHeader className="mb-2">
+              <DialogTitle className="text-xl text-foreground">Confirm Delete</DialogTitle>
+              <DialogDescription className="text-[#888888] text-base my-2">
                 Are you sure you want to delete this project?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
+              <Button onClick={() => setIsModalOpen(false)} variant="ghost">Cancel</Button>
               <Button onClick={handleDeleteConfirm}>Confirm</Button>
             </DialogFooter>
           </DialogContent>
