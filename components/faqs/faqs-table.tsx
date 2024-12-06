@@ -16,8 +16,8 @@ import {
   ChevronRight,
   Edit,
   MoreHorizontal,
-  Trash,
   Eye,
+  Trash2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,10 +26,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Input } from "@/components/ui/input";
 
-interface FAQ {
-  id: number;
+type FAQ = {
+  uuid: string;
   question: string;
+  answer: string;
   createdAt: string;
 }
 
@@ -39,49 +49,60 @@ async function fetchFAQs(query: string): Promise<FAQ[]> {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const allFAQs = [
+  const allFAQs: FAQ[] = [
     {
-      id: 1,
+      uuid: "1",
       question:
         "Which languages and frameworks does Inspectra support in its scans?",
+      answer: "Introduction",
       createdAt: "Nov, 21, 2024",
     },
     {
-      id: 2,
+      uuid: "2",
       question:
         "What scanning tools and frameworks does Inspectra use for security testing?",
-      createdAt: "Nov, 21, 2024",
+      answer: "Getting Started Guide",
+      createdAt: "Nov, 22, 2024",
     },
     {
-      id: 3,
+      uuid: "3",
       question:
         "Does Inspectra support containerized and cloud-native environments?",
-      createdAt: "Nov, 21, 2024",
+      answer: "User Guide",
+      createdAt: "Nov, 23, 2024",
     },
     {
-      id: 4,
+      uuid: "4",
       question: "What types of databases does Inspectra support?",
-      createdAt: "Nov, 21, 2024",
+      answer: "Technical Documentation",
+      createdAt: "Nov, 24, 2024",
     },
     {
-      id: 5,
+      uuid: "5",
       question: "How does Inspectra perform white-box testing?",
-      createdAt: "Nov, 21, 2024",
+      answer: "API Reference",
+      createdAt: "Nov, 25, 2024",
     },
   ];
 
-  if (!query) return allFAQs;
-
-  return allFAQs.filter((faq) =>
-    faq.question.toLowerCase().includes(query.toLowerCase())
-  );
+  return !query
+    ? allFAQs
+    : allFAQs.filter((faq) =>
+        faq.question.toLowerCase().includes(query.toLowerCase())
+      );
 }
 
 export function FAQsTable({ query = "" }) {
   const [faqs, setFAQs] = useState<FAQ[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedFAQs, setSelectedFAQs] = useState<number[]>([]);
+  const [selectedFAQs, setSelectedFAQs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const [selectedItem, setSelectedItem] = useState<FAQ | null>(null);
+  const [editedQuestion, setEditedQuestion] = useState("");
 
   useEffect(() => {
     const loadFAQs = async () => {
@@ -102,23 +123,45 @@ export function FAQsTable({ query = "" }) {
   const currentFAQs = faqs.slice(startIndex, endIndex);
 
   const handleSelectAll = () => {
-    if (selectedFAQs.length === currentFAQs.length) {
-      setSelectedFAQs([]);
-    } else {
-      setSelectedFAQs(currentFAQs.map((faq) => faq.id));
-    }
+    setSelectedFAQs(
+      selectedFAQs.length === currentFAQs.length
+        ? []
+        : currentFAQs.map((faq) => faq.uuid)
+    );
   };
 
-  const handleSelectFAQ = (faqId: number) => {
+  const handleSelectFAQ = (uuid: string) => {
     setSelectedFAQs((prev) =>
-      prev.includes(faqId)
-        ? prev.filter((id) => id !== faqId)
-        : [...prev, faqId]
+      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
     );
+  };
+
+  const handleEdit = () => {
+    if (selectedItem) {
+      console.log("Editing FAQ:", selectedItem.uuid, "New Question:", editedQuestion);
+      setFAQs((prev) =>
+        prev.map((faq) =>
+          faq.uuid === selectedItem.uuid ? { ...faq, question: editedQuestion } : faq
+        )
+      );
+    }
+    setEditModalOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (selectedItem) {
+      console.log("Deleting FAQ:", selectedItem.uuid);
+      setFAQs((prev) => prev.filter((faq) => faq.uuid !== selectedItem.uuid));
+    }
+    setDeleteModalOpen(false);
   };
 
   if (isLoading) {
     return <div>Loading FAQs...</div>;
+  }
+
+  if (faqs.length === 0) {
+    return <div>No FAQs found.</div>;
   }
 
   return (
@@ -139,11 +182,11 @@ export function FAQsTable({ query = "" }) {
         </TableHeader>
         <TableBody>
           {currentFAQs.map((faq) => (
-            <TableRow key={faq.id}>
+            <TableRow key={faq.uuid}>
               <TableCell>
                 <Checkbox
-                  checked={selectedFAQs.includes(faq.id)}
-                  onCheckedChange={() => handleSelectFAQ(faq.id)}
+                  checked={selectedFAQs.includes(faq.uuid)}
+                  onCheckedChange={() => handleSelectFAQ(faq.uuid)}
                 />
               </TableCell>
               <TableCell>{faq.question}</TableCell>
@@ -157,23 +200,34 @@ export function FAQsTable({ query = "" }) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem className="text-yellow-600">
-                      <Eye className="h-5 w-5 mr-2" />
-                      View details
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedItem(faq);
+                        setViewModalOpen(true);
+                      }}
+                    >
+                      <Eye className="mr-2 h-4 w-4" /> View
                     </DropdownMenuItem>
-
                     <DropdownMenuSeparator />
-
-                    <DropdownMenuItem className="text-yellow-600">
-                      <Edit className="h-5 w-5 mr-2" />
-                      Edit
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedItem(faq);
+                        setEditedQuestion(faq.question);
+                        setEditModalOpen(true);
+                      }}
+                      className="text-yellow-600"
+                    >
+                      <Edit className="mr-2 h-4 w-4" /> Edit
                     </DropdownMenuItem>
-
                     <DropdownMenuSeparator />
-
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash className="h-5 w-5 mr-2" />
-                      Delete
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => {
+                        setSelectedItem(faq);
+                        setDeleteModalOpen(true);
+                      }}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -182,6 +236,83 @@ export function FAQsTable({ query = "" }) {
           ))}
         </TableBody>
       </Table>
+
+      {/* View Modal */}
+      <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View FAQ Details</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="grid gap-4 py-4">
+              <div>
+                <strong>Question:</strong> {selectedItem.question}
+              </div>
+              <div>
+                <strong>Answer:</strong> {selectedItem.answer}
+              </div>
+              <div>
+                <strong>Created At:</strong> {selectedItem.createdAt}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update FAQ</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="grid py-4 gap-2">
+              <div>
+                <h2 className='text-sm font-medium mb-2 block'>Question</h2>
+              <Input
+                value={editedQuestion}
+                onChange={(e) => setEditedQuestion(e.target.value)}
+                className="w-full rounded-lg p-4 text-sm "
+              />
+              </div>
+              <div>
+                <h2 className='text-sm font-medium mb-2 block'>Answer</h2>
+              <Input
+                value={selectedItem.answer}
+                onChange={(e) => setEditedQuestion(e.target.value)}
+                className="w-full rounded-lg p-4 text-sm "
+              />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-xl text-foreground">Confirm Delete</DialogTitle>
+            <DialogDescription className="text-base my-2">
+            Are you sure you want to delete this FAQs?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleDelete} variant="destructive">Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-2 border-t">
         <div className="text-sm text-muted-foreground">
           Rows per page: {ITEMS_PER_PAGE}

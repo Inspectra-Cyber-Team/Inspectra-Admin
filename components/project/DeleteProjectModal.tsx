@@ -42,13 +42,13 @@ const DeleteProjectConfirmationModal =
           <DialogContent>
             <DialogHeader className="mb-2">
               <DialogTitle className="text-xl text-foreground">Confirm Delete</DialogTitle>
-              <DialogDescription className="text-[#888888] text-base my-2">
+              <DialogDescription className=" text-base my-2">
                 Are you sure you want to delete this project?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button onClick={() => setIsModalOpen(false)} variant="ghost">Cancel</Button>
-              <Button onClick={handleDeleteConfirm}>Confirm</Button>
+              <Button onClick={() => setIsModalOpen(false)} variant="ghost" >Cancel</Button>
+              <Button onClick={handleDeleteConfirm} variant="destructive">Delete</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

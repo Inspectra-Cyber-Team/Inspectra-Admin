@@ -5,7 +5,8 @@ import { Textarea } from "@/components/ui/textarea"
 
 export function CreateTab() {
   return (
-    <form className="space-y-8">
+    <form className="space-y-8 bg-card p-6">
+      <h1 className="text-center font-bold text-2xl">Create Blog</h1>
       <div className="space-y-2">
         <Label htmlFor="title">Title</Label>
         <Input id="title" placeholder="Enter blog post title" />
@@ -18,7 +19,7 @@ export function CreateTab() {
         <Label htmlFor="image">Featured Image</Label>
         <Input id="image" type="file" />
       </div>
-      <Button type="submit">Create Post</Button>
+      <Button type="submit" className="justify-end">Create Post</Button>
     </form>
   )
 }

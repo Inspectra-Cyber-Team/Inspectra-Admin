@@ -16,7 +16,7 @@ import {
   ChevronRight,
   Eye,
   MoreHorizontal,
-  Trash,
+  Trash2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,13 +26,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Blog {
-  id: number;
+  blogUuid: string;
   title: string;
+  message: string;
   createdAt: string;
-  image: string;
-  reportedBy: string;
+  thumbnail: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -41,43 +49,44 @@ async function fetchBlogs(query: string): Promise<Blog[]> {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const allBlogs = [
+  const allBlogs: Blog[] = [
     {
-      id: 1,
+      blogUuid: "1",
       title: "10 AI-Powered Python Libraries to...",
-      image: "/Blog.png?height=48&width=48",
-      reportedBy: "Sokpheng",
-      createdAt: "Nov. 21, 2024",
-    }, 
-    {
-      id: 2,
-      title: "30 Tricky Java Interview Question...",
-      image: "/Blog.png?height=48&width=48",
-      reportedBy: "Sokpheng",
+      message: "This blog has misunderstanding concept.",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
     },
     {
-      id: 3,
+      blogUuid: "2",
+      title: "30 Tricky Java Interview Questions...",
+      message: "This blog has misunderstanding concept.",
+      thumbnail: "/Blog.png?height=48&width=48",
+      createdAt: "Nov. 21, 2024",
+    },
+    {
+      blogUuid: "3",
       title: "Inspector Named As a Top...",
-      image: "/Blog.png?height=48&width=48",
-      reportedBy: "Sokpheng",
+      message: "Inspector Named As a Top...",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
     },
     {
-      id: 4,
+      blogUuid: "4",
       title: "10 AI-Powered Python Libraries to...",
-      image: "/Blog.png?height=48&width=48",
-      reportedBy: "Sokpheng",
+      message: "10 AI-Powered Python Libraries to...",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
     },
     {
-      id: 5,
+      blogUuid: "5",
       title: "I Stopped Using Kubernetes. Our...",
-      image: "/Blog.png?height=48&width=48",
-      reportedBy: "Sokpheng",
+      message: "I Stopped Using Kubernetes. Our...",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
     },
   ];
+
   if (!query) return allBlogs;
 
   return allBlogs.filter((blog) =>
@@ -85,11 +94,15 @@ async function fetchBlogs(query: string): Promise<Blog[]> {
   );
 }
 
-export function ReportTab({ query = "" }) {
+export function ReportTab({ query = "" }: { query?: string }) {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedBlogs, setSelectedBlogs] = useState<number[]>([]);
+  const [selectedBlogs, setSelectedBlogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const [selectedItem, setSelectedItem] = useState<Blog | null>(null);
+
 
   useEffect(() => {
     const loadBlogs = async () => {
@@ -110,27 +123,35 @@ export function ReportTab({ query = "" }) {
   const currentBlogs = blogs.slice(startIndex, endIndex);
 
   const handleSelectAll = () => {
-    if (selectedBlogs.length === currentBlogs.length) {
-      setSelectedBlogs([]);
-    } else {
-      setSelectedBlogs(currentBlogs.map((blog) => blog.id));
-    }
-  };
-
-  const handleSelectBlog = (blogId: number) => {
-    setSelectedBlogs((prev) =>
-      prev.includes(blogId)
-        ? prev.filter((id) => id !== blogId)
-        : [...prev, blogId]
+    setSelectedBlogs(
+      selectedBlogs.length === currentBlogs.length
+        ? []
+        : currentBlogs.map((blog) => blog.blogUuid)
     );
   };
+
+  const handleSelectBlog = (blogUuid: string) => {
+    setSelectedBlogs((prev) =>
+      prev.includes(blogUuid) ? prev.filter((id) => id !== blogUuid) : [...prev, blogUuid]
+    );
+  };
+
+  const handleDelete = () => {
+    if (selectedItem) {
+      setBlogs((prev) =>
+        prev.filter((Blog) => Blog.blogUuid !== selectedItem.blogUuid)
+      );
+    }
+    setDeleteModalOpen(false);
+  };
+  
 
   if (isLoading) {
     return <div>Loading blogs...</div>;
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -140,33 +161,34 @@ export function ReportTab({ query = "" }) {
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead>Blog</TableHead>
-            <TableHead>Report Description</TableHead>
-            <TableHead>Repoted By</TableHead>
+            <TableHead>Image</TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>Report Message</TableHead>
             <TableHead>Created At</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentBlogs.map((blog) => (
-            <TableRow key={blog.id}>
+            <TableRow key={blog.blogUuid}>
               <TableCell>
                 <Checkbox
-                  checked={selectedBlogs.includes(blog.id)}
-                  onCheckedChange={() => handleSelectBlog(blog.id)}
+                  checked={selectedBlogs.includes(blog.blogUuid)}
+                  onCheckedChange={() => handleSelectBlog(blog.blogUuid)}
+                  aria-label={`Select blog ${blog.message}`}
                 />
               </TableCell>
               <TableCell>
                 <Image
-                  src={blog.image}
-                  alt={blog.title}
+                  src={blog.thumbnail}
+                  alt={blog.message}
                   width={48}
                   height={48}
                   className="rounded-md"
                 />
               </TableCell>
               <TableCell>{blog.title}</TableCell>
-              <TableCell>{blog.reportedBy}</TableCell>
+              <TableCell>{blog.message}</TableCell>
               <TableCell>{blog.createdAt}</TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -176,16 +198,20 @@ export function ReportTab({ query = "" }) {
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>
                       <Eye className="h-5 w-5 mr-2" />
                       View details
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash className="h-5 w-5 mr-2" />
-                      Delete Report
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => {
+                        setSelectedItem(blog);
+                        setDeleteModalOpen(true);
+                      }}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -194,14 +220,34 @@ export function ReportTab({ query = "" }) {
           ))}
         </TableBody>
       </Table>
+
+          {/* Delete Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-xl text-foreground">Comfirm Delete</DialogTitle>
+            <DialogDescription className="text-[#888888] text-base my-2">
+              Are you sure you want to delete this blog?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} >Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
+
       <div className="flex items-center justify-between px-4 py-2 border-t">
         <div className="text-sm text-muted-foreground">
           Rows per page: {ITEMS_PER_PAGE}
         </div>
         <div className="flex items-center space-x-2 text-sm">
           <span>
-            {startIndex + 1}-{Math.min(endIndex, blogs.length)} of{" "}
-            {blogs.length}
+            {startIndex + 1}-{Math.min(endIndex, blogs.length)} of {blogs.length}
           </span>
           <div className="flex items-center space-x-1">
             <Button
@@ -209,6 +255,7 @@ export function ReportTab({ query = "" }) {
               size="icon"
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
+              aria-label="Previous page"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -219,6 +266,7 @@ export function ReportTab({ query = "" }) {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
+              aria-label="Next page"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

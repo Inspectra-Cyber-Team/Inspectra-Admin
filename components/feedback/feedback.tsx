@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-interface FeedbackItem {
+type FeedbackItem = {
   id: string;
   author: {
     name: string;

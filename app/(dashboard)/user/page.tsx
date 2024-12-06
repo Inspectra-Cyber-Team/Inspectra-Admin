@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
 import { UsersTable } from "@/components/user/user-table"
 import { SearchForm } from "@/components/user/search-form"
-import { CreateUserButton } from "@/components/user/create-user-button"
 
 type PageProps = {
   searchParams: Promise<{ q?: string | undefined }>;
@@ -25,7 +24,6 @@ export default async function Page({ searchParams }: PageProps) {
             <Suspense fallback={<div>Loading...</div>}>
               <SearchForm initialQuery={query} />
             </Suspense>
-            <CreateUserButton />
           </div>
 
           <Suspense fallback={<div>Loading users...</div>}>

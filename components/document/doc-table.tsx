@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Edit3, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit,  Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +29,7 @@ import {
 } from "../ui/dialog";
 import { Input } from "../ui/input";
 
-interface Document {
+type Document = {
   uuid: string;
   documentCategoryName: string;
   title: string;
@@ -166,7 +166,7 @@ export function DocumentsTable({ query = "" }) {
                         setViewModalOpen(true);
                       }}
                     >
-                      <Eye/>
+                      <Eye className="mr-2 h-4 w-4"/>
                       View
                     </DropdownMenuItem>
                     <DropdownMenuSeparator/>
@@ -178,7 +178,7 @@ export function DocumentsTable({ query = "" }) {
                       }}
                       className="text-yellow-600"
                     >
-                      <Edit3/>
+                      <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuSeparator/>
@@ -189,7 +189,7 @@ export function DocumentsTable({ query = "" }) {
                         setDeleteModalOpen(true);
                       }}
                     >
-                      <Trash2/>
+                      <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -257,16 +257,16 @@ export function DocumentsTable({ query = "" }) {
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete the item.
+            <DialogTitle className="text-xl text-foreground">Confirm Delete</DialogTitle>
+            <DialogDescription className=" text-base my-2">
+              Are you sure you want to delete this category?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleDelete}>Delete</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

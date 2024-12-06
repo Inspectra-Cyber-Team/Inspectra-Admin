@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -13,44 +14,23 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import DeleteProjectConfirmationModal from "@/components/project/DeleteProjectModal";
 
-interface Project {
-  id: number;
+type Project = {
+  uuid: string; // Changed to `uuid` with type string
   name: string;
   createdAt: string;
-}
+};
 
 const ITEMS_PER_PAGE = 10;
 
 async function fetchProject(query: string): Promise<Project[]> {
-  // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const allProjects = [
-    {
-      id: 1,
-      name: "Spring Scan",
-      createdAt: "Nov, 21, 2024",
-    },
-    {
-      id: 2,
-      name: "HNextJs Scan",
-      createdAt: "Nov, 21, 2024",
-    },
-    {
-      id: 3,
-      name: "NextJs Scan",
-      createdAt: "Nov, 21, 2024",
-    },
-    {
-      id: 4,
-      name: "Larevel Scan",
-      createdAt: "Nov, 21, 2024",
-    },
-    {
-      id: 5,
-      name: "Go Scan",
-      createdAt: "Nov, 21, 2024",
-    },
+  const allProjects: Project[] = [
+    { uuid: "1e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "Spring Scan", createdAt: "Nov 21, 2024" },
+    { uuid: "2e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "HNextJs Scan", createdAt: "Nov 21, 2024" },
+    { uuid: "3e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "NextJs Scan", createdAt: "Nov 21, 2024" },
+    { uuid: "4e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "Laravel Scan", createdAt: "Nov 21, 2024" },
+    { uuid: "5e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "Go Scan", createdAt: "Nov 21, 2024" },
   ];
 
   if (!query) return allProjects;
@@ -63,7 +43,7 @@ async function fetchProject(query: string): Promise<Project[]> {
 export function ProjectTable({ query = "" }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedProjects, setSelectedProjects] = useState<number[]>([]);
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]); // Using string for UUIDs
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -99,15 +79,15 @@ export function ProjectTable({ query = "" }) {
     if (selectedProjects.length === currentProjects.length) {
       setSelectedProjects([]);
     } else {
-      setSelectedProjects(currentProjects.map((project) => project.id));
+      setSelectedProjects(currentProjects.map((project) => project.uuid));
     }
   };
 
-  const handleSelectProject = (projectId: number) => {
+  const handleSelectProject = (projectUuid: string) => {
     setSelectedProjects((prev) =>
-      prev.includes(projectId)
-        ? prev.filter((id) => id !== projectId)
-        : [...prev, projectId]
+      prev.includes(projectUuid)
+        ? prev.filter((uuid) => uuid !== projectUuid)
+        : [...prev, projectUuid]
     );
   };
 
@@ -133,24 +113,21 @@ export function ProjectTable({ query = "" }) {
         </TableHeader>
         <TableBody>
           {currentProjects.map((project) => (
-            <TableRow key={project.id}>
+            <TableRow key={project.uuid}>
               <TableCell>
                 <Checkbox
-                  checked={selectedProjects.includes(project.id)}
-                  onCheckedChange={() => handleSelectProject(project.id)}
+                  checked={selectedProjects.includes(project.uuid)}
+                  onCheckedChange={() => handleSelectProject(project.uuid)}
                 />
               </TableCell>
               <TableCell>{project.name}</TableCell>
               <TableCell>{project.createdAt}</TableCell>
               <TableCell>
-                <div>
-                  {/* Modal Component */}
-                  <DeleteProjectConfirmationModal
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                    onDeleteConfirm={handleDeleteConfirm}
-                  />
-                </div>
+                <DeleteProjectConfirmationModal
+                  isOpen={isModalOpen}
+                  onClose={handleCloseModal}
+                  onDeleteConfirm={handleDeleteConfirm}
+                />
               </TableCell>
             </TableRow>
           ))}

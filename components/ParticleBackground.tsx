@@ -93,16 +93,7 @@ const ParticlesComponent = ({ id }: ParticlesComponentProps) => {
           value: 0.5,
         },
         shape: {
-          type: ['circle', 'image'],
-          options: {
-            image: [
-              {
-                src: 'https://dealkh.istad.co/logo.png',
-                width: 100,
-                height: 100,
-              },
-            ],
-          },
+          type: ['circle'],
         },
         size: {
           value: { min: 3, max: 5 },
