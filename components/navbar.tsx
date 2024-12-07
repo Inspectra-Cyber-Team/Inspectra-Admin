@@ -45,7 +45,7 @@ export function UserNav() {
   };
 
   return (
-    <div className="flex justify-end items-center mb-8">
+    <div className="flex justify-end items-center p-2">
       <div className="flex items-center space-x-4 px-8">
         <ModeToggle />
         <DropdownMenu>

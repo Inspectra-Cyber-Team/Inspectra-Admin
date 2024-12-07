@@ -46,12 +46,12 @@ export default function RootLayout({
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
-          >
+          > 
             <SidebarProvider>
-              <AppSidebar />
+              <AppSidebar />       
               <main className="w-full">
-                <SidebarTrigger />
-                <UserNav />
+              <SidebarTrigger />
+              <UserNav />
                 {children}
               </main>
             </SidebarProvider>

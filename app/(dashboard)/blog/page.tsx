@@ -11,15 +11,13 @@ export default function BlogDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
 
   return (
-    <div className="p-6">
-      <div className="flex items-center text-sm text-muted-foreground mb-6">
-        <span>Dashboard</span>
-        <span className="mx-2">/</span>
-        <span className="text-foreground">Blog</span>
-      </div>
+    <div className="flex-1 space-y-4 px-8 ">
+      <div className="flex items-center justify-between space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight">Blog</h2>
+        </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList>
+     <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className='mb-6'>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="create">Create</TabsTrigger>
           <TabsTrigger value="report">Report</TabsTrigger>

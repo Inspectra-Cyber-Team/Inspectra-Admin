@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 
 interface CreatefaqModalProps {
   isOpen: boolean
@@ -14,7 +13,7 @@ interface CreatefaqModalProps {
 export function CreatefaqModal({ isOpen, onClose }: CreatefaqModalProps) {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
-  const [status, setStatus] = useState('')
+ 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -27,43 +26,29 @@ export function CreatefaqModal({ isOpen, onClose }: CreatefaqModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create FAQs</DialogTitle>
+          <DialogTitle>Create FAQ</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-              Question
-              </Label>
+          <div className="grid gap-2 py-4">
+            <div >
+              <h2 className='text-sm font-medium mb-2 block'>Question</h2>
               <Input
                 id="question"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                className="col-span-3"
+                placeholder="Enter Question"
+                className="w-full rounded-lg p-4 text-sm "
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="content" className="text-right">
-                Answer
-              </Label>
+            <div>
+            <h2 className='text-sm font-medium mb-2 block'>Answer</h2>
               <Input
                 id="answer"
                 type="answer"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="content" className="text-right">
-                Status
-              </Label>
-              <Input
-                id="status"
-                type="status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="col-span-3"
+                placeholder="Enter Answer"
+                className="w-full rounded-lg p-4 text-sm "
               />
             </div>
           </div>

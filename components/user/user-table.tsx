@@ -1,6 +1,5 @@
 "use client";
 
-import { CreateUserModal } from "@/components/user/user-detail-modal";
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -17,8 +16,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  FileWarningIcon,
   MoreHorizontal,
-  Trash,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -28,15 +27,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-interface User {
-  id: number;
+type User = {
+  uuid: string;
   name: string;
   email: string;
   createdAt: string;
   image: string;
   status: "active" | "inactive" | "pending";
-}
+};
 
 const ITEMS_PER_PAGE = 10;
 
@@ -44,64 +51,65 @@ async function fetchUsers(query: string): Promise<User[]> {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const allUsers = [
+  const allUsers: User[] = [
     {
-      id: 1,
+      uuid: "1",
       name: "Leang Helen",
       email: "helen.leang@gmail.com",
-      createdAt: "Nov, 21, 2024",
+      createdAt: "Nov 21, 2024",
       image: "/placeholder.svg",
       status: "active",
     },
     {
-      id: 2,
-      name: "Hom Pheakakvatey",
+      uuid: "2",
+      name: "Hom Pheakakvotey",
       email: "pheakakvatey@gmail.com",
-      createdAt: "Nov, 21, 2024",
+      createdAt: "Nov 21, 2024",
       image: "/placeholder.svg",
       status: "inactive",
     },
     {
-      id: 3,
+      uuid: "3",
       name: "Phiv Lyhou",
       email: "lyhou.phiv@gmail.com",
-      createdAt: "Nov, 21, 2024",
+      createdAt: "Nov 21, 2024",
       image: "/placeholder.svg",
       status: "pending",
     },
     {
-      id: 4,
+      uuid: "4",
       name: "PhalPhea Pheakdey",
       email: "pheakdey@gmail.com",
-      createdAt: "Nov, 21, 2024",
+      createdAt: "Nov 21, 2024",
       image: "/placeholder.svg",
       status: "active",
     },
     {
-      id: 5,
+      uuid: "5",
       name: "Ing Davann",
       email: "davann@gmail.com",
-      createdAt: "Nov, 21, 2024",
+      createdAt: "Nov 21, 2024",
       image: "/placeholder.svg",
       status: "active",
     },
-  ] as User[];
+  ];
 
-  if (!query) return allUsers;
-
-  return allUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(query.toLowerCase()) ||
-      user.email.toLowerCase().includes(query.toLowerCase())
-  );
+  return !query
+    ? allUsers
+    : allUsers.filter((user) =>
+        user.name.toLowerCase().includes(query.toLowerCase())
+      );
 }
 
 export function UsersTable({ query = "" }) {
   const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const [selectedItem, setSelectedItem] = useState<User | null>(null);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -122,29 +130,36 @@ export function UsersTable({ query = "" }) {
   const currentUsers = users.slice(startIndex, endIndex);
 
   const handleSelectAll = () => {
-    if (selectedUsers.length === currentUsers.length) {
-      setSelectedUsers([]);
-    } else {
-      setSelectedUsers(currentUsers.map((user) => user.id));
-    }
+    setSelectedUsers(
+      selectedUsers.length === currentUsers.length
+        ? []
+        : currentUsers.map((user) => user.uuid)
+    );
   };
 
-  const handleSelectUser = (userId: number) => {
+  const handleSelectUser = (uuid: string) => {
     setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
     );
+  };
+
+  const handleDelete = () => {
+    if (selectedItem) {
+      setUsers((prev) =>
+        prev.filter((user) => user.uuid !== selectedItem.uuid)
+      );
+    }
+    setDeleteModalOpen(false);
   };
 
   const getStatusBadge = (status: User["status"]) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-500">Active</Badge>;
+        return <Badge className="bg-green-500 text-white">Active</Badge>;
       case "inactive":
-        return <Badge className="bg-gray-500">Inactive</Badge>;
+        return <Badge className="bg-red-500 text-white">Inactive</Badge>;
       case "pending":
-        return <Badge className="bg-yellow-500">Pending</Badge>;
+        return <Badge className="bg-yellow-500 text-white">Pending</Badge>;
       default:
         return null;
     }
@@ -155,7 +170,7 @@ export function UsersTable({ query = "" }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -166,26 +181,32 @@ export function UsersTable({ query = "" }) {
               />
             </TableHead>
             <TableHead>Image</TableHead>
-            <TableHead>UserName</TableHead>
+            <TableHead>Username</TableHead>
             <TableHead>Created At</TableHead>
-            <TableHead>Gmail</TableHead>
+            <TableHead>Email</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentUsers.map((user) => (
-            <TableRow key={user.id}>
+            <TableRow key={user.uuid}>
               <TableCell>
                 <Checkbox
-                  checked={selectedUsers.includes(user.id)}
-                  onCheckedChange={() => handleSelectUser(user.id)}
+                  checked={selectedUsers.includes(user.uuid)}
+                  onCheckedChange={() => handleSelectUser(user.uuid)}
                 />
               </TableCell>
               <TableCell>
                 <Avatar>
                   <AvatarImage src={user.image} alt={user.name} />
-                  <AvatarFallback>{user.name[0]}</AvatarFallback>
+                  <AvatarFallback>
+                    {user.name
+                      .split(" ")
+                      .map((part) => part[0])
+                      .join("")
+                      .toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
               </TableCell>
               <TableCell>{user.name}</TableCell>
@@ -196,30 +217,27 @@ export function UsersTable({ query = "" }) {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setIsModalOpen(true)}>
-                      <Eye className="h-5 w-5 mr-2" />
-                      View details
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedItem(user);
+                        setViewModalOpen(true);
+                      }}
+                    >
+                      <Eye className="mr-2 h-4 w-4" /> View
                     </DropdownMenuItem>
-
-                    {/* Modal Component */}
-                    {isModalOpen && (
-                      <CreateUserModal
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                      />
-                    )}
-
                     <DropdownMenuSeparator />
-
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash className="h-5 w-5 mr-2" />
-                      Delete user
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => {
+                        setSelectedItem(user);
+                        setDeleteModalOpen(true);
+                      }}
+                    >
+                      <FileWarningIcon className="mr-2 h-4 w-4" /> Block
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -228,6 +246,51 @@ export function UsersTable({ query = "" }) {
           ))}
         </TableBody>
       </Table>
+
+      {/* View Modal */}
+      <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View User Details</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="grid gap-4 py-4">
+              <div>
+                <strong>Name:</strong> {selectedItem.name}
+              </div>
+              <div>
+                <strong>Email:</strong> {selectedItem.email}
+              </div>
+              <div>
+                <strong>Status:</strong> {selectedItem.status}
+              </div>
+              <div>
+                <strong>Created At:</strong> {selectedItem.createdAt}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-xl text-foreground">Are you sure?</DialogTitle>
+            <DialogDescription className="text-[#888888] text-base my-2">
+              This action cannot be undone. The user will be block.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} >Block</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-2 border-t">
         <div className="text-sm text-muted-foreground">
           Rows per page: {ITEMS_PER_PAGE}

@@ -31,8 +31,8 @@ const LogIn = () => {
   };
 
   const validationSchema = Yup.object({
-    email: Yup.string().email("Invalid email address").required("Required"),
-    password: Yup.string().required("Password is Required"),
+    email: Yup.string().email("Invalid email address!").required("Email is Required!"),
+    password: Yup.string().required("Password is Required!"),
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,9 +76,9 @@ const LogIn = () => {
       Please enter your details to proceed.
     </CardDescription>
     {isSubmitting && (
-      <p className="text-center text-sm mt-4 text-green-500">Processing...</p>
+      <p className="text-center text-sm mt-4 text-secondary">Processing...</p>
     )}
-
+   
     <Formik
       initialValues={{ email: "", password: "" }}
       validationSchema={validationSchema}
@@ -90,12 +90,12 @@ const LogIn = () => {
           <div className="grid gap-2">
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium "
             >
               Email Address <span className="text-red-500">*</span>
             </label>
             <Field
-              className="w-full rounded-lg border border-gray-300 p-4 text-sm shadow-sm focus:border-primary focus:ring focus:ring-primary bg-gray-50"
+              className="w-full rounded-lg border p-4 text-sm "
               name="email"
               placeholder="Enter your email"
               type="email"
@@ -111,12 +111,12 @@ const LogIn = () => {
           <div className="grid gap-2 relative">
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium "
             >
               Password <span className="text-red-500">*</span>
             </label>
             <Field
-              className="w-full rounded-lg border border-gray-300 p-4 text-sm shadow-sm focus:border-primary focus:ring focus:ring-primary bg-gray-50"
+              className="w-full rounded-lg border p-4 text-sm "
               name="password"
               placeholder="Enter your password"
               type={showPassword ? "text" : "password"}

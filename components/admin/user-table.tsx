@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-interface User {
+type User = {
   id: number
   name: string
   email: string
@@ -119,7 +119,7 @@ export function UsersTable({ query = '' }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -127,7 +127,7 @@ export function UsersTable({ query = '' }) {
               <Checkbox 
                 checked={selectedUsers.length === currentUsers.length}
                 onCheckedChange={handleSelectAll}
-              />
+              /> 
             </TableHead>
             <TableHead>Image</TableHead>
             <TableHead>UserName</TableHead>

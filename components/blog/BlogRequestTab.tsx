@@ -12,11 +12,14 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
+  Edit,
   Eye,
   MoreHorizontal,
-  Trash,
+  Trash2,
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,14 +29,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-interface Blog {
-  id: number;
+type Blog = {
+  blogUuid: string;
   title: string;
   createdAt: string;
-  image: string;
-  owner: string;
-}
+  thumbnail: string;
+  status: "active" | "inactive" | "pending";
+};
 
 const ITEMS_PER_PAGE = 10;
 
@@ -41,55 +52,59 @@ async function fetchBlogs(query: string): Promise<Blog[]> {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const allBlogs:Blog[] = [
+  const allBlogs: Blog[] = [
     {
-      id: 1,
+      blogUuid: "1e456d4f-4c9b-4726-b8a7-1f6a12345678",
       title: "10 AI-Powered Python Libraries to...",
-      image: "/Blog.png?height=48&width=48",
-      owner: "Sokpheng",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
-    }, 
+      status: "active",
+    },
     {
-      id: 2,
+      blogUuid: "2e456d4f-4c9b-4726-b8a7-1f6a12345678",
       title: "30 Tricky Java Interview Question...",
-      image: "/Blog.png?height=48&width=48",
-      owner: "Sokpheng",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
+      status: "pending",
     },
     {
-      id: 3,
+      blogUuid: "3e456d4f-4c9b-4726-b8a7-1f6a12345678",
       title: "Inspector Named As a Top...",
-      image: "/Blog.png?height=48&width=48",
-      owner: "Sokpheng",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
+      status: "active",
     },
     {
-      id: 4,
+      blogUuid: "4e456d4f-4c9b-4726-b8a7-1f6a12345678",
       title: "10 AI-Powered Python Libraries to...",
-      image: "/Blog.png?height=48&width=48",
-      owner: "Sokpheng",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
+      status: "active",
     },
     {
-      id: 5,
+      blogUuid: "5e456d4f-4c9b-4726-b8a7-1f6a12345678",
       title: "I Stopped Using Kubernetes. Our...",
-      image: "/Blog.png?height=48&width=48",
-      owner: "Sokpheng",
+      thumbnail: "/Blog.png?height=48&width=48",
       createdAt: "Nov. 21, 2024",
+      status: "active",
     },
   ];
-  if (!query) return allBlogs;
 
-  return allBlogs.filter((blog) =>
-    blog.title.toLowerCase().includes(query.toLowerCase())
-  );
+  return !query
+    ? allBlogs
+    : allBlogs.filter((blog) =>
+        blog.title.toLowerCase().includes(query.toLowerCase())
+      );
 }
 
 export function BlogRequestTab({ query = "" }) {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedBlogs, setSelectedBlogs] = useState<number[]>([]);
+  const [selectedBlogs, setSelectedBlogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const [selectedItem, setSelectedItem] = useState<Blog | null>(null);
 
   useEffect(() => {
     const loadBlogs = async () => {
@@ -110,19 +125,28 @@ export function BlogRequestTab({ query = "" }) {
   const currentBlogs = blogs.slice(startIndex, endIndex);
 
   const handleSelectAll = () => {
-    if (selectedBlogs.length === currentBlogs.length) {
-      setSelectedBlogs([]);
-    } else {
-      setSelectedBlogs(currentBlogs.map((blog) => blog.id));
-    }
+    setSelectedBlogs(
+      selectedBlogs.length === currentBlogs.length
+        ? []
+        : currentBlogs.map((blog) => blog.blogUuid)
+    );
   };
 
-  const handleSelectBlog = (blogId: number) => {
+  const handleSelectBlog = (blogUuid: string) => {
     setSelectedBlogs((prev) =>
-      prev.includes(blogId)
-        ? prev.filter((id) => id !== blogId)
-        : [...prev, blogId]
+      prev.includes(blogUuid)
+        ? prev.filter((id) => id !== blogUuid)
+        : [...prev, blogUuid]
     );
+  };
+
+  const handleDelete = () => {
+    if (selectedItem) {
+      setBlogs((prev) =>
+        prev.filter((Blog) => Blog.blogUuid !== selectedItem.blogUuid)
+      );
+    }
+    setDeleteModalOpen(false);
   };
 
   if (isLoading) {
@@ -130,7 +154,7 @@ export function BlogRequestTab({ query = "" }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -140,25 +164,25 @@ export function BlogRequestTab({ query = "" }) {
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead>Blog</TableHead>
+            <TableHead>Image</TableHead>
             <TableHead>Title</TableHead>
-            <TableHead>Owner</TableHead>
-            <TableHead>Approve</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentBlogs.map((blog) => (
-            <TableRow key={blog.id}>
+            <TableRow key={blog.blogUuid}>
               <TableCell>
                 <Checkbox
-                  checked={selectedBlogs.includes(blog.id)}
-                  onCheckedChange={() => handleSelectBlog(blog.id)}
+                  checked={selectedBlogs.includes(blog.blogUuid)}
+                  onCheckedChange={() => handleSelectBlog(blog.blogUuid)}
                 />
               </TableCell>
               <TableCell>
                 <Image
-                  src={blog.image}
+                  src={blog.thumbnail}
                   alt={blog.title}
                   width={48}
                   height={48}
@@ -166,8 +190,18 @@ export function BlogRequestTab({ query = "" }) {
                 />
               </TableCell>
               <TableCell>{blog.title}</TableCell>
-              <TableCell>{blog.owner}</TableCell>
               <TableCell>{blog.createdAt}</TableCell>
+              <TableCell>
+                <div className="flex space-x-2">
+                  <div className="text-green-500">
+                    <Check />
+                  </div>
+
+                  <div className="text-destructive">
+                    <X />
+                  </div>
+                </div>
+              </TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -182,10 +216,23 @@ export function BlogRequestTab({ query = "" }) {
                       <Eye className="h-5 w-5 mr-2" />
                       View details
                     </DropdownMenuItem>
+
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash className="h-5 w-5 mr-2" />
-                      Delete Report
+                    <DropdownMenuItem className="text-yellow-600">
+                      <Edit className="h-5 w-5 mr-2 " />
+                      Edit Blog
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => {
+                        setSelectedItem(blog);
+                        setDeleteModalOpen(true);
+                      }}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -194,6 +241,29 @@ export function BlogRequestTab({ query = "" }) {
           ))}
         </TableBody>
       </Table>
+
+      {/* Delete Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-xl text-foreground">
+              Comfirm Delete
+            </DialogTitle>
+            <DialogDescription className="text-[#888888] text-base my-2">
+              Are you sure you want to delete this blog?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex items-center justify-between px-4 py-2 border-t">
         <div className="text-sm text-muted-foreground">
           Rows per page: {ITEMS_PER_PAGE}
