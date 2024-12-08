@@ -133,6 +133,7 @@ export function ProjectTable({ query = "" }) {
           ))}
         </TableBody>
       </Table>
+      
       <div className="flex items-center justify-between px-4 py-2 border-t">
         <div className="text-sm text-muted-foreground">
           Rows per page: {ITEMS_PER_PAGE}
