@@ -41,7 +41,7 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
             {blogData?.thumbnail?.[0] && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                className="w-full h-auto max-h-[400px] object-cover rounded-lg mt-5"
+                className="w-full h-auto max-h-[400px] object-contain rounded-lg mt-5"
                 src={blogData.thumbnail?.[0]}
                 alt="thumbnail"
               />
