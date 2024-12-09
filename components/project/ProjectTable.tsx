@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import {
   Table,
   TableBody,
@@ -13,39 +13,40 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import DeleteProjectConfirmationModal from "@/components/project/ModalDeleteProject";
+import { useGetAllProjectsNameQuery } from "@/redux/service/project";
+import { ProjectNameType } from "@/types/ProjectNameType";
 
-type Project = {
-  uuid: string; // Changed to `uuid` with type string
-  name: string;
-  createdAt: string;
-};
 
 const ITEMS_PER_PAGE = 10;
 
-async function fetchProject(query: string): Promise<Project[]> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const allProjects: Project[] = [
-    { uuid: "1e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "Spring Scan", createdAt: "Nov 21, 2024" },
-    { uuid: "2e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "HNextJs Scan", createdAt: "Nov 21, 2024" },
-    { uuid: "3e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "NextJs Scan", createdAt: "Nov 21, 2024" },
-    { uuid: "4e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "Laravel Scan", createdAt: "Nov 21, 2024" },
-    { uuid: "5e456d4f-4c9b-4726-b8a7-1f6a12345678", name: "Go Scan", createdAt: "Nov 21, 2024" },
-  ];
-
-  if (!query) return allProjects;
-
-  return allProjects.filter((project) =>
-    project.name.toLowerCase().includes(query.toLowerCase())
-  );
-}
-
-export function ProjectTable({ query = "" }) {
-  const [projects, setProjects] = useState<Project[]>([]);
+export function ProjectTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]); // Using string for UUIDs
-  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { data: projectsData, isLoading, isError } = useGetAllProjectsNameQuery({
+    page: currentPage - 1,
+    pageSize: ITEMS_PER_PAGE,
+  });
+
+  const projects = projectsData?.content || [];
+  const totalPages = projectsData?.totalPages || 1;
+  const totalprojects = projectsData?.totalElements || 0;
+
+  const handleSelectAll = () => {
+    setSelectedProjects(
+      selectedProjects.length === projects.length
+        ? []
+        : projects.map((project: { uuid: unknown }) => project.uuid)
+    );
+  };
+
+  const handleSelectProject = (uuid: string) => {
+    setSelectedProjects((prev) =>
+      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
+    );
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -57,42 +58,12 @@ export function ProjectTable({ query = "" }) {
     setIsModalOpen(false); // Close the modal after confirming deletion
   };
 
-  useEffect(() => {
-    const loadProjects = async () => {
-      setIsLoading(true);
-      const fetchedProjects = await fetchProject(query);
-      setProjects(fetchedProjects);
-      setCurrentPage(1);
-      setSelectedProjects([]);
-      setIsLoading(false);
-    };
-
-    loadProjects();
-  }, [query]);
-
-  const totalPages = Math.ceil(projects.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentProjects = projects.slice(startIndex, endIndex);
-
-  const handleSelectAll = () => {
-    if (selectedProjects.length === currentProjects.length) {
-      setSelectedProjects([]);
-    } else {
-      setSelectedProjects(currentProjects.map((project) => project.uuid));
-    }
-  };
-
-  const handleSelectProject = (projectUuid: string) => {
-    setSelectedProjects((prev) =>
-      prev.includes(projectUuid)
-        ? prev.filter((uuid) => uuid !== projectUuid)
-        : [...prev, projectUuid]
-    );
-  };
-
   if (isLoading) {
     return <div>Loading projects...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading blogs. Please try again later.</div>;
   }
 
   return (
@@ -102,26 +73,24 @@ export function ProjectTable({ query = "" }) {
           <TableRow>
             <TableHead className="w-12">
               <Checkbox
-                checked={selectedProjects.length === currentProjects.length}
+                checked={selectedProjects.length === projects.length}
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
             <TableHead>Project Name</TableHead>
-            <TableHead>Created At</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentProjects.map((project) => (
-            <TableRow key={project.uuid}>
+        {projects?.map((project: ProjectNameType, index: number) =>
+            <TableRow key={index}>
               <TableCell>
                 <Checkbox
-                  checked={selectedProjects.includes(project.uuid)}
-                  onCheckedChange={() => handleSelectProject(project.uuid)}
+                   checked={selectedProjects.includes(project.projectName)}
+                   onCheckedChange={() => handleSelectProject(project.projectName)}
                 />
               </TableCell>
-              <TableCell>{project.name}</TableCell>
-              <TableCell>{project.createdAt}</TableCell>
+              <TableCell>`{project?.projectName || "None"}`</TableCell>
               <TableCell>
                 <DeleteProjectConfirmationModal
                   isOpen={isModalOpen}
@@ -130,39 +99,38 @@ export function ProjectTable({ query = "" }) {
                 />
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
       
-      <div className="flex items-center justify-between px-4 py-2 border-t">
-        <div className="text-sm text-muted-foreground">
-          Rows per page: {ITEMS_PER_PAGE}
-        </div>
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
+        <div className="text-sm text-muted-foreground">Rows per page: {ITEMS_PER_PAGE}</div>
         <div className="flex items-center space-x-2 text-sm">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
           <span>
-            {startIndex + 1}-{Math.min(endIndex, projects.length)} of{" "}
-            {projects.length}
+            {currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1} - {Math.min(
+              currentPage * ITEMS_PER_PAGE,
+              totalprojects
+            )} of {totalprojects}
           </span>
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>

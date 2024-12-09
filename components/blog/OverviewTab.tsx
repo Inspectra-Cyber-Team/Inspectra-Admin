@@ -133,7 +133,7 @@ export function OverviewTab() {
                     className="rounded-md object-contain"
                   />
                 </TableCell>
-                <TableCell>{blog?.title}</TableCell>
+                <TableCell onClick={() => router.push(`/blog/${blog?.uuid}`)}>{blog?.title}</TableCell>
                 <TableCell>{convertToDayMonthYear(blog?.createdAt)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
