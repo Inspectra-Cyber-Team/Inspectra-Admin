@@ -37,6 +37,8 @@ import {
 import { useGetAllBlogQuery } from "@/redux/service/blog"; 
 import { Blog } from "@/types/Blog";
 import { convertToDayMonthYear } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+
 
 const ITEMS_PER_PAGE = 10;
 
@@ -45,6 +47,7 @@ export function OverviewTab() {
   const [selectedBlogs, setSelectedBlogs] = useState<string[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Blog | null>(null);
+  const router = useRouter();
 
   // Fetch data using `useGetAllBlogQuery` with pagination
   const { data: blogData, isLoading, isError } = useGetAllBlogQuery({
@@ -115,13 +118,13 @@ export function OverviewTab() {
                   onCheckedChange={() => handleSelectBlog(blog.uuid)}
                 />
               </TableCell>
-              <TableCell>
+              <TableCell  onClick={() => router.push(`/blog/${blog?.uuid}`)}>
                 <img
                   src={blog?.thumbnail[0]}
                   alt={blog?.title || "Blog Image"}
                   width={48}
                   height={48}
-                  className="rounded-md object-fit"
+                  className="rounded-md object-cover"
                 />
               </TableCell>
               <TableCell>{blog?.title}</TableCell>
@@ -136,7 +139,7 @@ export function OverviewTab() {
                   </DropdownMenuTrigger>
 
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem  onClick={() => router.push(`/blog/${blog?.uuid}`)}>
                       <Eye className="h-5 w-5 mr-2" />
                       View details
                     </DropdownMenuItem>

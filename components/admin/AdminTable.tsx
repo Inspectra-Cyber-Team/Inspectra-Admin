@@ -74,7 +74,7 @@ async function fetchUsers(query: string): Promise<User[]> {
   )
 }
 
-export function UsersTable({ query = '' }) {
+export function AdminTable({ query = '' }) {
   const [users, setUsers] = useState<User[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedUsers, setSelectedUsers] = useState<number[]>([])

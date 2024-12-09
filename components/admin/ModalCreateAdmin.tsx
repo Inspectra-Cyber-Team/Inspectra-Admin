@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import { useCreateAdminMutation } from "@/redux/service/admin";
 import { useToast } from "@/hooks/use-toast";
 
-type CreateUserModalProps = {
+type CreateAdminModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
@@ -37,7 +37,7 @@ const validationSchema = Yup.object({
     .required("Confirm password is required"),
 });
 
-export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
+export function CreateAdminModal({ isOpen, onClose }: CreateAdminModalProps) {
   const { toast } = useToast();
 
   const [createAdmin] = useCreateAdminMutation();

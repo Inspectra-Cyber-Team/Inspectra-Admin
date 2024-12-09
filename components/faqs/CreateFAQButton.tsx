@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Plus } from 'lucide-react'
-import { CreatefaqModal } from '@/components/faqs/create-faq-modal'
+import { CreatefaqModal } from '@/components/faqs/ModalCreateFAQ'
 
 export function CreatefaqButton() {
   const [isModalOpen, setIsModalOpen] = useState(false)

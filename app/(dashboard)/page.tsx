@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Overview } from "@/components/overview/overview";
-import { Recent } from "@/components/overview/recent";
+import { Overview } from "@/components/overview/Overview";
+import { Recent } from "@/components/overview/RecentTraffic";
 import { FolderKanban, BookOpen, MessageSquare, UsersIcon } from "lucide-react";
-import { StatCard } from "@/components/overview/card-stat";
+import { StatCard } from "@/components/overview/CardStat";
 
 export default function DashboardPage() {
   return (

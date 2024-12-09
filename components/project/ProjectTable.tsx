@@ -12,7 +12,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import DeleteProjectConfirmationModal from "@/components/project/DeleteProjectModal";
+import DeleteProjectConfirmationModal from "@/components/project/ModalDeleteProject";
 
 type Project = {
   uuid: string; // Changed to `uuid` with type string

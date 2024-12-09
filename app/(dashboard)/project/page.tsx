@@ -1,6 +1,6 @@
-import { ProjectTable } from "@/components/project/project-table.";
+import { ProjectTable } from "@/components/project/ProjectTable";
 import { Suspense } from "react";
-import { SearchForm } from "@/components/project/search-form";
+import { SearchForm } from "@/components/project/SearchForm";
 
 type PageProps = {
   searchParams: Promise<{ q?: string | undefined }>;

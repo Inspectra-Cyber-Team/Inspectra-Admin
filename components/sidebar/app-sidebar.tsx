@@ -12,7 +12,6 @@ import {
 
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
-import { TeamSwitcher } from "@/components/sidebar/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +25,7 @@ const data = {
   user: {
     name: "inspectra",
     email: "inspeactra@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    avatar: "/logo.jpg",
   },
   teams: [
     {
@@ -106,13 +105,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props} className="bg-card border-none">
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+      <NavUser user={data.user} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

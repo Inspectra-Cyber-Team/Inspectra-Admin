@@ -3,6 +3,7 @@ type User = {
     uuid: string;
     firstName: string;
     lastName: string;
+    userName: string;
     profile: string ;
     bio: string;
   };
