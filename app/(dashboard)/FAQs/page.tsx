@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
-import { FAQsTable } from "@/components/faqs/faqs-table"
-import { SearchForm } from "@/components/faqs/search-form"
-import { CreatefaqButton } from "@/components/faqs/create-faq-button"
+import { FAQsTable } from "@/components/faqs/FAQTAble"
+import { SearchForm } from "@/components/faqs/SearchForm"
+import { CreatefaqButton } from "@/components/faqs/CreateFAQButton"
 
 type PageProps = {
   searchParams: Promise<{ q?: string | undefined }>;

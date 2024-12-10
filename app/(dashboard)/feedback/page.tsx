@@ -1,4 +1,5 @@
-import FeedbackDashboard from "@/components/feedback/feedback";
+
+import FeedbackDashboard from '@/components/feedback/feedback'
 import { Suspense } from 'react'
 
 export default function Page(){

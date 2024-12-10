@@ -3,9 +3,15 @@ type User = {
     uuid: string;
     firstName: string;
     lastName: string;
+    userName: string;
     profile: string ;
     bio: string;
   };
+
+type Report = {
+    blogUuid: string;
+    message: string;
+};
   
   // Define the Content type
 export  type Blog = {
@@ -20,6 +26,8 @@ export  type Blog = {
     user: User; // Nested User type
     createdAt: string; // ISO date string
     lastModifiedAt: string; // ISO date string
+    report: Report;
   };
   
+
   

@@ -1,7 +1,7 @@
-import { UsersTable } from "@/components/admin/user-table";
+import { AdminTable } from "@/components/admin/AdminTable";
 import { Suspense } from "react";
-import { SearchForm } from "@/components/admin/search-form";
-import { CreateUserButton } from "@/components/admin/create-user-button";
+import { SearchForm } from "@/components/admin/SearchForm";
+import { CreateAdminButton } from "@/components/admin/CreateAdminButton";
 
 type PageProps = {
   searchParams: Promise<{ q?: string | undefined }>;
@@ -24,11 +24,11 @@ export default async function Page({ searchParams }: PageProps) {
             <Suspense fallback={<div>Loading...</div>}>
               <SearchForm initialQuery={query} />
             </Suspense>
-            <CreateUserButton />
+            <CreateAdminButton />
           </div>
 
           <Suspense fallback={<div>Loading users...</div>}>
-            <UsersTable query={query} />
+            <AdminTable query={query} />
           </Suspense>
         </div>
       </main>

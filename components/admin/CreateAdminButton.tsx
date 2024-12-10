@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { CreateUserModal } from "./create-user-modal";
+import { CreateAdminModal } from "./ModalCreateAdmin";
 
-export function CreateUserButton() {
+export function CreateAdminButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -14,7 +14,7 @@ export function CreateUserButton() {
         <Plus className="w-4 h-4 mr-2" />
         Create
       </Button>
-      <CreateUserModal
+      <CreateAdminModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />

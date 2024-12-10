@@ -1,6 +1,6 @@
-import { ProjectTable } from "@/components/project/project-table.";
+import { ProjectTable } from "@/components/project/ProjectTable";
 import { Suspense } from "react";
-import { SearchForm } from "@/components/project/search-form";
+import { SearchForm } from "@/components/project/SearchForm";
 
 type PageProps = {
   searchParams: Promise<{ q?: string | undefined }>;
@@ -27,7 +27,7 @@ export default async function Page({ searchParams }: PageProps) {
           </div>
 
           <Suspense fallback={<div>Loading users...</div>}>
-            <ProjectTable query={query} />
+            <ProjectTable/>
           </Suspense>
         </div>
       </main>

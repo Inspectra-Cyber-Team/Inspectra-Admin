@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
-import { DocumentsTable } from "@/components/document/doc-table"
-import { SearchForm } from "@/components/document/search-form"
-import { CreateDocButton } from "@/components/document/create-doc-button"
+import { DocumentsTable } from "@/components/document/DocTable"
+import { SearchForm } from "@/components/document/SearchForm"
+import { CreateDocButton } from "@/components/document/CreateDocButton"
 
 type PageProps = {
   searchParams: Promise<{ q?: string | undefined }>;
