@@ -28,7 +28,7 @@ export default async function Page({ searchParams }: PageProps) {
           </div>
 
           <Suspense fallback={<div>Loading users...</div>}>
-            <AdminTable query={query} />
+            <AdminTable />
           </Suspense>
         </div>
       </main>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -35,98 +35,35 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useGetAllFAQQuery } from "@/redux/service/faqs";
+import { FAQsType } from "@/types/FAQ";
+import { convertToDayMonthYear } from "@/lib/utils";
 
-type FAQ = {
-  uuid: string;
-  question: string;
-  answer: string;
-  createdAt: string;
-}
 
 const ITEMS_PER_PAGE = 10;
 
-async function fetchFAQs(query: string): Promise<FAQ[]> {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const allFAQs: FAQ[] = [
-    {
-      uuid: "1",
-      question:
-        "Which languages and frameworks does Inspectra support in its scans?",
-      answer: "Introduction",
-      createdAt: "Nov, 21, 2024",
-    },
-    {
-      uuid: "2",
-      question:
-        "What scanning tools and frameworks does Inspectra use for security testing?",
-      answer: "Getting Started Guide",
-      createdAt: "Nov, 22, 2024",
-    },
-    {
-      uuid: "3",
-      question:
-        "Does Inspectra support containerized and cloud-native environments?",
-      answer: "User Guide",
-      createdAt: "Nov, 23, 2024",
-    },
-    {
-      uuid: "4",
-      question: "What types of databases does Inspectra support?",
-      answer: "Technical Documentation",
-      createdAt: "Nov, 24, 2024",
-    },
-    {
-      uuid: "5",
-      question: "How does Inspectra perform white-box testing?",
-      answer: "API Reference",
-      createdAt: "Nov, 25, 2024",
-    },
-  ];
-
-  return !query
-    ? allFAQs
-    : allFAQs.filter((faq) =>
-        faq.question.toLowerCase().includes(query.toLowerCase())
-      );
-}
-
-export function FAQsTable({ query = "" }) {
-  const [faqs, setFAQs] = useState<FAQ[]>([]);
+export function FAQsTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFAQs, setSelectedFAQs] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [selectedItem, setSelectedItem] = useState<FAQ | null>(null);
+  const [selectedItem, setSelectedItem] = useState<FAQsType | null>(null);
   const [editedQuestion, setEditedQuestion] = useState("");
+  const [editedAnswer, setEditedAnswer] = useState("");
 
-  useEffect(() => {
-    const loadFAQs = async () => {
-      setIsLoading(true);
-      const fetchedFAQs = await fetchFAQs(query);
-      setFAQs(fetchedFAQs);
-      setCurrentPage(1);
-      setSelectedFAQs([]);
-      setIsLoading(false);
-    };
+  const { data: faqData, isLoading, isError } = useGetAllFAQQuery();
+  console.log(faqData)
 
-    loadFAQs();
-  }, [query]);
-
-  const totalPages = Math.ceil(faqs.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentFAQs = faqs.slice(startIndex, endIndex);
+  const faqs = faqData?.data || [];
+  const totalPages = faqData?.totalPages || 1;
+  const totalFaqs = faqData?.totalElements || 0;
 
   const handleSelectAll = () => {
     setSelectedFAQs(
-      selectedFAQs.length === currentFAQs.length
+      selectedFAQs.length === faqs.length
         ? []
-        : currentFAQs.map((faq) => faq.uuid)
+        : faqs.map((faq: { uuid: unknown }) => faq.uuid)
     );
   };
 
@@ -138,29 +75,26 @@ export function FAQsTable({ query = "" }) {
 
   const handleEdit = () => {
     if (selectedItem) {
-      console.log("Editing FAQ:", selectedItem.uuid, "New Question:", editedQuestion);
-      setFAQs((prev) =>
-        prev.map((faq) =>
-          faq.uuid === selectedItem.uuid ? { ...faq, question: editedQuestion } : faq
-        )
-      );
+      console.log("Editing FAQ:", selectedItem.uuid, "New Data:", {
+        question: editedQuestion,
+        answer: editedAnswer,
+      });
+      setEditModalOpen(false);
     }
-    setEditModalOpen(false);
   };
 
   const handleDelete = () => {
     if (selectedItem) {
       console.log("Deleting FAQ:", selectedItem.uuid);
-      setFAQs((prev) => prev.filter((faq) => faq.uuid !== selectedItem.uuid));
+      setDeleteModalOpen(false);
     }
-    setDeleteModalOpen(false);
   };
 
   if (isLoading) {
     return <div>Loading FAQs...</div>;
   }
 
-  if (faqs.length === 0) {
+  if (isError ) {
     return <div>No FAQs found.</div>;
   }
 
@@ -171,7 +105,7 @@ export function FAQsTable({ query = "" }) {
           <TableRow>
             <TableHead className="w-12">
               <Checkbox
-                checked={selectedFAQs.length === currentFAQs.length}
+                checked={selectedFAQs.length === faqs.length}
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
@@ -181,8 +115,8 @@ export function FAQsTable({ query = "" }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentFAQs.map((faq) => (
-            <TableRow key={faq.uuid}>
+          {faqs?.map((faq: FAQsType, index: number) => (
+            <TableRow key={index}>
               <TableCell>
                 <Checkbox
                   checked={selectedFAQs.includes(faq.uuid)}
@@ -190,7 +124,7 @@ export function FAQsTable({ query = "" }) {
                 />
               </TableCell>
               <TableCell>{faq.question}</TableCell>
-              <TableCell>{faq.createdAt}</TableCell>
+              <TableCell>{convertToDayMonthYear(faq.createdAt)}</TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -213,6 +147,7 @@ export function FAQsTable({ query = "" }) {
                       onClick={() => {
                         setSelectedItem(faq);
                         setEditedQuestion(faq.question);
+                        setEditedAnswer(faq.answer);
                         setEditModalOpen(true);
                       }}
                       className="text-yellow-600"
@@ -265,26 +200,24 @@ export function FAQsTable({ query = "" }) {
           <DialogHeader>
             <DialogTitle>Update FAQ</DialogTitle>
           </DialogHeader>
-          {selectedItem && (
-            <div className="grid py-4 gap-2">
-              <div>
-                <h2 className='text-sm font-medium mb-2 block'>Question</h2>
-              <Input
-                value={editedQuestion}
-                onChange={(e) => setEditedQuestion(e.target.value)}
-                className="w-full rounded-lg p-4 text-sm "
-              />
-              </div>
-              <div>
-                <h2 className='text-sm font-medium mb-2 block'>Answer</h2>
-              <Input
-                value={selectedItem.answer}
-                onChange={(e) => setEditedQuestion(e.target.value)}
-                className="w-full rounded-lg p-4 text-sm "
-              />
-              </div>
-            </div>
-          )}
+          <div className="grid gap-4 py-4">
+          <div>
+          <h2 className='text-sm font-medium mb-2 block'>Question</h2>
+            <Input
+              id="Question"
+              value={editedQuestion}
+              onChange={(e) => setEditedQuestion(e.target.value)}
+            />
+          </div>
+          <div>
+          <h2 className='text-sm font-medium mb-2 block'>Answer</h2>
+            <Input
+              id="Answer"
+              value={editedAnswer}
+              onChange={(e) => setEditedAnswer(e.target.value)}
+            />
+          </div>
+          </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditModalOpen(false)}>
               Cancel
@@ -298,49 +231,52 @@ export function FAQsTable({ query = "" }) {
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-xl text-foreground">Confirm Delete</DialogTitle>
-            <DialogDescription className="text-base my-2">
-            Are you sure you want to delete this FAQs?
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this FAQ?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleDelete} variant="destructive">Delete</Button>
+            <Button onClick={handleDelete} variant="destructive">
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between px-4 py-2 border-t">
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
         <div className="text-sm text-muted-foreground">
           Rows per page: {ITEMS_PER_PAGE}
         </div>
         <div className="flex items-center space-x-2 text-sm">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
           <span>
-            {startIndex + 1}-{Math.min(endIndex, faqs.length)} of {faqs.length}
+          {currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1} - {Math.min(
+              currentPage * ITEMS_PER_PAGE,
+              totalFaqs
+            )} of {totalFaqs}
           </span>
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>

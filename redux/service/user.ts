@@ -19,8 +19,8 @@ export const userAPI = cyberApi.injectEndpoints({
         method: "PUT",
         body: userProfile,
       }),
-    }),
   }),
-});
+})
+})
 
 export const {  useGetUserDetailQuery, useUpdateUserProfileMutation } = userAPI;

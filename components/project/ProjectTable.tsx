@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import DeleteProjectConfirmationModal from "@/components/project/ModalDeleteProject";
 import { useGetAllProjectsNameQuery } from "@/redux/service/project";
 import { ProjectNameType } from "@/types/ProjectNameType";
+import { convertToDayMonthYear } from "@/lib/utils";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -25,12 +26,10 @@ export function ProjectTable() {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]); // Using string for UUIDs
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: projectsData, isLoading, isError } = useGetAllProjectsNameQuery({
-    page: currentPage - 1,
-    pageSize: ITEMS_PER_PAGE,
-  });
+  const { data: projectsData, isLoading, isError } = useGetAllProjectsNameQuery();
+  console.log(projectsData)
 
-  const projects = projectsData?.content || [];
+  const projects = projectsData?.data || [];
   const totalPages = projectsData?.totalPages || 1;
   const totalprojects = projectsData?.totalElements || 0;
 
@@ -63,7 +62,7 @@ export function ProjectTable() {
   }
 
   if (isError) {
-    return <div>Error loading blogs. Please try again later.</div>;
+    return <div>Error loading projects. Please try again later.</div>;
   }
 
   return (
@@ -78,6 +77,7 @@ export function ProjectTable() {
               />
             </TableHead>
             <TableHead>Project Name</TableHead>
+            <TableHead>Created At</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -90,7 +90,8 @@ export function ProjectTable() {
                    onCheckedChange={() => handleSelectProject(project.projectName)}
                 />
               </TableCell>
-              <TableCell>`{project?.projectName || "None"}`</TableCell>
+              <TableCell>{project?.projectName || "None"}</TableCell>
+              <TableCell>{convertToDayMonthYear(project?.createdAt)}</TableCell>
               <TableCell>
                 <DeleteProjectConfirmationModal
                   isOpen={isModalOpen}

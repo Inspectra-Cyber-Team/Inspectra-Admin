@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,114 +8,49 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useGetAllAdminQuery } from "@/redux/service/admin";
+import { AdminDetail } from "@/types/Admin";
 
-type User = {
-  id: number
-  name: string
-  email: string
-  createdAt: string
-  image: string
-}
+const ITEMS_PER_PAGE = 10;
 
-const ITEMS_PER_PAGE = 10
+export function AdminTable() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
 
-async function fetchUsers(query: string): Promise<User[]> {
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 500))
+  const { data: adminData, isLoading, isError } = useGetAllAdminQuery({
+    page: currentPage - 1,
+    pageSize: ITEMS_PER_PAGE,
+  });
 
-  const allUsers = [
-    {
-      id: 1,
-      name: "Leang Helen",
-      email: "helen.leang@gmail.com",
-      createdAt: "Nov, 21, 2024",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 2,
-      name: "Horn Pheakakvatey",
-      email: "pheakakvatey@gmail.com",
-      createdAt: "Nov, 21, 2024",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 3,
-      name: "Phiv Lyhou",
-      email: "lyhou.phiv@gmail.com",
-      createdAt: "Nov, 21, 2024",
-      image: "/lyhou.jpg"
-    },
-    {
-      id: 4,
-      name: "PhalPhea Pheakdey",
-      email: "pheakdey@gmail.com",
-      createdAt: "Nov, 21, 2024",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 5,
-      name: "Ing Davann",
-      email: "davann@gmail.com",
-      createdAt: "Nov, 21, 2024",
-      image: "/placeholder.svg"
-    },
-  ]
-
-  if (!query) return allUsers
-
-  return allUsers.filter(user => 
-    user.name.toLowerCase().includes(query.toLowerCase()) ||
-    user.email.toLowerCase().includes(query.toLowerCase())
-  )
-}
-
-export function AdminTable({ query = '' }) {
-  const [users, setUsers] = useState<User[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const loadUsers = async () => {
-      setIsLoading(true)
-      const fetchedUsers = await fetchUsers(query)
-      setUsers(fetchedUsers)
-      setCurrentPage(1)
-      setSelectedUsers([])
-      setIsLoading(false)
-    }
-
-    loadUsers()
-  }, [query])
-
-  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE)
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const endIndex = startIndex + ITEMS_PER_PAGE
-  const currentUsers = users.slice(startIndex, endIndex)
+  const admins: AdminDetail[] = adminData?.content || [];
+  const totalPages = adminData?.totalPages || 1;
+  const totalAdmins = adminData?.totalElements || 0;
 
   const handleSelectAll = () => {
-    if (selectedUsers.length === currentUsers.length) {
-      setSelectedUsers([])
-    } else {
-      setSelectedUsers(currentUsers.map(user => user.id))
-    }
-  }
+    setSelectedAdmins(
+      selectedAdmins.length === admins.length
+        ? []
+        : admins.map((admin) => admin?.data?.uuid)
+    );
+  };
 
-  const handleSelectUser = (userId: number) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
-    )
-  }
+  const handleSelectAdmin = (uuid: string) => {
+    setSelectedAdmins((prev) =>
+      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
+    );
+  };
 
   if (isLoading) {
-    return <div>Loading users...</div>
+    return <div>Loading admins...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading admins. Please try again later.</div>;
   }
 
   return (
@@ -124,66 +59,74 @@ export function AdminTable({ query = '' }) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-12">
-              <Checkbox 
-                checked={selectedUsers.length === currentUsers.length}
+              <Checkbox
+                checked={selectedAdmins.length === admins.length && admins.length > 0}
                 onCheckedChange={handleSelectAll}
-              /> 
+              />
             </TableHead>
             <TableHead>Image</TableHead>
             <TableHead>UserName</TableHead>
             <TableHead>Created At</TableHead>
-            <TableHead>Gmail</TableHead>
+            <TableHead>Email</TableHead>
           </TableRow>
-        </TableHeader> 
+        </TableHeader>
         <TableBody>
-          {currentUsers.map((user) => (
-            <TableRow key={user.id}>
+        {admins?.map((admin: AdminDetail, index: number) => (
+            <TableRow key={index}>
               <TableCell>
-                <Checkbox 
-                  checked={selectedUsers.includes(user.id)}
-                  onCheckedChange={() => handleSelectUser(user.id)}
+                <Checkbox
+                  checked={selectedAdmins.includes(admin?.data?.uuid)}
+                  onCheckedChange={() => handleSelectAdmin(admin?.data?.uuid)}
                 />
               </TableCell>
               <TableCell>
                 <Avatar>
-                  <AvatarImage src={user.image} alt={user.name} className='object-cover'/>
-                  <AvatarFallback>{user.name[0]}</AvatarFallback>
+                  <AvatarImage
+                    src={admin?.data?.profile || ""}
+                    alt={admin?.data?.name || "Avatar"}
+                    className="object-cover"
+                  />
+                  <AvatarFallback>{admin?.data?.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               </TableCell>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.createdAt}</TableCell>
-              <TableCell>{user.email}</TableCell>
+              <TableCell>{admin?.data?.name}</TableCell>
+              <TableCell>{admin?.data?.createdAt}</TableCell>
+              <TableCell>{admin?.data?.email}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between px-4 py-2 border-t">
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
         <div className="text-sm text-muted-foreground">
           Rows per page: {ITEMS_PER_PAGE}
         </div>
         <div className="flex items-center space-x-2 text-sm">
-          <span>{startIndex + 1}-{Math.min(endIndex, users.length)} of {users.length}</span>
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span>
+            {Math.min(currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1, totalAdmins)} -{" "}
+            {Math.min(currentPage * ITEMS_PER_PAGE, totalAdmins)} of {totalAdmins}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

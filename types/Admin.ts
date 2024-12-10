@@ -1,4 +1,4 @@
-export type UserDetail = {
+export type AdminDetail = {
     data: data;
   };
   
