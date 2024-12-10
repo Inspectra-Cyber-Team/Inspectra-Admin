@@ -15,8 +15,8 @@ import { useCreateAdminMutation } from "@/redux/service/admin";
 import { useToast } from "@/hooks/use-toast";
 
 type CreateUserModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
 };
 
 const validationSchema = Yup.object({
@@ -26,12 +26,11 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is required"),
+
   password: Yup.string()
-    .min(
-      8,
-      "Password should be at least 8 characters long and contain at least one uppercase letter, one lowercase letter and one number"
-    )
+    .min(8,"Password should be at least 8 characters long and contain at least one uppercase letter, one lowercase letter and one number")
     .required("Password is required"),
+
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password"), undefined], "Passwords must match")
     .required("Confirm password is required"),
