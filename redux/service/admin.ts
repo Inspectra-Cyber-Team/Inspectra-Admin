@@ -6,6 +6,7 @@ export const adminAPI = cyberApi.injectEndpoints({
       query: ({ page = 1, pageSize = 10 }) =>
       ({
           url: `/users?page=${page}&size=${pageSize}`,
+          providesTags: ["Admin"],
       }),
     }),
 

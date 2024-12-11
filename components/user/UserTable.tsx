@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -35,105 +35,33 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-type User = {
-  uuid: string;
-  name: string;
-  email: string;
-  createdAt: string;
-  image: string;
-  status: "active" | "inactive" | "pending";
-};
+import { useGetAllUserQuery } from "@/redux/service/user";
+import { UserDetail } from "@/types/UserDetail";
+import { convertToDayMonthYear } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 10;
 
-async function fetchUsers(query: string): Promise<User[]> {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const allUsers: User[] = [
-    {
-      uuid: "1",
-      name: "Leang Helen",
-      email: "helen.leang@gmail.com",
-      createdAt: "Nov 21, 2024",
-      image: "/placeholder.svg",
-      status: "active",
-    },
-    {
-      uuid: "2",
-      name: "Hom Pheakakvotey",
-      email: "pheakakvatey@gmail.com",
-      createdAt: "Nov 21, 2024",
-      image: "/placeholder.svg",
-      status: "inactive",
-    },
-    {
-      uuid: "3",
-      name: "Phiv Lyhou",
-      email: "lyhou.phiv@gmail.com",
-      createdAt: "Nov 21, 2024",
-      image: "/placeholder.svg",
-      status: "pending",
-    },
-    {
-      uuid: "4",
-      name: "PhalPhea Pheakdey",
-      email: "pheakdey@gmail.com",
-      createdAt: "Nov 21, 2024",
-      image: "/placeholder.svg",
-      status: "active",
-    },
-    {
-      uuid: "5",
-      name: "Ing Davann",
-      email: "davann@gmail.com",
-      createdAt: "Nov 21, 2024",
-      image: "/placeholder.svg",
-      status: "active",
-    },
-  ];
-
-  return !query
-    ? allUsers
-    : allUsers.filter((user) =>
-        user.name.toLowerCase().includes(query.toLowerCase())
-      );
-}
-
-export function UsersTable({ query = "" }) {
-  const [users, setUsers] = useState<User[]>([]);
+export function UsersTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<UserDetail | null>(null);
 
-  const [selectedItem, setSelectedItem] = useState<User | null>(null);
+  const { data: userData, isLoading, isError } = useGetAllUserQuery({
+    page: currentPage - 1,
+    pageSize: ITEMS_PER_PAGE,
+  });
 
-  useEffect(() => {
-    const loadUsers = async () => {
-      setIsLoading(true);
-      const fetchedUsers = await fetchUsers(query);
-      setUsers(fetchedUsers);
-      setCurrentPage(1);
-      setSelectedUsers([]);
-      setIsLoading(false);
-    };
-
-    loadUsers();
-  }, [query]);
-
-  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentUsers = users.slice(startIndex, endIndex);
+  const users = userData?.content || [];
+  const totalPages = userData?.totalPages || 1;
+  const totalUsers = userData?.totalElements || 0;
 
   const handleSelectAll = () => {
     setSelectedUsers(
-      selectedUsers.length === currentUsers.length
+      selectedUsers.length === users.length
         ? []
-        : currentUsers.map((user) => user.uuid)
+        : users.map((user: { uuid: unknown }) => user.uuid)
     );
   };
 
@@ -145,28 +73,29 @@ export function UsersTable({ query = "" }) {
 
   const handleDelete = () => {
     if (selectedItem) {
-      setUsers((prev) =>
-        prev.filter((user) => user.uuid !== selectedItem.uuid)
-      );
+      console.log("Deleting FAQ:", selectedItem.uuid);
+      setDeleteModalOpen(false);
     }
-    setDeleteModalOpen(false);
   };
 
-  const getStatusBadge = (status: User["status"]) => {
+  const getStatusBadge = (status: UserDetail["isActive"]) => {
     switch (status) {
-      case "active":
+      case true:
         return <Badge className="bg-green-500 text-white">Active</Badge>;
-      case "inactive":
+      case false:
         return <Badge className="bg-red-500 text-white">Inactive</Badge>;
-      case "pending":
-        return <Badge className="bg-yellow-500 text-white">Pending</Badge>;
       default:
         return null;
     }
   };
 
+
   if (isLoading) {
     return <div>Loading users...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading users. Please try again later.</div>;
   }
 
   return (
@@ -176,7 +105,7 @@ export function UsersTable({ query = "" }) {
           <TableRow>
             <TableHead className="w-12">
               <Checkbox
-                checked={selectedUsers.length === currentUsers.length}
+                checked={selectedUsers.length === users.length}
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
@@ -189,30 +118,26 @@ export function UsersTable({ query = "" }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentUsers.map((user) => (
-            <TableRow key={user.uuid}>
+          {users?.map((user: UserDetail, index: number) => (
+            <TableRow key={index}>
               <TableCell>
                 <Checkbox
-                  checked={selectedUsers.includes(user.uuid)}
-                  onCheckedChange={() => handleSelectUser(user.uuid)}
+                  checked={selectedUsers.includes(user?.uuid)}
+                  onCheckedChange={() => handleSelectUser(user?.uuid)}
                 />
               </TableCell>
               <TableCell>
                 <Avatar>
-                  <AvatarImage src={user.image} alt={user.name} />
+                  <AvatarImage src={user?.profile} alt={user?.name} />
                   <AvatarFallback>
-                    {user.name
-                      .split(" ")
-                      .map((part) => part[0])
-                      .join("")
-                      .toUpperCase()}
+                  {user?.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
               </TableCell>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.createdAt}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{getStatusBadge(user.status)}</TableCell>
+              <TableCell>{user?.name}</TableCell>
+              <TableCell>{convertToDayMonthYear(user?.createdAt)}</TableCell>
+              <TableCell>{user?.email}</TableCell>
+              <TableCell>{getStatusBadge(user?.isActive)}</TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -256,16 +181,25 @@ export function UsersTable({ query = "" }) {
           {selectedItem && (
             <div className="grid gap-4 py-4">
               <div>
-                <strong>Name:</strong> {selectedItem.name}
+                <strong>First Name:</strong> {selectedItem.firstName}
+              </div>
+              <div>
+                <strong>Last Name:</strong> {selectedItem.lastName}
+              </div>
+              <div>
+                <strong>Username:</strong> {selectedItem.name}
+              </div>
+              <div>
+                <strong>Bio:</strong> {selectedItem.bio || "No bio yet"} 
               </div>
               <div>
                 <strong>Email:</strong> {selectedItem.email}
               </div>
               <div>
-                <strong>Status:</strong> {selectedItem.status}
+                <strong>Status:</strong> {getStatusBadge(selectedItem.isActive)}
               </div>
               <div>
-                <strong>Created At:</strong> {selectedItem.createdAt}
+                <strong>Created At:</strong> {convertToDayMonthYear(selectedItem.createdAt)}
               </div>
             </div>
           )}
@@ -290,36 +224,36 @@ export function UsersTable({ query = "" }) {
         </DialogContent>
       </Dialog>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between px-4 py-2 border-t">
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
         <div className="text-sm text-muted-foreground">
           Rows per page: {ITEMS_PER_PAGE}
         </div>
         <div className="flex items-center space-x-2 text-sm">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
           <span>
-            {startIndex + 1}-{Math.min(endIndex, users.length)} of{" "}
-            {users.length}
+          {currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1} - {Math.min(
+              currentPage * ITEMS_PER_PAGE,
+              totalUsers
+            )} of {totalUsers}
           </span>
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>

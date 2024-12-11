@@ -1,8 +1,4 @@
-export type UserDetail = {
-    data: data;
-  };
-  
-  type data = {
+export type UserDetail  = {
     uuid: string;
     firstName: string;
     lastName: string;

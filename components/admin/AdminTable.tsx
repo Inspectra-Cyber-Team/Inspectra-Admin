@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useGetAllAdminQuery } from "@/redux/service/admin";
 import { AdminDetail } from "@/types/Admin";
+import { convertToDayMonthYear } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -27,7 +28,7 @@ export function AdminTable() {
     pageSize: ITEMS_PER_PAGE,
   });
 
-  const admins: AdminDetail[] = adminData?.content || [];
+  const admins = adminData?.content || [];
   const totalPages = adminData?.totalPages || 1;
   const totalAdmins = adminData?.totalElements || 0;
 
@@ -35,7 +36,7 @@ export function AdminTable() {
     setSelectedAdmins(
       selectedAdmins.length === admins.length
         ? []
-        : admins.map((admin) => admin?.data?.uuid)
+        : admins.map((admin: { uuid: unknown }) => admin.uuid)
     );
   };
 
@@ -60,7 +61,7 @@ export function AdminTable() {
           <TableRow>
             <TableHead className="w-12">
               <Checkbox
-                checked={selectedAdmins.length === admins.length && admins.length > 0}
+                checked={selectedAdmins.length === admins.length }
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
@@ -75,23 +76,23 @@ export function AdminTable() {
             <TableRow key={index}>
               <TableCell>
                 <Checkbox
-                  checked={selectedAdmins.includes(admin?.data?.uuid)}
-                  onCheckedChange={() => handleSelectAdmin(admin?.data?.uuid)}
+                  checked={selectedAdmins.includes(admin?.uuid)}
+                  onCheckedChange={() => handleSelectAdmin(admin?.uuid)}
                 />
               </TableCell>
               <TableCell>
                 <Avatar>
                   <AvatarImage
-                    src={admin?.data?.profile || ""}
-                    alt={admin?.data?.name || "Avatar"}
+                    src={admin?.profile || ""}
+                    alt={admin?.name || "Avatar"}
                     className="object-cover"
                   />
-                  <AvatarFallback>{admin?.data?.name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>{admin?.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               </TableCell>
-              <TableCell>{admin?.data?.name}</TableCell>
-              <TableCell>{admin?.data?.createdAt}</TableCell>
-              <TableCell>{admin?.data?.email}</TableCell>
+              <TableCell>{admin?.name}</TableCell>
+              <TableCell>{convertToDayMonthYear(admin?.createdAt)}</TableCell>
+              <TableCell>{admin?.email}</TableCell>
             </TableRow>
           ))}
         </TableBody>

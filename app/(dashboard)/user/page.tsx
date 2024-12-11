@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
-import { UsersTable } from "@/components/user/user-table"
-import { SearchForm } from "@/components/user/search-form"
+import { UsersTable } from "@/components/user/UserTable"
+import { SearchForm } from "@/components/user/SearchForm"
 
 type PageProps = {
   searchParams: Promise<{ q?: string | undefined }>;
@@ -27,7 +27,7 @@ export default async function Page({ searchParams }: PageProps) {
           </div>
 
           <Suspense fallback={<div>Loading users...</div>}>
-            <UsersTable query={query} />
+            <UsersTable />
           </Suspense>
         </div>
       </main>
