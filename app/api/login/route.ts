@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { serialize } from "cookie";
 
 export async function POST(req: NextRequest) {
+
   const body = await req.json();
 
   const { email, password } = body;
@@ -31,6 +32,10 @@ export async function POST(req: NextRequest) {
 
   const refreshToken = data?.data?.refreshToken || null;
   const accessToken = data?.data?.accessToken || null;
+
+
+
+
   const user = data || null;
 
   const cookieName = process.env?.COOKIE_REFRESH_TOKEN_NAME || "refresh_token";

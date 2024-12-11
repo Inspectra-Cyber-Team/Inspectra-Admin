@@ -52,7 +52,10 @@ const LogIn = () => {
 
       if (res.status === 200) {
         const data = await res.json();
-        console.log(data);
+        
+        const userUUID = data?.user?.data?.uuid;
+        localStorage.setItem("userUUID", userUUID);
+        
         setIsSubmitting(false);
         router.push("/");
       } else {

@@ -6,7 +6,7 @@ export const userAPI = cyberApi.injectEndpoints({
     getAllUser: builder.query<any,{ page: number; pageSize: number }>({
       query: ({ page = 1, pageSize = 10 }) =>
       ({
-          url: `/users?page=${page}&size=${pageSize}`,
+          url: `users?page=${page}&size=${pageSize}`,
       }),
     }),
     // get user feedback
