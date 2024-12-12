@@ -1,4 +1,4 @@
-export type UserDetail  = {
+export type AdminDetail =  {
     uuid: string;
     firstName: string;
     lastName: string;

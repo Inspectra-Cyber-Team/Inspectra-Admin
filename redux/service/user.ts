@@ -3,6 +3,12 @@ import { cyberApi } from "@/redux/api";
 
 export const userAPI = cyberApi.injectEndpoints({
   endpoints: (builder) => ({
+    getAllUser: builder.query<any,{ page: number; pageSize: number }>({
+      query: ({ page = 1, pageSize = 10 }) =>
+      ({
+          url: `users?page=${page}&size=${pageSize}`,
+      }),
+    }),
     // get user feedback
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getUserDetail: builder.query<any, {uuid: string}>({
@@ -19,8 +25,8 @@ export const userAPI = cyberApi.injectEndpoints({
         method: "PUT",
         body: userProfile,
       }),
-    }),
   }),
-});
+})
+})
 
-export const {  useGetUserDetailQuery, useUpdateUserProfileMutation } = userAPI;
+export const {  useGetUserDetailQuery, useUpdateUserProfileMutation, useGetAllUserQuery } = userAPI;

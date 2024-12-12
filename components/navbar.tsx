@@ -12,9 +12,20 @@ import {
 import { LogOut, User } from "lucide-react";
 import { ModeToggle } from "./modetoggle";
 import { useRouter } from "next/navigation";
+import { useGetUserDetailQuery } from "@/redux/service/user";
+import { useState, useEffect } from "react";
 
 export function UserNav() {
+  const [userUUID, setUserUUID] = useState("");
+  const { data: userData } = useGetUserDetailQuery({ uuid: userUUID });
   const router = useRouter();
+
+  useEffect(() => {
+    setUserUUID(localStorage.getItem("userUUID") || "");
+  });
+  console.log(localStorage.getItem("userUUID"));
+  console.log(userData);
+
 
   const handleLogout = async () => {
     try {
@@ -53,7 +64,7 @@ export function UserNav() {
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
                 <AvatarImage
-                  src="/lyhou.jpg"
+                  src={userData?.data?.profile}
                   alt="Avatar"
                   className="object-cover"
                 />
@@ -64,14 +75,14 @@ export function UserNav() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Admin</p>
+                <p className="text-sm font-medium leading-none">{userData?.data?.name}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  admin@example.com
+                {userData?.data?.email}
                 </p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={()=> router.push("/myProfile")}>
               <User className="mr-2 h-4 w-4" />
               <span>My profile</span>
             </DropdownMenuItem>

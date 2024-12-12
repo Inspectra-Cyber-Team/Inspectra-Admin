@@ -13,7 +13,7 @@ export const projectAPI = cyberApi.injectEndpoints({
       }),
     }),
     // get user Project
-    getAllProjectsName: builder.query({
+    getAllProjectsName: builder.query<any, void>({
       query: () => ({
         url: `projects`,
         providesTags: ["Projects"],
