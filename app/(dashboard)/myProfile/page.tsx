@@ -19,24 +19,17 @@ export default function MyProfileComponent() {
     setUserUUID(localStorage.getItem("userUUID") || "");
   }, []);
 
-  const formik = useFormik({
-    initialValues: {
-      firstName: "",
-      lastName: "",
-      name: "",
-      bio: "",
-      email: "",
-    },
-    onSubmit: (values) => {
-      // Make API call to update profile
-      // console.log('Updated values:', values);
-      updateUserProfile({ userProfile: values });
-    },
+  const [initialValues, setInitialValues] = useState({
+    firstName: "",
+    lastName: "",
+    name: "",
+    bio: "",
+    email: "",
   });
-
+  
   useEffect(() => {
     if (userData?.data) {
-      formik.setValues({
+      setInitialValues({
         firstName: userData.data.firstName || "",
         lastName: userData.data.lastName || "",
         name: userData.data.name || "",
@@ -44,7 +37,16 @@ export default function MyProfileComponent() {
         email: userData.data.email || "",
       });
     }
-  }, [formik, userData]);
+  }, [userData]);
+  
+  const formik = useFormik({
+    initialValues,
+    enableReinitialize: true, // Important to enable reinitialization when values change
+    onSubmit: (values) => {
+      updateUserProfile({ userProfile: values });
+    },
+  });
+  
 
   return (
     <div>

@@ -1,15 +1,7 @@
 import { Suspense } from 'react'
 import { UsersTable } from "@/components/user/UserTable"
-import { SearchForm } from "@/components/user/SearchForm"
 
-type PageProps = {
-  searchParams: Promise<{ q?: string | undefined }>;
-}
-
-
-export default async function Page({ searchParams }: PageProps) {
-  const params = await searchParams; // Await the promise
-  const query = params?.q;
+export default async function Page() {
 
   return (
     <div>
@@ -20,11 +12,6 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
 
         <div className="flex-1 ">
-          <div className="flex justify-between items-center mb-6">
-            <Suspense fallback={<div>Loading...</div>}>
-              <SearchForm initialQuery={query} />
-            </Suspense>
-          </div>
 
           <Suspense fallback={<div>Loading users...</div>}>
             <UsersTable />
