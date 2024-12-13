@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -11,7 +11,14 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Edit,  Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,67 +35,60 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
-
-type Document = {
-  uuid: string;
-  documentCategoryName: string;
-  title: string;
-  createdAt: string;
-}
+import { DocumentType } from "@/types/Document";
+import { DocTableFilter } from "./DocTableFilter";
+import { convertToDayMonthYear } from "@/lib/utils";
+import { useGetAllDocumentQuery } from "@/redux/service/document";
 
 const ITEMS_PER_PAGE = 10;
 
-async function fetchDocuments(query: string): Promise<Document[]> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const allDocuments: Document[] = [
-    { uuid: "1", documentCategoryName: "Getting Started", title: "Introduction", createdAt: "Nov, 21, 2024" },
-    { uuid: "2", documentCategoryName: "Tutorial", title: "Getting Started Guide", createdAt: "Nov, 22, 2024" },
-    { uuid: "3", documentCategoryName: "Guides", title: "User Guide", createdAt: "Nov, 23, 2024" },
-    { uuid: "4", documentCategoryName: "Technical", title: "Technical Documentation", createdAt: "Nov, 24, 2024" },
-    { uuid: "5", documentCategoryName: "API", title: "API Reference", createdAt: "Nov, 25, 2024" },
-  ];
-
-  return !query
-    ? allDocuments
-    : allDocuments.filter((doc) =>
-        doc.documentCategoryName.toLowerCase().includes(query.toLowerCase())
-      );
+interface Column {
+  id: keyof DocumentType;
+  label: string;
+  checked: boolean;
 }
 
-export function DocumentsTable({ query = "" }) {
-  const [documents, setDocuments] = useState<Document[]>([]);
+export function DocumentsTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [selectedItem, setSelectedItem] = useState<Document | null>(null);
+  const [selectedItem, setSelectedItem] = useState<DocumentType | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
+  const [editedDescription, setEditedDescription] = useState("");
+  const [editedDocumentCategoryName, setEditedDocumentCategoryName] = useState("");
+  const [filterValue, setFilterValue] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState<Column[]>([
+    { id: "documentCategoryName", label: "Category", checked: true },
+    { id: "title", label: "Title", checked: true },
+    { id: "createdAt", label: "Created At", checked: true },
+  ]);
 
-  useEffect(() => {
-    const loadDocuments = async () => {
-      setIsLoading(true);
-      const fetchedDocuments = await fetchDocuments(query);
-      setDocuments(fetchedDocuments);
-      setCurrentPage(1);
-      setSelectedDocuments([]);
-      setIsLoading(false);
-    };
-    loadDocuments();
-  }, [query]);
+  const { data: DocData, isLoading, isError } = useGetAllDocumentQuery();
+  console.log(DocData);
 
-  const totalPages = Math.ceil(documents.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentDocuments = documents.slice(startIndex, endIndex);
+  const docs = DocData?.data || [];
+  const filteredDocs = docs.filter((doc: DocumentType) =>
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    Object.entries(doc).some(([key, value]) =>
+      value.toString().toLowerCase().includes(filterValue.toLowerCase())
+    )
+  );
+
+  const totalPages = Math.ceil(filteredDocs.length / ITEMS_PER_PAGE);
+  const totalDocs = filteredDocs.length;
+
+  const paginatedDocs = filteredDocs.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleSelectAll = () => {
     setSelectedDocuments(
-      selectedDocuments.length === currentDocuments.length ? [] : currentDocuments.map((doc) => doc.uuid)
+      selectedDocuments.length === docs.length
+        ? []
+        : docs.map((faq: { uuid: unknown }) => faq.uuid)
     );
   };
 
@@ -100,57 +100,74 @@ export function DocumentsTable({ query = "" }) {
 
   const handleEdit = () => {
     if (selectedItem) {
-      console.log("Editing document:", selectedItem.uuid, "New title:", editedTitle);
-      setDocuments((prev) =>
-        prev.map((doc) =>
-          doc.uuid === selectedItem.uuid ? { ...doc, title: editedTitle } : doc
-        )
-      );
+      console.log("Editing Doc:", selectedItem.uuid, "New Data:", {
+        documentCategoryName: editedDocumentCategoryName,
+        title: editedTitle,
+        description: editedDescription,
+      });
+      setEditModalOpen(false);
     }
-    setEditModalOpen(false);
   };
 
   const handleDelete = () => {
     if (selectedItem) {
-      console.log("Deleting document:", selectedItem.uuid);
-      setDocuments((prev) => prev.filter((doc) => doc.uuid !== selectedItem.uuid));
+      console.log("Deleting Doc:", selectedItem.uuid);
+      setDeleteModalOpen(false);
     }
-    setDeleteModalOpen(false);
+  };
+
+  const handleFilterChange = (value: string) => {
+    setFilterValue(value);
+    setCurrentPage(1);
+  };
+
+  const handleColumnsChange = (columns: Column[]) => {
+    setVisibleColumns(columns);
   };
 
   if (isLoading) {
-    return <div>Loading documents...</div>;
+    return <div>Loading FAQs...</div>;
+  }
+
+  if (isError ) {
+    return <div>No FAQs found.</div>;
   }
 
   return (
-    <div className="rounded-md border bg-card">
+   <div className="space-y-4">
+    <DocTableFilter onFilterChange={handleFilterChange} onColumnsChange={handleColumnsChange} />
+     <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-12">
               <Checkbox
-                checked={selectedDocuments.length === currentDocuments.length}
+                checked={selectedDocuments.length === paginatedDocs.length}
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead>Categories</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Created At</TableHead>
+            {visibleColumns.map((column) => column.checked && (
+                <TableHead key={column.id}>{column.label}</TableHead>
+              ))}
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentDocuments.map((document) => (
-            <TableRow key={document.uuid}>
+          {paginatedDocs.map((doc: DocumentType, index: number) => (
+            <TableRow key={index}>
               <TableCell>
                 <Checkbox
-                  checked={selectedDocuments.includes(document.uuid)}
-                  onCheckedChange={() => handleSelectDocument(document.uuid)}
+                  checked={selectedDocuments.includes(doc.uuid)}
+                  onCheckedChange={() => handleSelectDocument(doc.uuid)}
                 />
               </TableCell>
-              <TableCell>{document.documentCategoryName}</TableCell>
-              <TableCell>{document.title}</TableCell>
-              <TableCell>{document.createdAt}</TableCell>
+              {visibleColumns.map((column) => column.checked && (
+                                <TableCell key={column.id}>
+                                  {column.id === 'createdAt' 
+                                    ? convertToDayMonthYear(doc[column.id])
+                                    : doc[column.id]}
+                                </TableCell>
+                              ))}
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -162,18 +179,19 @@ export function DocumentsTable({ query = "" }) {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        setSelectedItem(document);
+                        setSelectedItem(doc);
                         setViewModalOpen(true);
                       }}
                     >
-                      <Eye className="mr-2 h-4 w-4"/>
+                      <Eye className="mr-2 h-4 w-4" />
                       View
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator/>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => {
-                        setSelectedItem(document);
-                        setEditedTitle(document.title);
+                        setSelectedItem(doc);
+                        setEditedDocumentCategoryName(doc.documentCategoryName);
+                        setEditedTitle(doc.title);
                         setEditModalOpen(true);
                       }}
                       className="text-yellow-600"
@@ -181,11 +199,11 @@ export function DocumentsTable({ query = "" }) {
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator/>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-destructive"
                       onClick={() => {
-                        setSelectedItem(document);
+                        setSelectedItem(doc);
                         setDeleteModalOpen(true);
                       }}
                     >
@@ -204,51 +222,64 @@ export function DocumentsTable({ query = "" }) {
       <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>View Item Details</DialogTitle>
+            <DialogTitle>View Document Details</DialogTitle>
           </DialogHeader>
           {selectedItem && (
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <span className="font-medium">Category:</span>
-                <span className="col-span-3">{selectedItem.documentCategoryName}</span>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <span className="font-medium">Title:</span>
-                <span className="col-span-3">{selectedItem.title}</span>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <span className="font-medium">Created At:</span>
-                <span className="col-span-3">{selectedItem.createdAt}</span>
-              </div>
+            <div>
+              <strong>Category:</strong> {selectedItem.documentCategoryName}
             </div>
+            <div>
+              <strong>Title:</strong> {selectedItem.title}
+            </div>
+            <div>
+              <strong>Description:</strong> {selectedItem.description}
+            </div>
+            <div>
+              <strong>Created At:</strong> {convertToDayMonthYear(selectedItem.createdAt)}
+            </div>
+          </div>
           )}
         </DialogContent>
       </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent>
+      <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
-            <DialogDescription>Make changes to the item here.</DialogDescription>
+            <DialogTitle>Update Document</DialogTitle>
           </DialogHeader>
-          {selectedItem && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <span className="font-medium">Title:</span>
-                <Input
-                  className="col-span-3"
-                  value={editedTitle}
-                  onChange={(e) => setEditedTitle(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
+          <div className="grid gap-4 py-4">
+          <div>
+          <h2 className='text-sm font-medium mb-2 block'>Category</h2>
+            <Input
+              id="Category"
+              value={editedDocumentCategoryName}
+              onChange={(e) => setEditedDocumentCategoryName(e.target.value)}
+            />
+          </div>
+          <div>
+          <h2 className='text-sm font-medium mb-2 block'>Title</h2>
+            <Input
+              id="Title"
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+            />
+          </div>
+          <div>
+          <h2 className='text-sm font-medium mb-2 block'>Description</h2>
+            <Input
+              id="Description"
+              value={editedDescription}
+              onChange={(e) => setEditedDescription(e.target.value)}
+            />
+          </div>
+          </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEdit}>Save changes</Button>
+            <Button onClick={handleEdit}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -257,46 +288,57 @@ export function DocumentsTable({ query = "" }) {
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-xl text-foreground">Confirm Delete</DialogTitle>
+            <DialogTitle className="text-xl text-foreground">
+              Confirm Delete
+            </DialogTitle>
             <DialogDescription className=" text-base my-2">
-              Are you sure you want to delete this category?
+              Are you sure you want to delete this document?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <div className="flex items-center justify-between px-4 py-2 border-t">
-        <div className="text-sm text-muted-foreground">Rows per page: {ITEMS_PER_PAGE}</div>
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
+        <div className="text-sm text-muted-foreground">
+          Rows per page: {ITEMS_PER_PAGE}
+        </div>
         <div className="flex items-center space-x-2 text-sm">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
           <span>
-            {startIndex + 1}-{Math.min(endIndex, documents.length)} of {documents.length}
+          {currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1} - {Math.min(
+              currentPage * ITEMS_PER_PAGE,
+              totalDocs
+            )} of {totalDocs}
           </span>
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
+   </div>
   );
 }

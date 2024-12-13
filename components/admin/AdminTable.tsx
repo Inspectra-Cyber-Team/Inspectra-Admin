@@ -16,12 +16,25 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useGetAllAdminQuery } from "@/redux/service/admin";
 import { AdminDetail } from "@/types/Admin";
 import { convertToDayMonthYear } from "@/lib/utils";
+import { AdminTableFilter } from "@/components/admin/AdminTableFilter";
 
 const ITEMS_PER_PAGE = 10;
+
+interface Column {
+  id: keyof AdminDetail;
+  label: string;
+  checked: boolean;
+}
 
 export function AdminTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
+  const [filterValue, setFilterValue] = useState("");
+    const [visibleColumns, setVisibleColumns] = useState<Column[]>([
+      { id: "name", label: "Username", checked: true },
+      { id: "email", label: "Email", checked: true },
+      { id: "createdAt", label: "Created At", checked: true },
+    ]);
 
   const { data: adminData, isLoading, isError } = useGetAllAdminQuery({
     page: currentPage - 1,
@@ -29,8 +42,23 @@ export function AdminTable() {
   });
 
   const admins = adminData?.content || [];
-  const totalPages = adminData?.totalPages || 1;
-  const totalAdmins = adminData?.totalElements || 0;
+  
+   const filteredAdmins = filterValue
+      ? admins.filter((admin: AdminDetail) =>
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          Object.entries(admin).some(([key,value]) =>
+            value && typeof value === 'string' && value.toLowerCase().includes(filterValue.toLowerCase())
+          )
+        )
+      : admins;
+  
+    const paginatedAdmins = filteredAdmins.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
+    );
+  
+    const totalPages = Math.ceil(filteredAdmins.length / ITEMS_PER_PAGE);
+    const totalAdmins = filteredAdmins.length;
 
   const handleSelectAll = () => {
     setSelectedAdmins(
@@ -46,6 +74,16 @@ export function AdminTable() {
     );
   };
 
+  const handleFilterChange = (value: string) => {
+    setFilterValue(value);
+    setCurrentPage(1);
+  };
+
+  const handleColumnsChange = (columns: Column[]) => {
+    setVisibleColumns(columns);
+  };
+
+
   if (isLoading) {
     return <div>Loading admins...</div>;
   }
@@ -55,7 +93,9 @@ export function AdminTable() {
   }
 
   return (
-    <div className="rounded-md border bg-card">
+   <div className="space-y-4">
+    <AdminTableFilter onFilterChange={handleFilterChange} onColumnsChange={handleColumnsChange} />
+     <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -66,13 +106,13 @@ export function AdminTable() {
               />
             </TableHead>
             <TableHead>Image</TableHead>
-            <TableHead>UserName</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead>Email</TableHead>
+            {visibleColumns.map((column) => column.checked && (
+                <TableHead key={column.id}>{column.label}</TableHead>
+              ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-        {admins?.map((admin: AdminDetail, index: number) => (
+        {paginatedAdmins.map((admin: AdminDetail, index: number) => (
             <TableRow key={index}>
               <TableCell>
                 <Checkbox
@@ -83,20 +123,25 @@ export function AdminTable() {
               <TableCell>
                 <Avatar>
                   <AvatarImage
-                    src={admin?.profile || ""}
+                    src={admin?.profile || "NA"}
                     alt={admin?.name || "Avatar"}
-                    className="object-cover"
                   />
                   <AvatarFallback>{admin?.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               </TableCell>
-              <TableCell>{admin?.name}</TableCell>
-              <TableCell>{convertToDayMonthYear(admin?.createdAt)}</TableCell>
-              <TableCell>{admin?.email}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              {visibleColumns.map((column) => column.checked && (
+                  <TableCell key={column.id}>
+                   {column.id === 'createdAt' 
+  ? convertToDayMonthYear(admin[column.id])
+  : admin[column.id]}
+                 </TableCell>
+                   ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+
 
       {/* Pagination Controls */}
       <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
@@ -129,5 +174,6 @@ export function AdminTable() {
         </div>
       </div>
     </div>
+   </div>
   );
 }

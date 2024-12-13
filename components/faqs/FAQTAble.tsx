@@ -38,9 +38,16 @@ import { Input } from "@/components/ui/input";
 import { useGetAllFAQQuery } from "@/redux/service/faqs";
 import { FAQsType } from "@/types/FAQ";
 import { convertToDayMonthYear } from "@/lib/utils";
+import { FaqTableFilter } from "./FAQTableFilter";
 
 
 const ITEMS_PER_PAGE = 10;
+
+interface Column {
+  id: keyof FAQsType;
+  label: string;
+  checked: boolean;
+}
 
 export function FAQsTable() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,13 +58,30 @@ export function FAQsTable() {
   const [selectedItem, setSelectedItem] = useState<FAQsType | null>(null);
   const [editedQuestion, setEditedQuestion] = useState("");
   const [editedAnswer, setEditedAnswer] = useState("");
+  const [filterValue, setFilterValue] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState<Column[]>([
+      { id: "question", label: "Question", checked: true },
+      { id: "createdAt", label: "Created At", checked: true },
+    ]);
 
   const { data: faqData, isLoading, isError } = useGetAllFAQQuery();
   console.log(faqData)
 
   const faqs = faqData?.data || [];
-  const totalPages = faqData?.totalPages || 1;
-  const totalFaqs = faqData?.totalElements || 0;
+  const filteredFaqs = faqs.filter((faq: FAQsType) =>
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Object.entries(faq).some(([key,value]) =>
+        value.toString().toLowerCase().includes(filterValue.toLowerCase())
+      )
+    );
+  
+    const totalPages = Math.ceil(filteredFaqs.length / ITEMS_PER_PAGE);
+    const totalFaqs = filteredFaqs.length;
+  
+    const paginatedFaqs = filteredFaqs.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
+    );
 
   const handleSelectAll = () => {
     setSelectedFAQs(
@@ -90,6 +114,15 @@ export function FAQsTable() {
     }
   };
 
+  const handleFilterChange = (value: string) => {
+    setFilterValue(value);
+    setCurrentPage(1);
+  };
+
+  const handleColumnsChange = (columns: Column[]) => {
+    setVisibleColumns(columns);
+  };
+
   if (isLoading) {
     return <div>Loading FAQs...</div>;
   }
@@ -99,23 +132,26 @@ export function FAQsTable() {
   }
 
   return (
-    <div className="rounded-md bg-card">
+   <div className="space-y-4">
+    <FaqTableFilter onFilterChange={handleFilterChange} onColumnsChange={handleColumnsChange} />
+     <div className="rounded-md bg-card">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-12">
               <Checkbox
-                checked={selectedFAQs.length === faqs.length}
+                checked={selectedFAQs.length === paginatedFaqs.length}
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead>Questions</TableHead>
-            <TableHead>Created At</TableHead>
+            {visibleColumns.map((column) => column.checked && (
+                <TableHead key={column.id}>{column.label}</TableHead>
+              ))}
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {faqs?.map((faq: FAQsType, index: number) => (
+          {paginatedFaqs.map((faq: FAQsType, index: number) => (
             <TableRow key={index}>
               <TableCell>
                 <Checkbox
@@ -123,8 +159,13 @@ export function FAQsTable() {
                   onCheckedChange={() => handleSelectFAQ(faq.uuid)}
                 />
               </TableCell>
-              <TableCell>{faq.question}</TableCell>
-              <TableCell>{convertToDayMonthYear(faq.createdAt)}</TableCell>
+              {visibleColumns.map((column) => column.checked && (
+                  <TableCell key={column.id}>
+                    {column.id === 'createdAt' 
+                      ? convertToDayMonthYear(faq[column.id])
+                      : faq[column.id]}
+                  </TableCell>
+                ))}
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -187,7 +228,7 @@ export function FAQsTable() {
                 <strong>Answer:</strong> {selectedItem.answer}
               </div>
               <div>
-                <strong>Created At:</strong> {selectedItem.createdAt}
+                <strong>Created At:</strong> {convertToDayMonthYear(selectedItem.createdAt)}
               </div>
             </div>
           )}
@@ -280,5 +321,6 @@ export function FAQsTable() {
         </div>
       </div>
     </div>
+   </div>
   );
 }

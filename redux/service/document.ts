@@ -8,7 +8,10 @@ export const documentCategoriesAPI = cyberApi.injectEndpoints({
                 url: `document-categories/details`,
             }),
         }),
+        getAllDocument: builder.query<any, void>({
+            query: () => '/documents/all',
+        }),
     }),
 });
 
-export const { useGetAllDocumentCategoriesQuery } = documentCategoriesAPI;
+export const { useGetAllDocumentCategoriesQuery, useGetAllDocumentQuery } = documentCategoriesAPI;

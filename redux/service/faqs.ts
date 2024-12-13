@@ -5,7 +5,6 @@ export const faqApi = cyberApi.injectEndpoints({
     getAllFAQ: builder.query<any, void>({
       query: () => '/faqs',
     }),
-    
   }),
 });
 

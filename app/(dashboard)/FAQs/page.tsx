@@ -1,16 +1,8 @@
 import { Suspense } from 'react'
 import { FAQsTable } from "@/components/faqs/FAQTAble"
-import { SearchForm } from "@/components/faqs/SearchForm"
-import { CreatefaqButton } from "@/components/faqs/CreateFAQButton"
-
-type PageProps = {
-  searchParams: Promise<{ q?: string | undefined }>;
-}
 
 
-export default async function Page({ searchParams }: PageProps) {
-  const params = await searchParams; // Await the promise
-  const query = params?.q;
+export default async function Page() {
 
   return (
     <div>
@@ -21,13 +13,6 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
 
         <div className="flex-1 ">
-          <div className="flex justify-between items-center mb-6">
-            <Suspense fallback={<div>Loading...</div>}>
-              <SearchForm initialQuery={query} />
-            </Suspense>
-            <CreatefaqButton />
-          </div>
-
           <Suspense fallback={<div>Loading users...</div>}>
             <FAQsTable />
           </Suspense>

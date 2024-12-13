@@ -57,8 +57,8 @@ export default function MyProfileComponent() {
             <div className="absolute">
               <ParticlesComponent id="particles" />
             </div>
-           <div className="absolute items-center my-36">
-           <div className="w-36 h-36 rounded-full overflow-hidden">
+           <div className="absolute items-center justify-center my-36">
+           <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-primary ">
               <img
                 className="w-full h-full object-cover"
                 src={userData?.data?.profile}
@@ -66,6 +66,7 @@ export default function MyProfileComponent() {
               />
              
             </div>
+            <p className="p-4 ml-5 cursor-pointer">Edit Photo</p>
            </div>
           </div>
 
@@ -82,7 +83,7 @@ export default function MyProfileComponent() {
               <p>First Name</p>
               <input
                 type="text"
-                name="name"
+                name="firstName"
                 className="border w-full p-3 rounded-lg"
                 placeholder={userData?.data?.firstName || "Your FirstName"}
                 value={formik.values.firstName}
@@ -93,9 +94,9 @@ export default function MyProfileComponent() {
               <p>Last Name</p>
               <input
                 type="text"
-                name="name"
+                name="lastName"
                 className="border w-full p-3 rounded-lg"
-                placeholder={userData?.data?.lastName || "Your Username"}
+                placeholder={userData?.data?.lastName || "Your Lastname"}
                 value={formik.values.lastName}
                 onChange={formik.handleChange}
               />
