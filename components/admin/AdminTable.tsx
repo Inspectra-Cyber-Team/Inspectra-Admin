@@ -30,35 +30,42 @@ export function AdminTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
   const [filterValue, setFilterValue] = useState("");
-    const [visibleColumns, setVisibleColumns] = useState<Column[]>([
-      { id: "name", label: "Username", checked: true },
-      { id: "email", label: "Email", checked: true },
-      { id: "createdAt", label: "Created At", checked: true },
-    ]);
+  const [visibleColumns, setVisibleColumns] = useState<Column[]>([
+    { id: "name", label: "Username", checked: true },
+    { id: "email", label: "Email", checked: true },
+    { id: "createdAt", label: "Created At", checked: true },
+  ]);
 
-  const { data: adminData, isLoading, isError } = useGetAllAdminQuery({
+  const {
+    data: adminData,
+    isLoading,
+    isError,
+  } = useGetAllAdminQuery({
     page: currentPage - 1,
     pageSize: ITEMS_PER_PAGE,
   });
 
   const admins = adminData?.content || [];
-  
-   const filteredAdmins = filterValue
-      ? admins.filter((admin: AdminDetail) =>
+
+  const filteredAdmins = filterValue
+    ? admins.filter((admin: AdminDetail) =>
+        Object.entries(admin).some(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          Object.entries(admin).some(([key,value]) =>
-            value && typeof value === 'string' && value.toLowerCase().includes(filterValue.toLowerCase())
-          )
+          ([key, value]) =>
+            value &&
+            typeof value === "string" &&
+            value.toLowerCase().includes(filterValue.toLowerCase())
         )
-      : admins;
-  
-    const paginatedAdmins = filteredAdmins.slice(
-      (currentPage - 1) * ITEMS_PER_PAGE,
-      currentPage * ITEMS_PER_PAGE
-    );
-  
-    const totalPages = Math.ceil(filteredAdmins.length / ITEMS_PER_PAGE);
-    const totalAdmins = filteredAdmins.length;
+      )
+    : admins;
+
+  const paginatedAdmins = filteredAdmins.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const totalPages = Math.ceil(filteredAdmins.length / ITEMS_PER_PAGE);
+  const totalAdmins = filteredAdmins.length;
 
   const handleSelectAll = () => {
     setSelectedAdmins(
@@ -83,7 +90,6 @@ export function AdminTable() {
     setVisibleColumns(columns);
   };
 
-
   if (isLoading) {
     return <div>Loading admins...</div>;
   }
@@ -93,87 +99,98 @@ export function AdminTable() {
   }
 
   return (
-   <div className="space-y-4">
-    <AdminTableFilter onFilterChange={handleFilterChange} onColumnsChange={handleColumnsChange} />
-     <div className="rounded-md border bg-card">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">
-              <Checkbox
-                checked={selectedAdmins.length === admins.length }
-                onCheckedChange={handleSelectAll}
-              />
-            </TableHead>
-            <TableHead>Image</TableHead>
-            {visibleColumns.map((column) => column.checked && (
-                <TableHead key={column.id}>{column.label}</TableHead>
-              ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-        {paginatedAdmins.map((admin: AdminDetail, index: number) => (
-            <TableRow key={index}>
-              <TableCell>
+    <div className="space-y-4">
+      <AdminTableFilter
+        onFilterChange={handleFilterChange}
+        onColumnsChange={handleColumnsChange}
+      />
+      <div className="rounded-md border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12">
                 <Checkbox
-                  checked={selectedAdmins.includes(admin?.uuid)}
-                  onCheckedChange={() => handleSelectAdmin(admin?.uuid)}
+                  checked={selectedAdmins.length === admins.length}
+                  onCheckedChange={handleSelectAll}
                 />
-              </TableCell>
-              <TableCell>
-                <Avatar>
-                  <AvatarImage
-                    src={admin?.profile || "NA"}
-                    alt={admin?.name || "Avatar"}
+              </TableHead>
+              <TableHead>Image</TableHead>
+              {visibleColumns.map(
+                (column) =>
+                  column.checked && (
+                    <TableHead key={column.id}>{column.label}</TableHead>
+                  )
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedAdmins.map((admin: AdminDetail, index: number) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedAdmins.includes(admin?.uuid)}
+                    onCheckedChange={() => handleSelectAdmin(admin?.uuid)}
                   />
-                  <AvatarFallback>{admin?.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-              </TableCell>
-              {visibleColumns.map((column) => column.checked && (
-                  <TableCell key={column.id}>
-                   {column.id === 'createdAt' 
-  ? convertToDayMonthYear(admin[column.id])
-  : admin[column.id]}
-                 </TableCell>
-                   ))}
+                </TableCell>
+                <TableCell>
+                  <Avatar>
+                    <AvatarImage
+                      src={admin?.profile || "NA"}
+                      alt={admin?.name || "Avatar"}
+                    />
+                    <AvatarFallback>{admin?.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                </TableCell>
+                {visibleColumns.map(
+                  (column) =>
+                    column.checked && (
+                      <TableCell key={column.id}>
+                        {column.id === "createdAt"
+                          ? convertToDayMonthYear(admin[column.id])
+                          : admin[column.id]}
+                      </TableCell>
+                    )
+                )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
 
-
-
-      {/* Pagination Controls */}
-      <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
-        <div className="text-sm text-muted-foreground">
-          Rows per page: {ITEMS_PER_PAGE}
-        </div>
-        <div className="flex items-center space-x-2 text-sm">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span>
-            {Math.min(currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1, totalAdmins)} -{" "}
-            {Math.min(currentPage * ITEMS_PER_PAGE, totalAdmins)} of {totalAdmins}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
+          <div className="text-sm text-muted-foreground">
+            Rows per page: {ITEMS_PER_PAGE}
+          </div>
+          <div className="flex items-center space-x-2 text-sm">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span>
+              {Math.min(
+                currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1,
+                totalAdmins
+              )}{" "}
+              - {Math.min(currentPage * ITEMS_PER_PAGE, totalAdmins)} of{" "}
+              {totalAdmins}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
-   </div>
   );
 }

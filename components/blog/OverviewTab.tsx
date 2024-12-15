@@ -38,24 +38,58 @@ import { useGetAllBlogQuery } from "@/redux/service/blog";
 import { Blog } from "@/types/Blog";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { OverviewFilter } from "@/components/blog/OverviewFilter";
 
 const ITEMS_PER_PAGE = 10;
+
+interface Column {
+  id: keyof Blog;
+  label: string;
+  checked: boolean;
+}
 
 export function OverviewTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBlogs, setSelectedBlogs] = useState<string[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Blog | null>(null);
+  const [filterValue, setFilterValue] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState<Column[]>([
+    { id: "title", label: "Title", checked: true },
+    { id: "createdAt", label: "Created At", checked: true },
+  ]);
   const router = useRouter();
 
-  const { data: blogData, isLoading, isError } = useGetAllBlogQuery({
+  const {
+    data: blogData,
+    isLoading,
+    isError,
+  } = useGetAllBlogQuery({
     page: currentPage - 1,
     pageSize: ITEMS_PER_PAGE,
   });
 
   const blogs = blogData?.content || [];
-  const totalPages = blogData?.totalPages || 1;
-  const totalBlogs = blogData?.totalElements || 0;
+
+  const filteredBlogs = filterValue
+    ? blogs.filter((blog: Blog) =>
+        Object.entries(blog).some(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ([key, value]) =>
+            value &&
+            typeof value === "string" &&
+            value.toLowerCase().includes(filterValue.toLowerCase())
+        )
+      )
+    : blogs;
+
+  const paginatedBlogs = filteredBlogs.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const totalPages = Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE);
+  const totalBlogs = filteredBlogs.length;
 
   const handleSelectAll = () => {
     setSelectedBlogs(
@@ -80,6 +114,16 @@ export function OverviewTab() {
     setDeleteModalOpen(false);
   };
 
+  const handleFilterChange = (value: string) => {
+    setFilterValue(value);
+    setCurrentPage(1);
+  };
+
+  const handleColumnsChange = (columns: Column[]) => {
+    setVisibleColumns(columns);
+  };
+
+
   if (isLoading) {
     return <div>Loading blogs...</div>;
   }
@@ -89,143 +133,178 @@ export function OverviewTab() {
   }
 
   return (
-    <div className="rounded-md border bg-card">
-      {/* Make Table horizontally scrollable on smaller screens */}
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={selectedBlogs.length === blogs.length}
-                  onCheckedChange={handleSelectAll}
-                />
-              </TableHead>
-              <TableHead>Image</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="cursor-pointer">
-            {blogs?.map((blog: Blog, index: number) => (
-              <TableRow key={index}>
-                <TableCell>
+    <div className="space-y-4">
+      <OverviewFilter
+        onFilterChange={handleFilterChange}
+        onColumnsChange={handleColumnsChange}
+      />
+      <div className="rounded-md border bg-card">
+        {/* Make Table horizontally scrollable on smaller screens */}
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
                   <Checkbox
-                    checked={selectedBlogs.includes(blog.uuid)}
-                    onCheckedChange={() => handleSelectBlog(blog.uuid)}
+                    checked={selectedBlogs.length === blogs.length}
+                    onCheckedChange={handleSelectAll}
                   />
-                </TableCell>
-                <TableCell
-                  onClick={() => {
-                    if (blog?.uuid) {
-                      router.push(`/blog/${blog.uuid}`);
-                    } else {
-                      console.error("UUID is missing");
-                    }
-                  }}
-                >
-                  <img
-                    src={blog?.thumbnail[0]}
-                    alt={blog?.title || "Blog Image"}
-                    width={50}
-                    height={50}
-                    className="rounded-md object-contain"
-                  />
-                </TableCell>
-                <TableCell onClick={() => router.push(`/blog/${blog?.uuid}`)}>{blog?.title}</TableCell>
-                <TableCell>{convertToDayMonthYear(blog?.createdAt)}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => router.push(`/blog/${blog?.uuid}`)}
-                      >
-                        <Eye className="h-5 w-5 mr-2" />
-                        View details
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-yellow-600">
-                        <Edit className="h-5 w-5 mr-2 " />
-                        Edit Blog
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => {
-                          setSelectedItem(blog);
-                          setDeleteModalOpen(true);
-                        }}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+                </TableHead>
+                <TableHead>Image</TableHead>
+                {visibleColumns.map(
+                  (column) =>
+                    column.checked && (
+                      <TableHead key={column.id}>{column.label}</TableHead>
+                    )
+                )}
+                <TableHead>Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody className="cursor-pointer">
+              {paginatedBlogs.map((blog: Blog, index: number) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedBlogs.includes(blog?.uuid)}
+                      onCheckedChange={() => handleSelectBlog(blog?.uuid)}
+                    />
+                  </TableCell>
+                  <TableCell
+                    onClick={() => {
+                      if (blog?.uuid) {
+                        router.push(`/blog/${blog.uuid}`);
+                      } else {
+                        console.error("UUID is missing");
+                      }
+                    }}
+                  >
+                    <img
+                      src={blog?.thumbnail[0]}
+                      alt={blog?.title || "Blog Image"}
+                      width={50}
+                      height={50}
+                      className="rounded-md object-contain"
+                    />
+                  </TableCell>
+                  {visibleColumns.map(
+  (column) =>
+    column.checked && (
+      <TableCell key={column.id}>
+        {(() => {
+          const value = blog[column.id];
 
-      {/* Modal Dialog */}
-      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-xl text-foreground">Confirm Delete</DialogTitle>
-            <DialogDescription className="text-base my-2">
-              Are you sure you want to delete this blog?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          // Handle specific types inline
+          if (column.id === "createdAt" && typeof value === "string") {
+            return convertToDayMonthYear(value);
+          }
 
-      {/* Pagination Controls */}
-      <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
-        <div className="text-sm text-muted-foreground">Rows per page: {ITEMS_PER_PAGE}</div>
-        <div className="flex items-center space-x-2 text-sm">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span>
-            {currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1} - {Math.min(
-              currentPage * ITEMS_PER_PAGE,
-              totalBlogs
-            )} of {totalBlogs}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+            return value.toString();
+          }
+
+          return "-"; // Default for null/undefined or unsupported types
+        })()}
+      </TableCell>
+    )
+)}
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => router.push(`/blog/${blog?.uuid}`)}
+                        >
+                          <Eye className="h-5 w-5 mr-2" />
+                          View details
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-yellow-600">
+                          <Edit className="h-5 w-5 mr-2 " />
+                          Edit Blog
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => {
+                            setSelectedItem(blog);
+                            setDeleteModalOpen(true);
+                          }}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Modal Dialog */}
+        <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="text-xl text-foreground">
+                Confirm Delete
+              </DialogTitle>
+              <DialogDescription className="text-base my-2">
+                Are you sure you want to delete this blog?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
+          <div className="text-sm text-muted-foreground">
+            Rows per page: {ITEMS_PER_PAGE}
+          </div>
+          <div className="flex items-center space-x-2 text-sm">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span>
+              {Math.min(
+                currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1,
+                totalBlogs
+              )}{" "}
+              - {Math.min(currentPage * ITEMS_PER_PAGE, totalBlogs)} of{" "}
+              {totalBlogs}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
