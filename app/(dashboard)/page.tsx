@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Recent } from "@/components/overview/RecentTraffic";
 import { FolderKanban, BookOpen, MessageSquare, UsersIcon } from "lucide-react";
 import { StatCard } from "@/components/overview/CardStat";
-import { Overview } from "@/components/overview/Overview";
+import { Overview } from "@/components/overview/overview";
 
 export default function DashboardPage() {
   return (
