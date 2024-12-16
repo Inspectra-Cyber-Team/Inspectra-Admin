@@ -28,7 +28,7 @@ const baseQueryWithReAuth = async (args: any, api: any, extraOptions: any) => {
 
     if (result.error?.status === 401) {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}refresh`,
+            `${process.env.NEXT_PUBLIC_BASE_URL}refresh`,
             {
                 method: "POST",
                 credentials: "include",
@@ -41,7 +41,7 @@ const baseQueryWithReAuth = async (args: any, api: any, extraOptions: any) => {
             // Re-run the query with the new token
             result = await baseQuery(args, api, extraOptions);
         } else {
-            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}logout`, {
+            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}logout`, {
                 method: "POST",
                 credentials: "include",
             });
