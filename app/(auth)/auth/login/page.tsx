@@ -40,7 +40,7 @@ const LogIn = () => {
   const handleSubmit = async (values: FormValues) => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}/login`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}login`,
         {
           method: "POST",
           headers: {
