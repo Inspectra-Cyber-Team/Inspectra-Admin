@@ -37,10 +37,15 @@ const LogIn = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+
+
   const handleSubmit = async (values: FormValues) => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}login`,
+
+      const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}login`;
+       console.log('Login URL:', loginUrl);
+
+      const res = await fetch(loginUrl,
         {
           method: "POST",
           headers: {
