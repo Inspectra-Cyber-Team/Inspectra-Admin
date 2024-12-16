@@ -123,7 +123,6 @@ export function OverviewTab() {
     setVisibleColumns(columns);
   };
 
-
   if (isLoading) {
     return <div>Loading blogs...</div>;
   }
@@ -163,12 +162,15 @@ export function OverviewTab() {
             <TableBody className="cursor-pointer">
               {paginatedBlogs.map((blog: Blog, index: number) => (
                 <TableRow key={index}>
+                  {/* Checkbox Cell */}
                   <TableCell>
                     <Checkbox
                       checked={selectedBlogs.includes(blog?.uuid)}
                       onCheckedChange={() => handleSelectBlog(blog?.uuid)}
                     />
                   </TableCell>
+
+                  {/* Thumbnail Cell */}
                   <TableCell
                     onClick={() => {
                       if (blog?.uuid) {
@@ -177,36 +179,53 @@ export function OverviewTab() {
                         console.error("UUID is missing");
                       }
                     }}
+                    className="w-16 h-12"
                   >
-                    <img
-                      src={blog?.thumbnail[0]}
-                      alt={blog?.title || "Blog Image"}
-                      width={50}
-                      height={50}
-                      className="rounded-md object-contain"
-                    />
+                    <div className="w-16 h-12 rounded-md overflow-hidden bg-muted">
+                      {blog?.thumbnail?.[0] ? (
+                        <img
+                          src={blog.thumbnail[0]}
+                          alt={blog.title || "Blog Image"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex items-center justify-center text-xs text-muted-foreground">
+                          No Image
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
+
+                  {/* Dynamic Column Cells */}
                   {visibleColumns.map(
-  (column) =>
-    column.checked && (
-      <TableCell key={column.id}>
-        {(() => {
-          const value = blog[column.id];
+                    (column) =>
+                      column.checked && (
+                        <TableCell key={column.id}>
+                          {(() => {
+                            const value = blog[column.id];
 
-          // Handle specific types inline
-          if (column.id === "createdAt" && typeof value === "string") {
-            return convertToDayMonthYear(value);
-          }
+                            if (
+                              column.id === "createdAt" &&
+                              typeof value === "string"
+                            ) {
+                              return convertToDayMonthYear(value); // Format date
+                            }
 
-          if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-            return value.toString();
-          }
+                            if (
+                              typeof value === "string" ||
+                              typeof value === "number" ||
+                              typeof value === "boolean"
+                            ) {
+                              return value.toString();
+                            }
 
-          return "-"; // Default for null/undefined or unsupported types
-        })()}
-      </TableCell>
-    )
-)}
+                            return "-"; // Fallback for unsupported/null values
+                          })()}
+                        </TableCell>
+                      )
+                  )}
+
+                  {/* Action Menu Cell */}
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -225,6 +244,7 @@ export function OverviewTab() {
                         </DropdownMenuItem>
 
                         <DropdownMenuSeparator />
+
                         <DropdownMenuItem className="text-yellow-600">
                           <Edit className="h-5 w-5 mr-2 " />
                           Edit Blog
@@ -239,7 +259,8 @@ export function OverviewTab() {
                             setDeleteModalOpen(true);
                           }}
                         >
-                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -250,9 +271,9 @@ export function OverviewTab() {
           </Table>
         </div>
 
-        {/* Modal Dialog */}
+        {/*Delete Modal */}
         <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-          <DialogContent>
+          <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader>
               <DialogTitle className="text-xl text-foreground">
                 Confirm Delete

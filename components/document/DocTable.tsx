@@ -220,7 +220,7 @@ export function DocumentsTable() {
 
       {/* View Modal */}
       <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
-        <DialogContent>
+        <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
           <DialogHeader>
             <DialogTitle>View Document Details</DialogTitle>
           </DialogHeader>
@@ -245,7 +245,7 @@ export function DocumentsTable() {
 
       {/* Edit Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-      <DialogContent>
+      <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
           <DialogHeader>
             <DialogTitle>Update Document</DialogTitle>
           </DialogHeader>
@@ -286,7 +286,7 @@ export function DocumentsTable() {
 
       {/* Delete Modal */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent>
+        <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
           <DialogHeader>
             <DialogTitle className="text-xl text-foreground">
               Confirm Delete

@@ -91,14 +91,14 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
                   <div className="space-y-2">
                     <div className="flex flex-col md:flex-row md:gap-2">
                       <dt className="text-[#60935D]">Reported by:</dt>
-                      <dt>{blogData?.report?.blogUuid|| "Unknown"}</dt>
+                      <dt>Naikim</dt>
                     </div>
                     <div className="flex flex-col md:flex-row md:gap-2">
                       <dt className="text-[#60935D]">Report at:</dt>
                       <dt>12/07/2024</dt>
                     </div>
                     <p className="text-sm mt-2 text-justify md:text-left">
-                      {blogData?.report?.message || "Unknown"}
+                       This blog has false information
                     </p>
                   </div>
                   <Separator className="my-4" />

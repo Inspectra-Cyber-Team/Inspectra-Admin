@@ -39,7 +39,7 @@ const DeleteProjectConfirmationModal =
           </DialogTrigger>
 
           {/* Modal content */}
-          <DialogContent>
+          <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader className="mb-2">
               <DialogTitle className="text-xl text-foreground">Confirm Delete</DialogTitle>
               <DialogDescription className=" text-base my-2">
