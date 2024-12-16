@@ -24,7 +24,7 @@ export function CreatefaqModal({ isOpen, onClose }: CreatefaqModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
         <DialogHeader>
           <DialogTitle>Create FAQ</DialogTitle>
         </DialogHeader>

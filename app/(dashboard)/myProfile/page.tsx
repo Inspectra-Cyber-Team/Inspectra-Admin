@@ -52,29 +52,27 @@ export default function MyProfileComponent() {
     <div>
       {/* section */}
       <section className="space-y-4 p-8">
-        <div className="relative">
-          <div className="absolute translate-x-0 rounded-md flex flex-col items-center h-44 w-full">
-            <div className="absolute">
+        <div className="relative ">
+          <div className="absolute translate-x-0 rounded-md flex flex-col items-center h-44 w-full ">
+            <div className="absolute ">
               <ParticlesComponent id="particles" />
             </div>
-           <div className="absolute items-center justify-center my-36">
+           <div className="absolute items-center justify-center my-36 ">
            <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-primary ">
               <img
                 className="w-full h-full object-cover"
                 src={userData?.data?.profile}
                 alt="profile"
               />
-             
             </div>
             <p className="p-4 ml-5 cursor-pointer">Edit Photo</p>
            </div>
           </div>
-
         </div>
 
           <form
             onSubmit={formik.handleSubmit}
-            className=" flex flex-col gap-5 md:pt-80 pb-10 md:pb-5 px-10 bg-card"
+            className="bg-card flex flex-col justify-center items-stretch pt-80 gap-5 md:pt-80 pb-10 md:pb-5 px-10"
           >
 
             {/* First Name and last Name */}
@@ -103,7 +101,7 @@ export default function MyProfileComponent() {
             </div>
             </div>
 
-            {/* Username and Bio */}
+            {/* Username and Email */}
             <div className="grid grid-flow-col grid-cols-2 gap-5">
             <div className="flex flex-col gap-2">
               <p>Username</p>
@@ -129,7 +127,7 @@ export default function MyProfileComponent() {
             </div>
 
             {/*  Bio */}
-            <div className="grid grid-flow-col grid-cols-2 gap-5">
+            <div className="grid grid-flow-col grid-cols-1 gap-5 md:grid-cols-2">
             <div className="flex flex-col gap-2">
               <p>Bio</p>
               <textarea
@@ -142,7 +140,7 @@ export default function MyProfileComponent() {
             </div>
             </div>
             {/* Button Save */}
-            <div className="flex md:justify-end gap-2">
+            <div className="flex md:justify-end gap-2 justify-center items-center">
             <Button
             variant="outline"
                 type="submit"

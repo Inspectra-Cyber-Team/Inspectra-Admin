@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import {
   Table,
   TableBody,
@@ -15,7 +15,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Edit,
   Eye,
   MoreHorizontal,
   Trash2,
@@ -28,7 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -37,243 +35,275 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-type Blog = {
-  blogUuid: string;
-  title: string;
-  createdAt: string;
-  thumbnail: string;
-  status: "active" | "inactive" | "pending";
-};
+import { Blog } from "@/types/Blog";
+import { useRouter } from "next/navigation";
+import { BlogRequestFilter } from "./BlogRequestFilter";
+import { convertToDayMonthYear } from "@/lib/utils";
+import { useGetAllBlogQuery } from "@/redux/service/blog";
 
 const ITEMS_PER_PAGE = 10;
 
-async function fetchBlogs(query: string): Promise<Blog[]> {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const allBlogs: Blog[] = [
-    {
-      blogUuid: "1e456d4f-4c9b-4726-b8a7-1f6a12345678",
-      title: "10 AI-Powered Python Libraries to...",
-      thumbnail: "/Blog.png?height=48&width=48",
-      createdAt: "Nov. 21, 2024",
-      status: "active",
-    },
-    {
-      blogUuid: "2e456d4f-4c9b-4726-b8a7-1f6a12345678",
-      title: "30 Tricky Java Interview Question...",
-      thumbnail: "/Blog.png?height=48&width=48",
-      createdAt: "Nov. 21, 2024",
-      status: "pending",
-    },
-    {
-      blogUuid: "3e456d4f-4c9b-4726-b8a7-1f6a12345678",
-      title: "Inspector Named As a Top...",
-      thumbnail: "/Blog.png?height=48&width=48",
-      createdAt: "Nov. 21, 2024",
-      status: "active",
-    },
-    {
-      blogUuid: "4e456d4f-4c9b-4726-b8a7-1f6a12345678",
-      title: "10 AI-Powered Python Libraries to...",
-      thumbnail: "/Blog.png?height=48&width=48",
-      createdAt: "Nov. 21, 2024",
-      status: "active",
-    },
-    {
-      blogUuid: "5e456d4f-4c9b-4726-b8a7-1f6a12345678",
-      title: "I Stopped Using Kubernetes. Our...",
-      thumbnail: "/Blog.png?height=48&width=48",
-      createdAt: "Nov. 21, 2024",
-      status: "active",
-    },
-  ];
-
-  return !query
-    ? allBlogs
-    : allBlogs.filter((blog) =>
-        blog.title.toLowerCase().includes(query.toLowerCase())
-      );
+interface Column {
+  id: keyof Blog;
+  label: string;
+  checked: boolean;
 }
 
-export function BlogRequestTab({ query = "" }) {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+export function BlogRequestTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBlogs, setSelectedBlogs] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
   const [selectedItem, setSelectedItem] = useState<Blog | null>(null);
+  const [filterValue, setFilterValue] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState<Column[]>([
+    { id: "title", label: "Title", checked: true },
+    { id: "createdAt", label: "CreatedAt", checked: true },
+  ]);
+  const router = useRouter();
 
-  useEffect(() => {
-    const loadBlogs = async () => {
-      setIsLoading(true);
-      const fetchedBlogs = await fetchBlogs(query);
-      setBlogs(fetchedBlogs);
-      setCurrentPage(1);
-      setSelectedBlogs([]);
-      setIsLoading(false);
-    };
+  const {
+    data: blogData,
+    isLoading,
+    isError,
+  } = useGetAllBlogQuery({
+    page: currentPage - 1,
+    pageSize: ITEMS_PER_PAGE,
+  });
 
-    loadBlogs();
-  }, [query]);
+  const blogs = blogData?.content || [];
 
-  const totalPages = Math.ceil(blogs.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentBlogs = blogs.slice(startIndex, endIndex);
+  const filteredBlogs = filterValue
+    ? blogs.filter((blog: Blog) =>
+        Object.entries(blog).some(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ([key, value]) =>
+            value &&
+            typeof value === "string" &&
+            value.toLowerCase().includes(filterValue.toLowerCase())
+        )
+      )
+    : blogs;
+
+  const paginatedBlogs = filteredBlogs.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const totalPages = Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE);
+  const totalBlogs = filteredBlogs.length;
 
   const handleSelectAll = () => {
     setSelectedBlogs(
-      selectedBlogs.length === currentBlogs.length
+      selectedBlogs.length === blogs.length
         ? []
-        : currentBlogs.map((blog) => blog.blogUuid)
+        : blogs.map((blog: { uuid: unknown }) => blog.uuid)
     );
   };
 
-  const handleSelectBlog = (blogUuid: string) => {
+  const handleSelectBlog = (uuid: string) => {
     setSelectedBlogs((prev) =>
-      prev.includes(blogUuid)
-        ? prev.filter((id) => id !== blogUuid)
-        : [...prev, blogUuid]
+      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
     );
   };
 
   const handleDelete = () => {
     if (selectedItem) {
-      setBlogs((prev) =>
-        prev.filter((Blog) => Blog.blogUuid !== selectedItem.blogUuid)
+      setSelectedBlogs((prev) =>
+        prev.filter((uuid) => uuid !== selectedItem.uuid)
       );
     }
     setDeleteModalOpen(false);
+  };
+
+  const handleFilterChange = (value: string) => {
+    setFilterValue(value);
+    setCurrentPage(1);
+  };
+
+  const handleColumnsChange = (columns: Column[]) => {
+    setVisibleColumns(columns);
   };
 
   if (isLoading) {
     return <div>Loading blogs...</div>;
   }
 
+  if (isError) {
+    return <div>Error loading blogs. Please try again later.</div>;
+  }
+
   return (
-    <div className="rounded-md border bg-card">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">
-              <Checkbox
-                checked={selectedBlogs.length === currentBlogs.length}
-                onCheckedChange={handleSelectAll}
-              />
-            </TableHead>
-            <TableHead>Image</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {currentBlogs.map((blog) => (
-            <TableRow key={blog.blogUuid}>
-              <TableCell>
+    <div className="space-y-4">
+      <BlogRequestFilter
+        onFilterChange={handleFilterChange}
+        onColumnsChange={handleColumnsChange}
+      />
+      {/* Make Table horizontally scrollable on smaller screens */}
+      <div className="rounded-md border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12">
                 <Checkbox
-                  checked={selectedBlogs.includes(blog.blogUuid)}
-                  onCheckedChange={() => handleSelectBlog(blog.blogUuid)}
+                  checked={selectedBlogs.length === blogs.length}
+                  onCheckedChange={handleSelectAll}
                 />
-              </TableCell>
-              <TableCell>
-                <Image
-                  src={blog.thumbnail}
-                  alt={blog.title}
-                  width={48}
-                  height={48}
-                  className="rounded-md"
-                />
-              </TableCell>
-              <TableCell>{blog.title}</TableCell>
-              <TableCell>{blog.createdAt}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <div className="text-green-500">
-                    <Check />
-                  </div>
-
-                  <div className="text-destructive">
-                    <X />
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Eye className="h-5 w-5 mr-2" />
-                      View details
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-yellow-600">
-                      <Edit className="h-5 w-5 mr-2 " />
-                      Edit Blog
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => {
-                        setSelectedItem(blog);
-                        setDeleteModalOpen(true);
-                      }}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+              </TableHead>
+              <TableHead>Image</TableHead>
+              {visibleColumns.map(
+                (column) =>
+                  column.checked && (
+                    <TableHead key={column.id}>{column.label}</TableHead>
+                  )
+              )}
+              <TableHead>Status</TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody className="cursor-pointer">
+            {paginatedBlogs.map((blog: Blog, index: number) => (
+              <TableRow key={index}>
+                {/* Checkbox Cell */}
+                <TableCell>
+                  <Checkbox
+                    checked={selectedBlogs.includes(blog?.uuid)}
+                    onCheckedChange={() => handleSelectBlog(blog?.uuid)}
+                  />
+                </TableCell>
 
-      {/* Delete Modal */}
-      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-xl text-foreground">
-              Comfirm Delete
-            </DialogTitle>
-            <DialogDescription className="text-[#888888] text-base my-2">
-              Are you sure you want to delete this blog?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                {/* Thumbnail Cell */}
+                <TableCell
+                  onClick={() => {
+                    if (blog?.uuid) {
+                      router.push(`/blog/${blog.uuid}`);
+                    } else {
+                      console.error("UUID is missing");
+                    }
+                  }}
+                  className="w-16 h-12"
+                >
+                  <div className="w-16 h-12 rounded-md overflow-hidden bg-muted">
+                    {blog?.thumbnail?.[0] ? (
+                      <img
+                        src={blog.thumbnail[0]}
+                        alt={blog.title || "Blog Image"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex items-center justify-center text-xs text-muted-foreground">
+                        No Image
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
 
-      <div className="flex items-center justify-between px-4 py-2 border-t">
-        <div className="text-sm text-muted-foreground">
-          Rows per page: {ITEMS_PER_PAGE}
-        </div>
-        <div className="flex items-center space-x-2 text-sm">
-          <span>
-            {startIndex + 1}-{Math.min(endIndex, blogs.length)} of{" "}
-            {blogs.length}
-          </span>
-          <div className="flex items-center space-x-1">
+                {/* Dynamic Column Cells */}
+                {visibleColumns.map(
+                  (column) =>
+                    column.checked && (
+                      <TableCell key={column.id}>
+                        {(() => {
+                          const value = blog[column.id];
+
+                          if (
+                            column.id === "createdAt" &&
+                            typeof value === "string"
+                          ) {
+                            return convertToDayMonthYear(value); // Format date
+                          }
+
+                          if (
+                            typeof value === "string" ||
+                            typeof value === "number" ||
+                            typeof value === "boolean"
+                          ) {
+                            return value.toString();
+                          }
+
+                          return "-"; // Fallback for unsupported/null values
+                        })()}
+                      </TableCell>
+                    )
+                )}
+
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <div className="text-green-500">
+                      <Check />
+                    </div>
+
+                    <div className="text-destructive">
+                      <X />
+                    </div>
+                  </div>
+                </TableCell>
+
+                {/* Action Menu Cell */}
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => router.push(`/blog/${blog?.uuid}`)}
+                      >
+                        <Eye className="h-5 w-5 mr-2" />
+                        View details
+                      </DropdownMenuItem>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => {
+                          setSelectedItem(blog);
+                          setDeleteModalOpen(true);
+                        }}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        {/* Delete Modal */}
+        <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+          <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl text-foreground">
+                Comfirm Delete
+              </DialogTitle>
+              <DialogDescription className="text-[#888888] text-base my-2">
+                Are you sure you want to delete this blog?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between px-4 py-2 border-t flex-wrap">
+          <div className="text-sm text-muted-foreground">
+            Rows per page: {ITEMS_PER_PAGE}
+          </div>
+          <div className="flex items-center space-x-2 text-sm">
             <Button
               variant="ghost"
               size="icon"
@@ -282,6 +312,14 @@ export function BlogRequestTab({ query = "" }) {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
+            <span>
+              {Math.min(
+                currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1,
+                totalBlogs
+              )}{" "}
+              - {Math.min(currentPage * ITEMS_PER_PAGE, totalBlogs)} of{" "}
+              {totalBlogs}
+            </span>
             <Button
               variant="ghost"
               size="icon"

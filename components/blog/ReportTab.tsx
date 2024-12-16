@@ -223,7 +223,7 @@ export function ReportTab({ query = "" }: { query?: string }) {
 
           {/* Delete Modal */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent>
+        <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
           <DialogHeader>
             <DialogTitle className="text-xl text-foreground">Comfirm Delete</DialogTitle>
             <DialogDescription className="text-[#888888] text-base my-2">

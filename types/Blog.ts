@@ -8,11 +8,6 @@ type User = {
     bio: string;
   };
 
-type Report = {
-    blogUuid: string;
-    message: string;
-};
-  
   // Define the Content type
 export  type Blog = {
     uuid: string;
@@ -26,7 +21,6 @@ export  type Blog = {
     user: User; // Nested User type
     createdAt: string; // ISO date string
     lastModifiedAt: string; // ISO date string
-    report: Report;
   };
   
 

@@ -68,7 +68,7 @@ export function CreateAdminModal({ isOpen, onClose }: CreateAdminModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg mx-auto p-6">
+      <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
         <DialogHeader className="text-center text-2xl font-semibold mb-2">
           <DialogTitle>Create New Admin</DialogTitle>
         </DialogHeader>

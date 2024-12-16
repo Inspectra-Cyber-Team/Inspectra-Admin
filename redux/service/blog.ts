@@ -59,8 +59,14 @@ export const blogApi = cyberApi.injectEndpoints({
         }),
     }),
 
+    verifyBlog: builder.mutation<any, { uuid: string}>({
+        query: ({uuid}) => ({
+            url: `blogs/${uuid}/verify`,
+            method: "PUT",
+        }),
+    }),
 
   }),
 });
 
-export const {  useGetAllBlogQuery, useLikeBlogMutation, useGetBlogDetailsQuery, useGetBlogByUserUuidQuery, useCreateBlogMutation, useUpdateBlogMutation, useGetBlogByUuidQuery } = blogApi;
+export const {  useGetAllBlogQuery, useLikeBlogMutation, useGetBlogDetailsQuery, useGetBlogByUserUuidQuery, useCreateBlogMutation, useUpdateBlogMutation, useGetBlogByUuidQuery , useVerifyBlogMutation} = blogApi;
