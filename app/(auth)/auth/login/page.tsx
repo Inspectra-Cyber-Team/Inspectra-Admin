@@ -2,8 +2,7 @@
 import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { IoEyeOffSharp } from "react-icons/io5";
-import { IoEyeSharp } from "react-icons/io5";
+import { IoEyeOffSharp,IoEyeSharp } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import ParticlesComponent from "@/components/ParticleBackground";
 import Link from "next/link"
@@ -43,6 +42,7 @@ const LogIn = () => {
     try {
 
       const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}login`;
+
        console.log('Login URL:', loginUrl);
 
       const res = await fetch(loginUrl,
@@ -56,6 +56,7 @@ const LogIn = () => {
       );
 
       if (res.status === 200) {
+        
         const data = await res.json();
         
         const userUUID = data?.user?.data?.uuid;

@@ -8,6 +8,9 @@ export async function POST(req: NextRequest) {
 
   const { email, password } = body;
 
+  console.log('Body:', body);
+
+  console.log("API URL for login:", `${process.env.NEXT_PUBLIC_API_URL}auth/login`);
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/login`, {
     method: "POST",
