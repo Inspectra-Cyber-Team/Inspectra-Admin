@@ -3,7 +3,7 @@ export type createFeedbackType = {
   };
   
   export type feedbackType = {
-      message: string;
+    message: string;
     firstName: string;
     lastName: string;
     createdAt: string;
