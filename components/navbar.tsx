@@ -30,7 +30,7 @@ export function UserNav() {
   const handleLogout = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}logout`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}logout`,
         {
           method: "POST",
           credentials: "include",
