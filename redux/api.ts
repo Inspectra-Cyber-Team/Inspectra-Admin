@@ -28,7 +28,7 @@ const baseQueryWithReAuth = async (args: any, api: any, extraOptions: any) => {
 
     if (result.error?.status === 401) {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}refresh`,
+            `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}/refresh`,
             {
                 method: "POST",
                 credentials: "include",
