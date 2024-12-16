@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<a name="readme-top"></a>
 
-## Getting Started
+# Welcome to Inspectra Admin
 
-First, run the development server:
+<div align="center">
+    <img src="public/logo.jpg" alt="Logo" width="200" height="200">
+</div>
+<br>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+    </li>
+    <li>
+      <a href="#features">Features</a>
+    </li>
+    <li>
+      <a href="#selected-technology">Selected Technology</a>
+    </li>
+    <li>
+      <a href="#installation">Installation</a>
+    </li>
+    <li>
+      <a href="#deployment">Deployment</a>
+    </li>
+    <li>
+      <a href="#contact">Contact</a>
+    </li>
+    <li>
+      <a href="#page-url">Page URL</a>
+    </li>
+  </ol>
+</details>
+<br>
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# About The Project
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Inspectra
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Inspectra empowers you to uncover hidden risks with precision. Through deep, intelligent scanning and proactive insights, we help you secure your code and protect against unseen vulnerabilities—keeping your systems resilient and your data safe based on Sonarqube Architecture.
 
-## Learn More
+# Features
 
-To learn more about Next.js, take a look at the following resources:
+- **Admin Authentication**: Secure login process using JWT for seamless access control.
+- **Overview**: Display overall traffic in Inspectra website, 
+- **Project and Feedback**: Showcase users' projects and feedback, including delete functionality
+- **Documentation**: A step-by-step guide providing users with clear instructions of our website
+- **Blog**:  Blog community, enabling users to share experiences, solutions, and ideas. 
+- **FAQs**: A curated list of answers to commonly asked question
+- **Admin and User**: Display information about both users and admins,enable the creation of new admin accounts
+- **Profile Management**: Tools to update admin profiles, allowing changes to personal or account information.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Selected Technology
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Software Used
 
-## Deploy on Vercel
+- **IDE**: IntelliJ IDEA, WebStorm, Visual Studio Code
+- **Design**: Figma, ERD NavicatDB Diagram
+- **Communication**: Google Drive, Telegram, Trello
+- **Documentation**: Microsoft Office, Google Docs, Google Slides
+- **Frontend**: HTML, CSS, JavaScript, Tailwind CSS, Shad CN, Next.js
+- **Database**: PostgreSQL
+- **Backend**: Spring Boot
+- **Containerization**: Docker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Installation
+
+## Local Installation
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/Inspectra-Cyber-Team/Inspectra-Admin.git
+   ```
+2. Navigate to the project directory:
+   ```sh
+   cd inspectra-admin
+   ```
+3. Install dependencies:
+   ```sh
+   npm install
+   ```
+4. Start the application:
+   ```sh
+   npm run dev
+   ```
+
+---
+
+# Deployment
+
+Go to our website [Inpectra Admin](http://136.228.158.126:4013/auth/login)
+Email: lyhou@gmail.com
+Password: lyhou123
+
+---
+
+# Contact
+
+- Hom Pheakakvotey - voteyhom@gmail.com
+- Phiv Lyhou - lyhou282@gmail.com
+- Phalphea Pheakdey - phalpheapheakdey@gmail.com
+- Leang Helen - helen.leang15@gmail.com
+- Ing Davan - ingdavann4444@gmail.com
+
+<p align="right">(<a href="#readme-top">Back to Top</a>)</p>
+
+
+
