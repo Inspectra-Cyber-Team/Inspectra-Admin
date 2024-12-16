@@ -14,6 +14,12 @@ type BlogDetailsProps = Readonly<{
   uuid: string;
 }>;
 
+// type ReportProps = {
+//   blogUuid: string;
+//   message: string;
+//   userUuid: string;
+// };
+
 export default function BlogPost({ uuid }: BlogDetailsProps) {
   const router = useRouter();
 
@@ -46,7 +52,7 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
                 alt="thumbnail"
               />
             )}
-            <p className="mt-5 text-justify md:text-left">{blogData?.description || "No description available."}</p>
+            <p className="mt-5 text-justify md:text-left" dangerouslySetInnerHTML={{ __html: blogData?.description || "" }}></p>
           </div>
         </div>
 
@@ -91,14 +97,14 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
                   <div className="space-y-2">
                     <div className="flex flex-col md:flex-row md:gap-2">
                       <dt className="text-[#60935D]">Reported by:</dt>
-                      <dt>Naikim</dt>
+                      <dt>naikim</dt>
                     </div>
                     <div className="flex flex-col md:flex-row md:gap-2">
                       <dt className="text-[#60935D]">Report at:</dt>
                       <dt>12/07/2024</dt>
                     </div>
                     <p className="text-sm mt-2 text-justify md:text-left">
-                       This blog has false information
+                    This blog good
                     </p>
                   </div>
                   <Separator className="my-4" />

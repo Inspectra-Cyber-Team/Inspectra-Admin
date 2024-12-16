@@ -245,7 +245,7 @@ export function OverviewTab() {
 
                         <DropdownMenuSeparator />
 
-                        <DropdownMenuItem className="text-yellow-600">
+                        <DropdownMenuItem className="text-yellow-600" onClick={() => router.push(`/blog/${blog?.uuid}/update`)}>
                           <Edit className="h-5 w-5 mr-2 " />
                           Edit Blog
                         </DropdownMenuItem>
