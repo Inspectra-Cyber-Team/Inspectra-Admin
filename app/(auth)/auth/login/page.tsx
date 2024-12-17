@@ -6,6 +6,7 @@ import { IoEyeOffSharp,IoEyeSharp } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import ParticlesComponent from "@/components/ParticleBackground";
 import Link from "next/link"
+import { toast } from "@/components/hooks/use-toast";
 import {
   Card,
   CardDescription,
@@ -35,6 +36,7 @@ const LogIn = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
 
 
 
@@ -42,8 +44,6 @@ const LogIn = () => {
     try {
 
       const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}login`;
-
-       console.log('Login URL:', loginUrl);
 
       const res = await fetch(loginUrl,
         {
@@ -66,6 +66,11 @@ const LogIn = () => {
         router.push("/");
       } else {
         setIsSubmitting(true);
+        toast({
+          description: "Invalid email or password",
+          variant: "error",
+        });
+        setMessage("Invalid email or password");
       }
     } catch (error) {
       console.log(error);
@@ -85,7 +90,9 @@ const LogIn = () => {
       Please enter your details to proceed.
     </CardDescription>
     {isSubmitting && (
-      <p className="text-center text-sm mt-4 text-secondary">Processing...</p>
+      <p className="text-center text-sm mt-4 text-secondary">{message}</p>
+    
+
     )}
    
     <Formik
