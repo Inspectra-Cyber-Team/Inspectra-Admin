@@ -39,6 +39,7 @@ export function ProjectTable() {
   const { data: projectsData, isLoading, isError } = useGetAllProjectsNameQuery();
 
   const projects = projectsData?.data || [];
+  console.log(projects)
 
   const filteredProjects = projects.filter((project: ProjectNameType) =>
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

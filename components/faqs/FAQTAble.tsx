@@ -35,11 +35,10 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useGetAllFAQQuery } from "@/redux/service/faqs";
+import { useDeleteFAQMutation, useGetAllFAQQuery, useUpdateFAQMutation } from "@/redux/service/faqs";
 import { FAQsType } from "@/types/FAQ";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { FaqTableFilter } from "./FAQTableFilter";
-
 
 const ITEMS_PER_PAGE = 10;
 
@@ -63,8 +62,8 @@ export function FAQsTable() {
       { id: "question", label: "Question", checked: true },
       { id: "createdAt", label: "Created At", checked: true },
     ]);
-
-  const { data: faqData, isLoading, isError } = useGetAllFAQQuery();
+  // get data from RTK query 
+  const { data: faqData, isLoading, isError, refetch } = useGetAllFAQQuery();
   console.log(faqData)
 
   const faqs = faqData?.data || [];
@@ -74,15 +73,19 @@ export function FAQsTable() {
         value.toString().toLowerCase().includes(filterValue.toLowerCase())
       )
     );
-  
+
+  const [deleteFAQ] = useDeleteFAQMutation();
+  const [updateFAQ] = useUpdateFAQMutation();
+
+  // pagination
     const totalPages = Math.ceil(filteredFaqs.length / ITEMS_PER_PAGE);
     const totalFaqs = filteredFaqs.length;
-  
     const paginatedFaqs = filteredFaqs.slice(
       (currentPage - 1) * ITEMS_PER_PAGE,
       currentPage * ITEMS_PER_PAGE
     );
 
+  //handlers 
   const handleSelectAll = () => {
     setSelectedFAQs(
       selectedFAQs.length === faqs.length
@@ -97,20 +100,32 @@ export function FAQsTable() {
     );
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (selectedItem) {
-      console.log("Editing FAQ:", selectedItem.uuid, "New Data:", {
-        question: editedQuestion,
-        answer: editedAnswer,
-      });
-      setEditModalOpen(false);
+      try {
+        await updateFAQ({
+          uuid: selectedItem.uuid,
+          question: editedQuestion,
+          answer: editedAnswer,
+        }).unwrap();
+        setEditModalOpen(false);
+        console.log("FAQ updated successfully!");
+        refetch();
+      } catch (err) {
+        console.error("Failed to update FAQ:", err);
+      }
     }
   };
-
-  const handleDelete = () => {
+  
+  const handleDeleteFAQ = async () => {
     if (selectedItem) {
-      console.log("Deleting FAQ:", selectedItem.uuid);
-      setDeleteModalOpen(false);
+      try {
+        await deleteFAQ({ uuid: selectedItem.uuid }).unwrap();
+        setDeleteModalOpen(false);
+        refetch(); // Refresh the FAQs data
+      } catch (err) {
+        console.error("Failed to delete FAQ:", err);
+      }
     }
   };
 
@@ -281,7 +296,7 @@ export function FAQsTable() {
             <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleDelete} variant="destructive">
+            <Button onClick={handleDeleteFAQ} variant="destructive">
               Delete
             </Button>
           </DialogFooter>
