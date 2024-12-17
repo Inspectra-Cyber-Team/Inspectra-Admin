@@ -2,14 +2,6 @@ import { cyberApi } from "../api";
 export const adminAPI = cyberApi.injectEndpoints({
   endpoints: (builder) => ({
 
-    getAllAdmin: builder.query<any,{ page: number; pageSize: number }>({
-      query: ({ page = 1, pageSize = 10 }) =>
-      ({
-          url: `/users?page=${page}&size=${pageSize}`,
-          providesTags: ["Admin"],
-      }),
-    }),
-
 
     getAdminDetail: builder.query<any, {uuid: string}>({
       query: ({uuid}) => ({
@@ -25,8 +17,18 @@ export const adminAPI = cyberApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: [{ type: "USER", id: "LIST1" }],
     }),
+
+    getAdmin:builder.query<any,{page:number,size:number}>({
+      query: ({page,size}) => ({
+        url: `users/admins?page=${page}&size=${size}`,
+        method: "GET",
+      }),
+      providesTags: [{ type: "USER", id: "LIST1" }],
+    }),
+
   }),
 });
 
-export const { useCreateAdminMutation, useGetAdminDetailQuery, useGetAllAdminQuery } = adminAPI;
+export const { useCreateAdminMutation, useGetAdminDetailQuery , useGetAdminQuery} = adminAPI;

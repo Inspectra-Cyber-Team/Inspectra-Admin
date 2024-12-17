@@ -13,20 +13,23 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useGetAllAdminQuery } from "@/redux/service/admin";
 import { AdminDetail } from "@/types/Admin";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { AdminTableFilter } from "@/components/admin/AdminTableFilter";
+import { useGetAdminQuery } from "@/redux/service/admin";
 
 const ITEMS_PER_PAGE = 10;
 
-interface Column {
+type Column = {
   id: keyof AdminDetail;
   label: string;
   checked: boolean;
 }
 
 export function AdminTable() {
+
+
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
   const [filterValue, setFilterValue] = useState("");
@@ -36,16 +39,10 @@ export function AdminTable() {
     { id: "createdAt", label: "Created At", checked: true },
   ]);
 
-  const {
-    data: adminData,
-    isLoading,
-    isError,
-  } = useGetAllAdminQuery({
-    page: currentPage - 1,
-    pageSize: ITEMS_PER_PAGE,
-  });
+  const {data,isLoading,isError} = useGetAdminQuery({page:currentPage-1,size:ITEMS_PER_PAGE});
 
-  const admins = adminData?.content || [];
+
+  const admins = data?.content || [];
 
   const filteredAdmins = filterValue
     ? admins.filter((admin: AdminDetail) =>
@@ -91,7 +88,7 @@ export function AdminTable() {
   };
 
   if (isLoading) {
-    return <div>Loading admins...</div>;
+    return <div className="flex justify-center items-center h-screen">Loading admins...</div>;
   }
 
   if (isError) {

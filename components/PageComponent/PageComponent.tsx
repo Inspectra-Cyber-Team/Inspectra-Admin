@@ -11,6 +11,7 @@ import { useCountBlogQuery } from '@/redux/service/blog';
 import { useCountUserQuery } from '@/redux/service/user';
 import { useCountFeedbackQuery } from '@/redux/service/feedback';
 import { useCountProjectQuery } from '@/redux/service/project';
+import { DataItem } from '@/types/overviewPieType';
 
 export default function PageComponent() {
 
@@ -22,38 +23,22 @@ export default function PageComponent() {
 
   const {data:projectCount, error:ProjectError, isLoading:projectLoading} = useCountProjectQuery({});
 
-  if (blogLoading) {
-    return <div>Loading...</div>
+  if (blogLoading || userLoading || feedbackLoading || projectLoading) {
+    return <div>Loading...</div>;
   }
 
-    if (BlogError) {
-        return <div>Error </div>
-    }
+  if (BlogError || UserError || FeedbackError || ProjectError) {
+    return <div>Error loading data</div>;
+  }
 
-    if (UserError) {
-        return <div>Error </div>
-    }
 
-    if (userLoading) {
-        return <div>Loading...</div>
-    }
-
-    if (FeedbackError) {
-        return <div>Error </div>
-    }
-
-    if (feedbackLoading) {
-        return <div>Loading...</div>
-    }
-
-    if (ProjectError) {
-        return <div>Error </div>
-    }
-
-    if (projectLoading) {
-        return <div>Loading...</div>
-    }
-    
+  //handle this for pass value to component instead to see data 
+  const data: DataItem[] = [
+    { name: "Blog", value: blogCount?.data || 0 },
+    { name: "Feedback", value: feedbackCount?.data || 0 },
+    { name: "User", value: userCount?.data || 0 },
+    { name: "Project", value: projectCount?.data || 0 },
+  ];
 
   return (
     <section className="flex-1 space-y-4 px-8">
@@ -100,7 +85,7 @@ export default function PageComponent() {
           <CardTitle>Overall Traffic</CardTitle>
         </CardHeader>
         <CardContent>
-          <Recent />
+          <Recent data={data}/>
         </CardContent>
       </Card>
     </div>

@@ -1,17 +1,13 @@
 "use client"
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts"
+import { RecentProps } from "@/types/overviewPieType"
 
-const data = [
-  { name: "Blog", value: 25 },
-  { name: "Feedback", value: 30 },
-  { name: "User", value: 25 },
-  { name: "Project", value: 20 },
-]
 
 const COLORS = ["#DCFFB3", "#F9B800", "#b9ff66", "#60935D"]
 
-export function Recent() {
+export function Recent({ data }: Readonly<RecentProps>) {
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <PieChart>
