@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import {  useState } from "react";
 import {
   Table,
   TableBody,
@@ -34,7 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useGetAllBlogQuery } from "@/redux/service/blog";
+import { useDeleteBlogMutation, useGetAllBlogQuery } from "@/redux/service/blog";
 import { Blog } from "@/types/Blog";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -60,17 +60,18 @@ export function OverviewTab() {
   ]);
   const router = useRouter();
 
+  // get blog data
   const {
     data: blogData,
     isLoading,
     isError,
+    refetch,
   } = useGetAllBlogQuery({
     page: currentPage - 1,
     pageSize: ITEMS_PER_PAGE,
   });
 
   const blogs = blogData?.content || [];
-
   const filteredBlogs = filterValue
     ? blogs.filter((blog: Blog) =>
         Object.entries(blog).some(
@@ -83,14 +84,17 @@ export function OverviewTab() {
       )
     : blogs;
 
+   const [deleteBlog] = useDeleteBlogMutation(); 
+
+  // pagination
   const paginatedBlogs = filteredBlogs.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
   const totalPages = Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE);
   const totalBlogs = filteredBlogs.length;
 
+  // handlers
   const handleSelectAll = () => {
     setSelectedBlogs(
       selectedBlogs.length === blogs.length
@@ -105,13 +109,16 @@ export function OverviewTab() {
     );
   };
 
-  const handleDelete = () => {
+  const handleDeleteBlog = async () => {
     if (selectedItem) {
-      setSelectedBlogs((prev) =>
-        prev.filter((uuid) => uuid !== selectedItem.uuid)
-      );
+      try {
+        await deleteBlog({ uuid: selectedItem.uuid }).unwrap();
+        setDeleteModalOpen(false);
+        refetch(); // Refresh the FAQs data
+      } catch (err) {
+        console.error("Failed to delete Blog:", err);
+      }
     }
-    setDeleteModalOpen(false);
   };
 
   const handleFilterChange = (value: string) => {
@@ -245,7 +252,12 @@ export function OverviewTab() {
 
                         <DropdownMenuSeparator />
 
-                        <DropdownMenuItem className="text-yellow-600" onClick={() => router.push(`/blog/${blog?.uuid}/update`)}>
+                        <DropdownMenuItem
+                          className="text-yellow-600"
+                          onClick={() =>
+                            router.push(`/blog/${blog?.uuid}/update`)
+                          }
+                        >
                           <Edit className="h-5 w-5 mr-2 " />
                           Edit Blog
                         </DropdownMenuItem>
@@ -273,7 +285,7 @@ export function OverviewTab() {
 
         {/*Delete Modal */}
         <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-          <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
+          <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader>
               <DialogTitle className="text-xl text-foreground">
                 Confirm Delete
@@ -286,7 +298,7 @@ export function OverviewTab() {
               <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleDelete}>
+              <Button variant="destructive" onClick={handleDeleteBlog}>
                 Delete
               </Button>
             </DialogFooter>

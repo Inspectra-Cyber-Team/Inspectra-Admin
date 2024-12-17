@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { MdClear } from "react-icons/md";
 import { useUploadFileMutation } from "@/redux/service/fileupload";
 import { useToast } from "@/components/hooks/use-toast";
 import {
@@ -15,6 +14,7 @@ import {
 } from "@/redux/service/blog";
 import { useRouter } from "next/navigation";
 import TextEditor from "@/components/TextEdittor/TextEditor";
+import { XCircle } from "lucide-react";
 
 type UpdateBlogComponentProps = {
   uuid: string;
@@ -169,16 +169,16 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
 
                 {/* Thumbnail Upload */}
                 <div
-                  className="file-upload-design mt-6 p-6 rounded-xl border-2 border-dashed border-gray-400 hover:border-gray-500 transition-colors"
+                  className="file-upload-design p-6 rounded-xl border-2 border-dashed flex items-center justify-center flex-col gap-2"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                 >
-                  <p className="text-center text-lg font-medium text-gray-600">
+                  <p className="text-center font-medium">
                     Drag and Drop Images Here
                   </p>
-                  <p className="text-center text-sm text-gray-500">or</p>
+                  <p className="text-center text-gray-500">or</p>
                   <span
-                    className="browse-button text-blue-500 font-bold cursor-pointer"
+                    className="browse-button text-primary-foreground cursor-pointer justify-center bg-primary p-2 rounded-lg"
                     onClick={() => {
                       const thumbnailInput =
                         document.getElementById("thumbnail");
@@ -187,7 +187,7 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
                   >
                     Browse Files
                   </span>
-                  <Label htmlFor="thumbnail" className="block text-lg font-medium mt-4 object-contain">Thumbnail</Label>
+                  {/* <Label htmlFor="thumbnail" className="block text-lg font-medium mt-4 object-contain">Thumbnail</Label> */}
                   <Input
                     type="file"
                     id="thumbnail"
@@ -200,7 +200,7 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
                 </div>
 
                 {/* Preview Images */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                   {previewImages.map((src, index) => (
                     <div key={index} className="relative">
                       <img
@@ -208,31 +208,30 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
                         alt={`Preview ${index + 1}`}
                         className="w-full h-32 object-cover rounded-lg border"
                       />
-                      <Button
+                      <XCircle
                         type="button"
-                        className="absolute -top-2 right-0 px-1 text-white bg-destructive rounded-full"
+                        className="absolute -top-2 -right-0  text-destructive  cursor-pointer"
                         onClick={() => {
                           const updatedFiles = [...previewImages];
                           updatedFiles.splice(index, 1);
                           setPreviewImages(updatedFiles);
                         }}
                       >
-                        <MdClear />
-                      </Button>
+                      </XCircle>
                     </div>
                   ))}
                 </div>
 
                 {/* Title */}
                 <div>
-                  <Label htmlFor="title" className="text-lg">Title</Label>
+                  <Label htmlFor="title" className="text-sm font-medium">Title</Label>
                   <Field
                     as={Input}
                     type="text"
                     id="title"
                     name="title"
                     placeholder="Enter blog title"
-                    className="mt-2 p-3 border rounded-md w-full"
+                    className="mt-2 p-3 border rounded-md w-full "
                   />
                   <ErrorMessage
                     name="title"
@@ -242,9 +241,9 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
                 </div>
 
                 {/* Description */}
-                <div className="col-span-full mt-6">
-                  <Label htmlFor="description" className="text-lg">Description</Label>
-                  <Field name="description">
+                <div className="col-span-full mt-4">
+                  <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                  <Field name="description" className="mt-2 p-3 border rounded-md w-full ">
                     {({ field }: any) => (
                       <TextEditor
                         value={field.value}
@@ -260,8 +259,11 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
                 </div>
 
                 {/* Submit Button */}
-                <div className="mt-6">
-                  <Button type="submit" className="rounded-md">
+                <div className="mt-4 flex gap-2">
+                  <Button variant="outline" onClick={() => router.push("/blog")}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" >
                     Update Blog
                   </Button>
                 </div>

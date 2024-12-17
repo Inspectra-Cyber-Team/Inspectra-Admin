@@ -66,7 +66,14 @@ export const blogApi = cyberApi.injectEndpoints({
         }),
     }),
 
+    deleteBlog: builder.mutation<any, { uuid: string}>({
+        query: ({uuid}) => ({
+            url: `blogs/${uuid}`,
+            method: "DELETE",
+        }),
+    }),
+
   }),
 });
 
-export const {  useGetAllBlogQuery, useLikeBlogMutation, useGetBlogDetailsQuery, useGetBlogByUserUuidQuery, useCreateBlogMutation, useUpdateBlogMutation, useGetBlogByUuidQuery , useVerifyBlogMutation} = blogApi;
+export const {  useGetAllBlogQuery, useLikeBlogMutation, useGetBlogDetailsQuery, useGetBlogByUserUuidQuery, useCreateBlogMutation, useUpdateBlogMutation, useGetBlogByUuidQuery , useVerifyBlogMutation, useDeleteBlogMutation} = blogApi;
