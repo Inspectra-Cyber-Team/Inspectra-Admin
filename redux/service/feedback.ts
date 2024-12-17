@@ -13,21 +13,29 @@ export const feedbackApi = cyberApi.injectEndpoints({
       }),
     }),
     // get user feedback
-    getAllUserFeedback: builder.query({
-      query: () => ({
-        url: `feedbacks`,
-        providesTags: ["Feedback"],
+    getAllUserFeedback: builder.query<any, { page?: number; size?: number }>({
+      query: ({ page , size }) => ({
+        url: `feedbacks?page=${page}&size=${size}`,
       }),
+      providesTags:[{type: "Feedback", id: "ALL1"}]
     }),
 
     countFeedback: builder.query({
       query: () => ({
         url: `feedbacks/count`,
     })
-  })
-  
   }),
+
+    deleteFeedback: builder.mutation<any, { uuid: string }>({
+      query: ({ uuid }) => ({
+        url: `feedbacks/${uuid}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "Feedback", id: "ALL1" }],
+  }),
+
+})
 
 });
 
-export const { useCreateUserFeedbackMutation, useGetAllUserFeedbackQuery, useCountFeedbackQuery } =feedbackApi;
+export const { useCreateUserFeedbackMutation, useGetAllUserFeedbackQuery, useCountFeedbackQuery , useDeleteFeedbackMutation} =feedbackApi;

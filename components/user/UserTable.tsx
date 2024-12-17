@@ -12,7 +12,13 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Eye, FileWarningIcon, MoreHorizontal } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  FileWarningIcon,
+  MoreHorizontal,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -29,10 +35,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useGetAllUserQuery } from "@/redux/service/user";
+import { useBlockUserMutation, useGetAllUserQuery } from "@/redux/service/user";
 import { UserDetail } from "@/types/UserDetail";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { UserTableFilter } from "./UserTableFilter";
+
 
 const ITEMS_PER_PAGE = 10;
 
@@ -56,18 +63,38 @@ export function UsersTable() {
     { id: "isActive", label: "Status", checked: true },
   ]);
 
-  const { data: userData, isLoading, isError } = useGetAllUserQuery({
+  const {
+    data: userData,
+    isLoading,
+    isError,
+  } = useGetAllUserQuery({
     page: currentPage - 1,
     pageSize: ITEMS_PER_PAGE,
   });
 
   const users = userData?.content || [];
 
+  const [blogUser] = useBlockUserMutation();
+  const [uuid, setUuid] = useState<string>("");
+
+  const handleBlockUser = async (uuid: string) => {
+    try {
+      await blogUser({ uuid });
+
+      setDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Failed to block user:", error);
+    }
+  };
+
   const filteredUsers = filterValue
     ? users.filter((user: UserDetail) =>
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        Object.entries(user).some(([key,value]) =>
-          value && typeof value === 'string' && value.toLowerCase().includes(filterValue.toLowerCase())
+        Object.entries(user).some(
+          ([ value]) =>
+            value &&
+            typeof value === "string" &&
+            value.toLowerCase().includes(filterValue.toLowerCase())
         )
       )
     : users;
@@ -92,13 +119,6 @@ export function UsersTable() {
     setSelectedUsers((prev) =>
       prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
     );
-  };
-
-  const handleDelete = () => {
-    if (selectedItem) {
-      console.log("Deleting FAQ:", selectedItem.uuid);
-      setDeleteModalOpen(false);
-    }
   };
 
   const getStatusBadge = (status: UserDetail["isActive"]) => {
@@ -131,7 +151,10 @@ export function UsersTable() {
 
   return (
     <div className="space-y-4">
-      <UserTableFilter onFilterChange={handleFilterChange} onColumnsChange={handleColumnsChange} />
+      <UserTableFilter
+        onFilterChange={handleFilterChange}
+        onColumnsChange={handleColumnsChange}
+      />
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
@@ -143,9 +166,12 @@ export function UsersTable() {
                 />
               </TableHead>
               <TableHead>Image</TableHead>
-              {visibleColumns.map((column) => column.checked && (
-                <TableHead key={column.id}>{column.label}</TableHead>
-              ))}
+              {visibleColumns.map(
+                (column) =>
+                  column.checked && (
+                    <TableHead key={column.id}>{column.label}</TableHead>
+                  )
+              )}
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -161,20 +187,22 @@ export function UsersTable() {
                 <TableCell>
                   <Avatar>
                     <AvatarImage src={user?.profile} alt={user?.name} />
-                    <AvatarFallback>
-                    {user?.name.charAt(0)}
-                    </AvatarFallback>
+                    <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </TableCell>
-                {visibleColumns.map((column) => column.checked && (
-                  <TableCell key={column.id}>
-                    {column.id === 'createdAt' 
-                      ? convertToDayMonthYear(user[column.id])
-                      : column.id === 'isActive'
-                      ? getStatusBadge(user[column.id])
-                      : user[column.id]}
-                  </TableCell>
-                ))}
+                {visibleColumns.map(
+                  (column) =>
+                    column.checked && (
+                      <TableCell key={column.id}>
+                        {column.id === "createdAt"
+                          ? convertToDayMonthYear(user[column.id])
+                          : column.id === "isActive"
+                          ? // Use the `getStatusBadge` function to display the badge
+                            getStatusBadge(user[column.id])
+                          : user[column.id]}
+                      </TableCell>
+                    )
+                )}
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -195,7 +223,7 @@ export function UsersTable() {
                       <DropdownMenuItem
                         className="text-destructive"
                         onClick={() => {
-                          setSelectedItem(user);
+                          setUuid(user?.uuid);
                           setDeleteModalOpen(true);
                         }}
                       >
@@ -211,7 +239,7 @@ export function UsersTable() {
 
         {/* View Modal */}
         <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
-          <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
+          <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader>
               <DialogTitle>View User Details</DialogTitle>
             </DialogHeader>
@@ -227,16 +255,18 @@ export function UsersTable() {
                   <strong>Username:</strong> {selectedItem.name}
                 </div>
                 <div>
-                  <strong>Bio:</strong> {selectedItem.bio || "No bio yet"} 
+                  <strong>Bio:</strong> {selectedItem.bio || "No bio yet"}
                 </div>
                 <div>
                   <strong>Email:</strong> {selectedItem.email}
                 </div>
                 <div>
-                  <strong>Status:</strong> {getStatusBadge(selectedItem.isActive)}
+                  <strong>Status:</strong>{" "}
+                  {getStatusBadge(selectedItem.isActive)}
                 </div>
                 <div>
-                  <strong>Created At:</strong> {convertToDayMonthYear(selectedItem.createdAt)}
+                  <strong>Created At:</strong>{" "}
+                  {convertToDayMonthYear(selectedItem.createdAt)}
                 </div>
               </div>
             )}
@@ -245,9 +275,11 @@ export function UsersTable() {
 
         {/* Block Modal */}
         <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-          <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
+          <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader>
-              <DialogTitle className="text-xl text-foreground">Are you sure?</DialogTitle>
+              <DialogTitle className="text-xl text-foreground">
+                Are you sure?
+              </DialogTitle>
               <DialogDescription className="text-[#888888] text-base my-2">
                 This action cannot be undone. The user will be block.
               </DialogDescription>
@@ -256,7 +288,12 @@ export function UsersTable() {
               <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleDelete} >Block</Button>
+              <Button
+                variant="destructive"
+                onClick={() => handleBlockUser(uuid)}
+              >
+                Block
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -276,10 +313,9 @@ export function UsersTable() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span>
-              {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(
-                currentPage * ITEMS_PER_PAGE,
-                totalUsers
-              )} of {totalUsers}
+              {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
+              {Math.min(currentPage * ITEMS_PER_PAGE, totalUsers)} of{" "}
+              {totalUsers}
             </span>
             <Button
               variant="ghost"
@@ -297,4 +333,3 @@ export function UsersTable() {
     </div>
   );
 }
-

@@ -31,10 +31,17 @@ export const userAPI = cyberApi.injectEndpoints({
       query: () => ({
         url: `users/count`,
       }),
-    })
+    }),
+
+    blockUser: builder.mutation<any, {uuid: string}>({
+      query: ({uuid}) => ({
+        url: `/users/block/${uuid}`,
+        method: "PUT",
+      }),
+    }),
 
 
 })
 })
 
-export const {  useGetUserDetailQuery, useUpdateUserProfileMutation, useGetAllUserQuery ,useCountUserQuery} = userAPI;
+export const {useBlockUserMutation,  useGetUserDetailQuery, useUpdateUserProfileMutation, useGetAllUserQuery ,useCountUserQuery} = userAPI;

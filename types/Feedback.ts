@@ -3,6 +3,7 @@ export type createFeedbackType = {
   };
   
   export type feedbackType = {
+    uuid:string;
     message: string;
     firstName: string;
     lastName: string;
