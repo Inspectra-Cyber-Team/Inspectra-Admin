@@ -3,34 +3,39 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useGetBlogDetailsQuery } from "@/redux/service/blog"; 
+import { useGetBlogDetailsQuery } from "@/redux/service/blog";
 import { Blog } from "@/types/Blog";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
+import { useGetReportByBlogUuidQuery } from "@/redux/service/report";
 
 type BlogDetailsProps = Readonly<{
   uuid: string;
 }>;
 
-// type ReportProps = {
-//   blogUuid: string;
-//   message: string;
-//   userUuid: string;
-// };
-
 export default function BlogPost({ uuid }: BlogDetailsProps) {
+
   const router = useRouter();
 
   const [blogData, setBlogData] = useState<Blog | undefined>();
+
   const { data } = useGetBlogDetailsQuery({ uuid });
 
   useEffect(() => {
     if (data) {
-      setBlogData(data.data); 
+      setBlogData(data?.data);
     }
   }, [data]);
+
+  const { data: reportData, isLoading: reportLoading } =
+    useGetReportByBlogUuidQuery({ blogUuid: uuid });
+
+  
+   if (reportLoading) {
+    return <div>Loading...</div>; 
+
 
   return (
     <div className="container mx-auto p-4">
@@ -48,11 +53,14 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 className="w-full h-auto max-h-[400px] object-contain rounded-lg mt-5"
-                src={blogData.thumbnail?.[0]}
+                src={blogData?.thumbnail?.[0] || ""}
                 alt="thumbnail"
               />
             )}
-            <p className="mt-5 text-justify md:text-left" dangerouslySetInnerHTML={{ __html: blogData?.description || "" }}></p>
+            <p
+              className="mt-5 text-justify md:text-left"
+              dangerouslySetInnerHTML={{ __html: blogData?.description || "" }}
+            ></p>
           </div>
         </div>
 
@@ -72,13 +80,29 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
               <CardContent className="p-6 space-y-4">
                 <dl className="space-y-2">
                   {[
-                    { label: "Posted by", value: `${blogData?.user?.firstName || "Unknown"} ${blogData?.user?.lastName || ""}` },
-                    { label: "Created at", value: blogData?.createdAt ? convertToDayMonthYear(blogData?.createdAt) : "Unknown" },
+                    {
+                      label: "Posted by",
+                      value: `${blogData?.user?.firstName || "Unknown"} ${
+                        blogData?.user?.lastName || ""
+                      }`,
+                    },
+                    {
+                      label: "Created at",
+                      value: blogData?.createdAt
+                        ? convertToDayMonthYear(blogData?.createdAt || "")
+                        : "Unknown",
+                    },
                     { label: "Total views", value: blogData?.viewsCount || 0 },
                     { label: "Total likes", value: blogData?.likesCount || 0 },
-                    { label: "Total comments", value: blogData?.countComments || 0 },
+                    {
+                      label: "Total comments",
+                      value: blogData?.countComments || 0,
+                    },
                   ].map(({ label, value }) => (
-                    <div key={label} className="flex flex-col md:flex-row md:gap-2">
+                    <div
+                      key={label}
+                      className="flex flex-col md:flex-row md:gap-2"
+                    >
                       <dt className="text-[#60935D]">{label}:</dt>
                       <dt className="font-medium">{value}</dt>
                     </div>
@@ -91,29 +115,32 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
           {/* Report Section */}
           <div>
             <Button className="w-full lg:w-auto mb-5">Report</Button>
-            <Card className="border-none shadow-none">
-              <CardContent className="space-y-4 p-6">
-                <div className="space-y-2">
+            {reportData?.content?.map((report:any, index:any) => (
+              <Card key={index} className="border-none shadow-none">
+                <CardContent className="space-y-4 p-6">
                   <div className="space-y-2">
-                    <div className="flex flex-col md:flex-row md:gap-2">
-                      <dt className="text-[#60935D]">Reported by:</dt>
-                      <dt>naikim</dt>
+                    <div className="space-y-2">
+                      <div className="flex flex-col md:flex-row md:gap-2">
+                        <dt className="text-[#60935D]">Reported by:</dt>
+                        <dt>{report.reportedBy}</dt>
+                      </div>
+                      <div className="flex flex-col md:flex-row md:gap-2">
+                        <dt className="text-[#60935D]">Report at: {report?.name || "user"}</dt>
+                        <dt>{new Date(report?.createdAt).toISOString().split('T')[0]}</dt>
+                      </div>
+                      <p className="text-sm mt-2 text-justify md:text-left">
+                        {report.message}
+                      </p>
                     </div>
-                    <div className="flex flex-col md:flex-row md:gap-2">
-                      <dt className="text-[#60935D]">Report at:</dt>
-                      <dt>12/07/2024</dt>
-                    </div>
-                    <p className="text-sm mt-2 text-justify md:text-left">
-                    This blog good
-                    </p>
+                    <Separator className="my-4" />
                   </div>
-                  <Separator className="my-4" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
     </div>
   );
+}
 }

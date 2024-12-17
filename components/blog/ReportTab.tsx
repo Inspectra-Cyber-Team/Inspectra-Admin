@@ -34,14 +34,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  useDeleteReportMutation,
+  useGetAllReportQuery,
+} from "@/redux/service/report";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/hooks/use-toast";
 
-interface Blog {
+
+type Blog = {
   blogUuid: string;
   title: string;
   message: string;
   createdAt: string;
   thumbnail: string;
-}
+};
 
 const ITEMS_PER_PAGE = 10;
 
@@ -95,14 +102,16 @@ async function fetchBlogs(query: string): Promise<Blog[]> {
 }
 
 export function ReportTab({ query = "" }: { query?: string }) {
+  
+  const router = useRouter();
+
+  const { toast } = useToast();
+
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBlogs, setSelectedBlogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [selectedItem, setSelectedItem] = useState<Blog | null>(null);
-
 
   useEffect(() => {
     const loadBlogs = async () => {
@@ -116,6 +125,23 @@ export function ReportTab({ query = "" }: { query?: string }) {
 
     loadBlogs();
   }, [query]);
+
+  const { data: reportData, isLoading: reportLoading } = useGetAllReportQuery({
+    page: 0,
+    pageSize: 10,
+  });
+
+  const [deleteReport] = useDeleteReportMutation();
+
+  const [reportUuid, setReportUuid] = useState<string>("");
+
+  if (reportLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        Loading blogs...
+      </div>
+    );
+  }
 
   const totalPages = Math.ceil(blogs.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -132,23 +158,42 @@ export function ReportTab({ query = "" }: { query?: string }) {
 
   const handleSelectBlog = (blogUuid: string) => {
     setSelectedBlogs((prev) =>
-      prev.includes(blogUuid) ? prev.filter((id) => id !== blogUuid) : [...prev, blogUuid]
+      prev.includes(blogUuid)
+        ? prev.filter((id) => id !== blogUuid)
+        : [...prev, blogUuid]
     );
   };
-
-  const handleDelete = () => {
-    if (selectedItem) {
-      setBlogs((prev) =>
-        prev.filter((Blog) => Blog.blogUuid !== selectedItem.blogUuid)
-      );
-    }
-    setDeleteModalOpen(false);
-  };
-  
 
   if (isLoading) {
     return <div>Loading blogs...</div>;
   }
+
+  const handleDeleteSelected = async (uuid: string) => {
+    try {
+      const res = await deleteReport({ reportUuid: uuid });
+
+      // Check if the response has a successful status code or null response
+      if (!res.error && res.data === null) {
+        toast({
+          title: "Report Deleted",
+          description: "Report deleted successfully",
+          variant: "success",
+        });
+
+        setDeleteModalOpen(false);
+      } else {
+        throw new Error("Unexpected response from server");
+      }
+    } catch (error) {
+      console.error(error);
+
+      toast({
+        title: "Error",
+        description: "An error occurred while deleting the report",
+        variant: "error",
+      });
+    }
+  };
 
   return (
     <div className="rounded-md border bg-card">
@@ -162,15 +207,15 @@ export function ReportTab({ query = "" }: { query?: string }) {
               />
             </TableHead>
             <TableHead>Image</TableHead>
-            <TableHead>Title</TableHead>
+            <TableHead>Username</TableHead>
             <TableHead>Report Message</TableHead>
             <TableHead>Created At</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentBlogs.map((blog) => (
-            <TableRow key={blog.blogUuid}>
+          {reportData?.content?.map((blog: any) => (
+            <TableRow key={blog?.uuid}>
               <TableCell>
                 <Checkbox
                   checked={selectedBlogs.includes(blog.blogUuid)}
@@ -180,16 +225,19 @@ export function ReportTab({ query = "" }: { query?: string }) {
               </TableCell>
               <TableCell>
                 <Image
-                  src={blog.thumbnail}
+                  src={blog.user?.profile}
                   alt={blog.message}
                   width={48}
                   height={48}
                   className="rounded-md"
                 />
               </TableCell>
-              <TableCell>{blog.title}</TableCell>
+              <TableCell>{blog.user?.name}</TableCell>
+
               <TableCell>{blog.message}</TableCell>
-              <TableCell>{blog.createdAt}</TableCell>
+              <TableCell>
+                {new Date(blog?.createdAt).toISOString().split("T")[0]}
+              </TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -199,7 +247,9 @@ export function ReportTab({ query = "" }: { query?: string }) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => router.push(`/blog/${blog.blogUuid}`)}
+                    >
                       <Eye className="h-5 w-5 mr-2" />
                       View details
                     </DropdownMenuItem>
@@ -207,7 +257,8 @@ export function ReportTab({ query = "" }: { query?: string }) {
                     <DropdownMenuItem
                       className="text-destructive"
                       onClick={() => {
-                        setSelectedItem(blog);
+                      
+                        setReportUuid(blog?.uuid);
                         setDeleteModalOpen(true);
                       }}
                     >
@@ -221,11 +272,13 @@ export function ReportTab({ query = "" }: { query?: string }) {
         </TableBody>
       </Table>
 
-          {/* Delete Modal */}
+      {/* Delete Modal */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
+        <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
           <DialogHeader>
-            <DialogTitle className="text-xl text-foreground">Comfirm Delete</DialogTitle>
+            <DialogTitle className="text-xl text-foreground">
+              Comfirm Delete
+            </DialogTitle>
             <DialogDescription className="text-[#888888] text-base my-2">
               Are you sure you want to delete this blog?
             </DialogDescription>
@@ -234,12 +287,15 @@ export function ReportTab({ query = "" }: { query?: string }) {
             <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete} >Delete</Button>
+            <Button
+              variant="destructive"
+              onClick={() => handleDeleteSelected(reportUuid)}
+            >
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-
 
       <div className="flex items-center justify-between px-4 py-2 border-t">
         <div className="text-sm text-muted-foreground">
@@ -247,7 +303,8 @@ export function ReportTab({ query = "" }: { query?: string }) {
         </div>
         <div className="flex items-center space-x-2 text-sm">
           <span>
-            {startIndex + 1}-{Math.min(endIndex, blogs.length)} of {blogs.length}
+            {startIndex + 1}-{Math.min(endIndex, blogs.length)} of{" "}
+            {blogs.length}
           </span>
           <div className="flex items-center space-x-1">
             <Button

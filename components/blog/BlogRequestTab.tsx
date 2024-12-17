@@ -1,6 +1,6 @@
 "use client";
 
-import { useState} from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -39,7 +39,11 @@ import { Blog } from "@/types/Blog";
 import { useRouter } from "next/navigation";
 import { BlogRequestFilter } from "./BlogRequestFilter";
 import { convertToDayMonthYear } from "@/lib/utils";
-import { useGetAllBlogQuery } from "@/redux/service/blog";
+import {
+  useDeleteBlogMutation,
+  useGetAllBlogUnVerifiedQuery,
+  useVerifyBlogMutation,
+} from "@/redux/service/blog";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -53,7 +57,8 @@ export function BlogRequestTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBlogs, setSelectedBlogs] = useState<string[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<Blog | null>(null);
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<Column[]>([
     { id: "title", label: "Title", checked: true },
@@ -61,28 +66,59 @@ export function BlogRequestTab() {
   ]);
   const router = useRouter();
 
+  const [uuid, setUuid] = useState<string>("");
+
+  const [verifyBlog] = useVerifyBlogMutation();
+
+  const [deleteBlog] = useDeleteBlogMutation();
+
+
+  const handleDeteBlog = async (uuid: string) => {
+
+    try {
+      
+      await deleteBlog({ uuid: uuid });
+
+      setDeleteModalOpen(false);
+      
+    } catch (error) {
+      console.error("Error deleting blog", error);
+    }
+  }
+
+  const handleVerify = async (uuid: string) => {
+    try {
+    await verifyBlog({ uuid: uuid });
+
+        setVerifyModalOpen(false);
+      
+    } catch (error) {
+      console.error("Error verifying blog", error);
+    }
+  };
+
   const {
     data: blogData,
     isLoading,
     isError,
-  } = useGetAllBlogQuery({
+  } = useGetAllBlogUnVerifiedQuery({
     page: currentPage - 1,
     pageSize: ITEMS_PER_PAGE,
   });
 
   const blogs = blogData?.content || [];
 
-  const filteredBlogs = filterValue
-    ? blogs.filter((blog: Blog) =>
+  const filteredBlogs = blogs.filter(
+    (blog: Blog) =>
+      !blog.isVerified && // Ensure isVerified is false
+      (!filterValue ||
         Object.entries(blog).some(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ([key, value]) =>
+          ([ value]) =>
             value &&
             typeof value === "string" &&
             value.toLowerCase().includes(filterValue.toLowerCase())
-        )
-      )
-    : blogs;
+        ))
+  );
 
   const paginatedBlogs = filteredBlogs.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -106,14 +142,7 @@ export function BlogRequestTab() {
     );
   };
 
-  const handleDelete = () => {
-    if (selectedItem) {
-      setSelectedBlogs((prev) =>
-        prev.filter((uuid) => uuid !== selectedItem.uuid)
-      );
-    }
-    setDeleteModalOpen(false);
-  };
+
 
   const handleFilterChange = (value: string) => {
     setFilterValue(value);
@@ -156,10 +185,13 @@ export function BlogRequestTab() {
                     <TableHead key={column.id}>{column.label}</TableHead>
                   )
               )}
+
               <TableHead>Status</TableHead>
+
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody className="cursor-pointer">
             {paginatedBlogs.map((blog: Blog, index: number) => (
               <TableRow key={index}>
@@ -229,11 +261,21 @@ export function BlogRequestTab() {
                 <TableCell>
                   <div className="flex space-x-2">
                     <div className="text-green-500">
-                      <Check />
+                      <Check
+                        onClick={() => {
+                          setVerifyModalOpen(true);
+                          if (blog?.uuid) {
+                            setUuid(blog.uuid);
+                          }
+                        }}
+                      />
                     </div>
 
                     <div className="text-destructive">
-                      <X />
+                      <X onClick={() => {
+                        setUuid(blog?.uuid);
+                        setDeleteModalOpen(true);
+                      }}/>
                     </div>
                   </div>
                 </TableCell>
@@ -261,7 +303,7 @@ export function BlogRequestTab() {
                       <DropdownMenuItem
                         className="text-destructive"
                         onClick={() => {
-                          setSelectedItem(blog);
+                          setUuid(blog?.uuid);
                           setDeleteModalOpen(true);
                         }}
                       >
@@ -278,7 +320,7 @@ export function BlogRequestTab() {
 
         {/* Delete Modal */}
         <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-          <DialogContent  className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
+          <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader>
               <DialogTitle className="text-xl text-foreground">
                 Comfirm Delete
@@ -291,8 +333,30 @@ export function BlogRequestTab() {
               <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleDelete}>
+              <Button variant="destructive" onClick={()=>handleDeteBlog(uuid)}>
                 Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Verify Modal */}
+        <Dialog open={verifyModalOpen} onOpenChange={setVerifyModalOpen}>
+          <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl text-foreground">
+                Verify Blog
+              </DialogTitle>
+              <DialogDescription className="text-[#888888] text-base my-2">
+                Are you sure you want to verify this blog?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="default" onClick={() => handleVerify(uuid)}>
+                Confirm
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -326,7 +390,7 @@ export function BlogRequestTab() {
               onClick={() =>
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
-              disabled={currentPage === totalPages}
+              // disabled={currentPage === totalPages}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

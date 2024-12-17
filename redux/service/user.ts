@@ -26,7 +26,15 @@ export const userAPI = cyberApi.injectEndpoints({
         body: userProfile,
       }),
   }),
+   
+    countUser: builder.query({
+      query: () => ({
+        url: `users/count`,
+      }),
+    })
+
+
 })
 })
 
-export const {  useGetUserDetailQuery, useUpdateUserProfileMutation, useGetAllUserQuery } = userAPI;
+export const {  useGetUserDetailQuery, useUpdateUserProfileMutation, useGetAllUserQuery ,useCountUserQuery} = userAPI;

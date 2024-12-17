@@ -19,8 +19,15 @@ export const feedbackApi = cyberApi.injectEndpoints({
         providesTags: ["Feedback"],
       }),
     }),
+
+    countFeedback: builder.query({
+      query: () => ({
+        url: `feedbacks/count`,
+    })
+  })
+  
   }),
+
 });
 
-export const { useCreateUserFeedbackMutation, useGetAllUserFeedbackQuery } =
-  feedbackApi;
+export const { useCreateUserFeedbackMutation, useGetAllUserFeedbackQuery, useCountFeedbackQuery } =feedbackApi;

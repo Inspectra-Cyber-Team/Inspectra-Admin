@@ -14,10 +14,7 @@ export const projectAPI = cyberApi.injectEndpoints({
     }),
     // get user Project
     getAllProjectsName: builder.query<any, void>({
-      query: () => ({
-        url: `projects`,
-        providesTags: ["Projects"],
-      }),
+      query: () => `/projects`, 
     }),
 
     // scan project
@@ -30,6 +27,12 @@ export const projectAPI = cyberApi.injectEndpoints({
       }),
     }),
 
+    countProject: builder.query({
+      query: () => ({
+        url: `projects/count`,
+      }),
+    })
+
 
     
   }),
@@ -39,4 +42,5 @@ export const {
   useCreateProjectNameMutation,
   useGetAllProjectsNameQuery,
   useCreateProjectScanMutation,
+  useCountProjectQuery
 } = projectAPI;
