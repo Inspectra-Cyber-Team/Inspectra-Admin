@@ -10,21 +10,31 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {  Trash2 } from "lucide-react";
+import { useDeleteProjectMutation } from "@/redux/service/project";
 
 type DeleteProjectConfirmationModalProps = {
+  projectName: string;
   isOpen: boolean; 
   onClose: () => void; 
   onDeleteConfirm: () => void; 
 };
 
 // The component now accepts the typed props
-const DeleteProjectConfirmationModal =
-  ({}: DeleteProjectConfirmationModalProps) => {
+const DeleteProjectConfirmationModal =({projectName}: DeleteProjectConfirmationModalProps) => {
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleDeleteConfirm = () => {
-      console.log("Delete confirmed!");
-      setIsModalOpen(false); // Close modal after delete
+    const [deleteProject] = useDeleteProjectMutation();
+
+    const handleDeleteConfirm = async () => {
+
+      try {
+        await deleteProject({projectName:projectName});
+        setIsModalOpen(false);
+      
+      } catch (error) {
+        console.error("Failed to delete project", error);
+      }
     };
 
     return (

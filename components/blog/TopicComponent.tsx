@@ -35,13 +35,13 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  useDeleteFAQMutation,
-  useUpdateFAQMutation,
-} from "@/redux/service/faqs";
 import { TopicType } from "@/types/Topic";
 import { convertToDayMonthYear } from "@/lib/utils";
-import { useGetAllTopicQuery } from "@/redux/service/topic";
+import {
+  useGetAllTopicQuery,
+  useUseDeleleteTopicMutation,
+  useUseUpdateTopicMutation,
+} from "@/redux/service/topic";
 import { TopicTableFilter } from "./TopicTableFilter";
 
 const ITEMS_PER_PAGE = 10;
@@ -54,40 +54,50 @@ type Column = {
 
 export default function TopicComponent() {
   const [currentPage, setCurrentPage] = useState(1);
+
   const [selectedFAQs, setSelectedFAQs] = useState<string[]>([]);
+
   const [viewModalOpen, setViewModalOpen] = useState(false);
+
   const [editModalOpen, setEditModalOpen] = useState(false);
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const [selectedItem, setSelectedItem] = useState<TopicType | null>(null);
-  const [editedQuestion, setEditedQuestion] = useState("");
+
   const [editedAnswer, setEditedAnswer] = useState("");
+
   const [filterValue, setFilterValue] = useState("");
+
   const [visibleColumns, setVisibleColumns] = useState<Column[]>([
     { id: "name", label: "Name", checked: true },
     { id: "createdAt", label: "Created At", checked: true },
   ]);
   // get data from RTK query
+
+  console.log("currentPage", currentPage);
   const {
     data: topicData,
     isLoading,
     isError,
     refetch,
-  } = useGetAllTopicQuery({ page: 0, pageSize: 10 });
+  } = useGetAllTopicQuery({ page: currentPage - 1, pageSize: ITEMS_PER_PAGE });
+
 
   const faqs = topicData?.content || [];
   const filteredFaqs = faqs.filter((topic: TopicType) =>
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(topic).some(([key, value]) =>
+    Object.entries(topic).some(([value]) =>
       value.toString().toLowerCase().includes(filterValue.toLowerCase())
     )
   );
 
-  const [deleteFAQ] = useDeleteFAQMutation();
-  const [updateFAQ] = useUpdateFAQMutation();
+  const [deleteTopic] = useUseDeleleteTopicMutation();
+  const [updateTopic] = useUseUpdateTopicMutation();
 
   // pagination
-  const totalPages = Math.ceil(filteredFaqs.length / ITEMS_PER_PAGE);
-  const totalFaqs = filteredFaqs.length;
+  const totalPages = topicData?.totalPages || 1;
+  const totalFaqs = topicData?.totalElements || 0;
   const paginatedFaqs = filteredFaqs.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -111,10 +121,9 @@ export default function TopicComponent() {
   const handleEdit = async () => {
     if (selectedItem) {
       try {
-        await updateFAQ({
+        await updateTopic({
           uuid: selectedItem.uuid,
-          question: editedQuestion,
-          answer: editedAnswer,
+          name: editedAnswer,
         }).unwrap();
         setEditModalOpen(false);
         console.log("FAQ updated successfully!");
@@ -128,7 +137,7 @@ export default function TopicComponent() {
   const handleDeleteFAQ = async () => {
     if (selectedItem) {
       try {
-        await deleteFAQ({ uuid: selectedItem.uuid }).unwrap();
+        await deleteTopic({ uuid: selectedItem.uuid }).unwrap();
         setDeleteModalOpen(false);
         refetch(); // Refresh the FAQs data
       } catch (err) {
@@ -219,7 +228,7 @@ export default function TopicComponent() {
                       <DropdownMenuItem
                         onClick={() => {
                           setSelectedItem(faq);
-                          setEditedQuestion(faq.name);
+                        
                           setEditedAnswer(faq.name);
                           setEditModalOpen(true);
                         }}
@@ -325,8 +334,13 @@ export default function TopicComponent() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span>
-              {currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1} -{" "}
-              {Math.min(currentPage * ITEMS_PER_PAGE, totalFaqs)} of {totalFaqs}
+              {totalFaqs === 0
+                ? "0"
+                : `${(currentPage - 1) * ITEMS_PER_PAGE + 1} - ${Math.min(
+                    currentPage * ITEMS_PER_PAGE,
+                    totalFaqs
+                  )}`}{" "}
+              of {totalFaqs}
             </span>
             <Button
               variant="ghost"

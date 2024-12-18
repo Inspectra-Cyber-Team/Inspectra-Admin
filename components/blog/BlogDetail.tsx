@@ -124,11 +124,11 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
                     <div className="space-y-2">
                       <div className="flex flex-col md:flex-row md:gap-2">
                         <dt className="text-[#60935D]">Reported by:</dt>
-                        <dt>{report.reportedBy}</dt>
+                        <dt>{report?.name}</dt>
                       </div>
                       <div className="flex flex-col md:flex-row md:gap-2">
                         <dt className="text-[#60935D]">
-                          Report at: {report?.name || "user"}
+                          Report at: 
                         </dt>
                         <dt>
                           {

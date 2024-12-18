@@ -28,7 +28,24 @@ export const topicApi = cyberApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Topic", id: "TOPIC" }],
     }),
+
+    useDeleleteTopic: builder.mutation<any, { uuid: string }>({
+      query: ({ uuid }) => ({
+        url: `/topics/${uuid}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "Topic", id: "TOPIC" }],
+    }),
+
+    useUpdateTopic: builder.mutation<any, { uuid: string, name: string }>({
+      query: ({ uuid, name }) => ({
+        url: `/topics/${uuid}?topicName=${name}`,
+        method: "PUT",
+      }),
+      invalidatesTags: [{ type: "Topic", id: "TOPIC" }],
   }),
+
+}),
 });
 
-export const { useGetAllTopicQuery, useUseGetTopicNameQuery, useUseCreatTopicMutation } = topicApi;
+export const { useGetAllTopicQuery, useUseGetTopicNameQuery, useUseCreatTopicMutation, useUseDeleleteTopicMutation, useUseUpdateTopicMutation } = topicApi;

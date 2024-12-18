@@ -187,7 +187,7 @@ export function UsersTable() {
                 <TableCell>
                   <Avatar>
                     <AvatarImage src={user?.profile} alt={user?.name} />
-                    <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{user?.name}</AvatarFallback>
                   </Avatar>
                 </TableCell>
                 {visibleColumns.map(
