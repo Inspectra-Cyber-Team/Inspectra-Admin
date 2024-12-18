@@ -53,6 +53,7 @@ type Column = {
 };
 
 export default function TopicComponent() {
+  
   const [currentPage, setCurrentPage] = useState(1);
 
   const [selectedFAQs, setSelectedFAQs] = useState<string[]>([]);

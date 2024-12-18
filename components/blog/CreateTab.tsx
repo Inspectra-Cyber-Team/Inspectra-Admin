@@ -44,7 +44,7 @@ const validationSchema = Yup.object().shape({
           return value.size <= FILE_SIZE;
         })
     )
-    .min(1, "Please select at least one image."),
+    .min(1, "Please select image."),
 });
 
 export function CreateTab() {
@@ -208,10 +208,15 @@ export function CreateTab() {
                     id="thumbnail"
                     type="file"
                     accept="image/*"
-                    multiple
                     onChange={(e) => handleFileChange(e, setFieldValue)}
                     className="hidden"
                   />
+                  <ErrorMessage
+                    name="thumbnail"
+                    component="p"
+                    className="text-red-500 text-sm mt-1"
+                  />
+
 
 
                 </div>
