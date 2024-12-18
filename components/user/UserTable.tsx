@@ -142,7 +142,9 @@ export function UsersTable() {
   };
 
   if (isLoading) {
-    return <div>Loading users...</div>;
+    return <div className="loader-container">
+      <div className="loader"></div>
+    </div>;
   }
 
   if (isError) {

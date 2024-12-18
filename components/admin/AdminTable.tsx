@@ -88,7 +88,9 @@ export function AdminTable() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading admins...</div>;
+    return <div className="loader-container">
+      <div className="loader"></div>
+    </div>;
   }
 
   if (isError) {

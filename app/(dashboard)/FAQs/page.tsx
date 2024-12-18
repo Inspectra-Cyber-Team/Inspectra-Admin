@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import { FAQsTable } from "@/components/faqs/FAQTAble"
 
 
@@ -13,9 +12,7 @@ export default async function Page() {
         </div>
 
         <div className="flex-1 ">
-          <Suspense fallback={<div>Loading users...</div>}>
             <FAQsTable />
-          </Suspense>
         </div>
       </main>
     </div>

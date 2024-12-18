@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+// import { Suspense } from 'react'
 import { UsersTable } from "@/components/user/UserTable"
 
 export default async function Page() {
@@ -12,10 +12,7 @@ export default async function Page() {
         </div>
 
         <div className="flex-1 ">
-
-          <Suspense fallback={<div>Loading users...</div>}>
             <UsersTable />
-          </Suspense>
         </div>
       </main>
     </div>

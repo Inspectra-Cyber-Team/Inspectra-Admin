@@ -19,7 +19,7 @@ import { useState } from "react";
 
 export default function FeedbackDashboard() {
 
-  const { data } = useGetAllUserFeedbackQuery({ page: 0, size: 10 });
+  const { data, isLoading } = useGetAllUserFeedbackQuery({ page: 0, size: 10 });
 
   const result = data?.content;
 
@@ -37,6 +37,12 @@ export default function FeedbackDashboard() {
       console.error(error);
     }
   };
+
+  if (isLoading){
+    return <div className="loader-container">
+      <div className="loader"></div>
+    </div>;
+  }
 
   if (data?.content.length === 0) {
     return (

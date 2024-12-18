@@ -1,6 +1,4 @@
-
 import FeedbackDashboard from '@/components/feedback/feedback'
-import { Suspense } from 'react'
 
 export default function Page(){
   return (
@@ -12,9 +10,7 @@ export default function Page(){
         </div>
 
         <div className="flex-1 ">
-          <Suspense fallback={<div>Loading users...</div>}>
             <FeedbackDashboard/>
-          </Suspense>
         </div>
       </main>
     </div>

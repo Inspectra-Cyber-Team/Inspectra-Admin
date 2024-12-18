@@ -138,7 +138,9 @@ export function OverviewTab() {
   };
 
   if (isLoading) {
-    return <div>Loading blogs...</div>;
+    return <div className="loader-container">
+    <div className="loader"></div>
+  </div>;
   }
 
   if (isError) {

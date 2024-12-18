@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+
 import { DocumentsTable } from "@/components/document/DocTable"
 
 export default async function Page() {
@@ -13,9 +13,9 @@ export default async function Page() {
 
         <div className="flex-1 ">
 
-          <Suspense fallback={<div>Loading document...</div>}>
+
             <DocumentsTable />
-          </Suspense>
+
         </div>
       </main>
     </div>

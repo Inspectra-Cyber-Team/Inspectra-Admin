@@ -18,48 +18,48 @@ const geistSans = localFont({
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Handle client-side mounted state to prevent hydration issues
   const [mounted, setMounted] = useState(false);
 
-  // Set mounted to true when the component is mounted
+  // This effect ensures the component renders after it's mounted in the client-side
   useEffect(() => {
     setMounted(true);
-  }, []);
+  }, []); // Empty dependency ensures this only runs after the initial mount
 
-  // If mounted is false, render a loading state (optional), otherwise render the layout
+  // If not mounted, we return only the loading spinner, which ensures no hydration issues
   if (!mounted) {
     return (
-      <html lang="en">
-        <body className={`${geistSans.variable} antialiased`}>
-          {/* Optionally, show a loading spinner or nothing until mounted */}
-          <p>Loading...</p>
-        </body>
-      </html>
+      <div>
+        {/* Show the loader only on the client */}
+        <div className="loader-container">
+          <div className="loader" role="status">
+          </div>
+        </div>
+      </div>
     );
   }
 
+  // Once mounted, return the full layout, including ThemeProvider
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} antialiased`}>
-        <StoreProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          > 
-            <SidebarProvider>
-              <AppSidebar />       
-              <main className="w-full">
+    <div className={`${geistSans.variable} antialiased`}>
+      <StoreProvider>
+        {/* ThemeProvider is always present to avoid hydration issues */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SidebarProvider>
+            <AppSidebar />
+            <main className="w-full">
               <SidebarTrigger />
               <UserNav />
-               <Toaster />
-                {children}
-              </main>
-            </SidebarProvider>
-          </ThemeProvider>
-        </StoreProvider>
-      </body>
-    </html>
+              <Toaster />
+              {children}
+            </main>
+          </SidebarProvider>
+        </ThemeProvider>
+      </StoreProvider>
+    </div>
   );
 }

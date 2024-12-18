@@ -157,7 +157,9 @@ export default function TopicComponent() {
   };
 
   if (isLoading) {
-    return <div>Loading FAQs...</div>;
+    return <div className="loader-container">
+    <div className="loader"></div>
+  </div>;
   }
 
   if (isError) {

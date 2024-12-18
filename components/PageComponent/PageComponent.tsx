@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Recent } from "@/components/overview/RecentTraffic";
 import { FolderKanban, BookOpen, MessageSquare, UsersIcon } from "lucide-react";
 import { StatCard } from "@/components/overview/CardStat";
-import { Overview } from "@/components/overview/overview";
+import { Overview } from "@/components/overview/Overview";
 import { useCountBlogQuery } from '@/redux/service/blog';
 import { useCountUserQuery } from '@/redux/service/user';
 import { useCountFeedbackQuery } from '@/redux/service/feedback';
@@ -24,7 +24,9 @@ export default function PageComponent() {
   const {data:projectCount, isLoading:projectLoading} = useCountProjectQuery({});
 
   if (blogLoading || userLoading || feedbackLoading || projectLoading) {
-    return <div>Loading...</div>;
+    return <div className="loader-container">
+      <div className="loader"></div>
+    </div>;
   }
 
 

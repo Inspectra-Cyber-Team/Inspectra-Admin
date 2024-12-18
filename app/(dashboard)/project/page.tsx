@@ -1,5 +1,4 @@
 import { ProjectTable } from "@/components/project/ProjectTable";
-import { Suspense } from "react";
 
 export default async function Page() {
   return (
@@ -11,9 +10,7 @@ export default async function Page() {
         </div>
 
         <div className="flex-1 ">
-          <Suspense fallback={<div>Loading users...</div>}>
             <ProjectTable  />
-          </Suspense>
         </div>
       </main>
     </div>

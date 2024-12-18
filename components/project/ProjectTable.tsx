@@ -109,7 +109,9 @@ export function ProjectTable() {
   };
 
   if (isLoading) {
-    return <div>Loading projects...</div>;
+    return <div className="loader-container">
+      <div className="loader"></div>
+    </div>;
   }
 
   if (isError) {

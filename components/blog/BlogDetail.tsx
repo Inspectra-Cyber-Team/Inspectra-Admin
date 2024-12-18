@@ -32,7 +32,9 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
   }, [BlogData]);
 
   if (reportLoading) {
-    return <div>Loading...</div>;
+    return <div className="loader-container">
+      <div className="loader"></div>
+    </div>;
   }
 
   const modifiedDescription = blogData?.description.replace(

@@ -136,11 +136,9 @@ export function ReportTab({ query = "" }: { query?: string }) {
   const [reportUuid, setReportUuid] = useState<string>("");
 
   if (reportLoading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        Loading blogs...
-      </div>
-    );
+    return <div className="loader-container">
+    <div className="loader"></div>
+  </div>;
   }
 
   const totalPages = Math.ceil(blogs.length / ITEMS_PER_PAGE);

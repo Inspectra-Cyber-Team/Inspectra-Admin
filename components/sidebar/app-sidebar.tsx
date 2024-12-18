@@ -4,10 +4,10 @@ import * as React from "react";
 import {
   AudioWaveform,
   BlocksIcon,
-  BookOpen,
-  Bot,
   Command,
   GalleryVerticalEnd,
+  Settings2Icon,
+  UserCogIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/sidebar/nav-main";
@@ -59,7 +59,7 @@ const data = {
     {
       title: "Management",
       url: "#",
-      icon: Bot,
+      icon: Settings2Icon,
       items: [
         {
           title: "Project",
@@ -86,7 +86,7 @@ const data = {
     {
       title: "User Management",
       url: "#",
-      icon: BookOpen,
+      icon: UserCogIcon,
       items: [
         {
           title: "User",

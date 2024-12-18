@@ -1,5 +1,5 @@
 import { AdminTable } from "@/components/admin/AdminTable";
-import { Suspense } from "react";
+
 
 
 export default async function Page() {
@@ -12,10 +12,7 @@ export default async function Page() {
         </div>
 
         <div className="flex-1 ">
-          
-          <Suspense fallback={<div>Loading users...</div>}>
             <AdminTable />
-          </Suspense>
         </div>
       </main>
     </div>
