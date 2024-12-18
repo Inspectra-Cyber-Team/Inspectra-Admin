@@ -10,7 +10,15 @@ export const authApi = cyberApi.injectEndpoints({
         body: data,
       }),
     }),
+
+    chnagePassword: builder.mutation<any, { data: object }>({
+      query: ({ data }) => ({
+        url: `auth/change-password/`,
+        method: "PUT",
+        body: { data },
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation, useChnagePasswordMutation } = authApi;

@@ -5,10 +5,14 @@ import { RxCross2 } from "react-icons/rx";
 import * as Yup from "yup";
 import ParticlesComponent from "./ParticleBackground";
 import { Card, CardDescription, CardTitle } from "./ui/card";
+import { useRouter } from "next/navigation";
 
 export default function ForgetPassowrdForm() {
+
+  const router = useRouter();
+
   const validationSchema = Yup.object({
-    email: Yup.string().email("Invalid email format").required(),
+    email: Yup.string().email("Invalid email format").required("Email is required"),
   });
 
   type Email = {
@@ -21,7 +25,7 @@ export default function ForgetPassowrdForm() {
 
   const handleSubmit = (value: Email) => {
     console.log(value);
-    // router.push("/verify");
+    router.push("/verify");
   };
 
   return (

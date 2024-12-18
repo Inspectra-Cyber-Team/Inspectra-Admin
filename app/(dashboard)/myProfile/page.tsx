@@ -7,10 +7,16 @@ import ParticlesComponent from "@/components/ParticleBackground";
 import { Button } from "@/components/ui/button";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ChangePasswordComponent from "@/components/Auth/ChangPasswordComponent";
 
 export default function MyProfileComponent() {
+
   const [userUUID, setUserUUID] = useState("");
+
   const { data: userData } = useGetUserDetailQuery({ uuid: userUUID });
+
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+
   // const [updateUserProfile] = useUpdateUserProfileMutation();
 
   useEffect(() => {
@@ -53,7 +59,11 @@ export default function MyProfileComponent() {
   return (
     <div>
       {/* Toast Notification Container */}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
 
       {/* Section */}
       <section className="space-y-4 p-8">
@@ -146,12 +156,16 @@ export default function MyProfileComponent() {
 
           {/* Buttons */}
           <div className="flex md:justify-end gap-2 justify-center items-center">
-            <Button variant="outline" type="button">
+            <Button className="hover:bg-primary hover:text-black" onClick={()=>setIsChangePasswordOpen(true)} variant="outline" type="button">
               Change Password
             </Button>
             <Button type="submit">Save Changes</Button>
           </div>
         </form>
+
+        {/* when click button trigger call component modal */}
+        <ChangePasswordComponent isOpen={isChangePasswordOpen} onClose={()=>setIsChangePasswordOpen(false)}/>
+
       </section>
     </div>
   );

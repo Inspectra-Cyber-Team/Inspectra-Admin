@@ -64,7 +64,7 @@ export function FAQsTable() {
     ]);
   // get data from RTK query 
   const { data: faqData, isLoading, isError, refetch } = useGetAllFAQQuery();
-  console.log(faqData)
+
 
   const faqs = faqData?.data || [];
   const filteredFaqs = faqs.filter((faq: FAQsType) =>
