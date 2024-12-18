@@ -10,14 +10,25 @@ export const topicApi = cyberApi.injectEndpoints({
       query: ({page, pageSize }) => ({
         url: `/topics?page=${page}&size=${pageSize}`,
       }),
+      providesTags: [{ type: "Topic", id: "TOPIC" }],
     }),
     
     useGetTopicName: builder.query<any,{topicName: string, page: number, pageSize: number}>({
       query: ({topicName, page, pageSize }) => ({
         url: `/topics/${topicName}?page=${page}&size=${pageSize}`,
       }),
+      
+    }),
+
+    useCreatTopic: builder.mutation<any, { name: string }>({
+      query: ({ name }) => ({
+        url: "/topics",
+        method: "POST",
+        body: {name},
+      }),
+      invalidatesTags: [{ type: "Topic", id: "TOPIC" }],
     }),
   }),
 });
 
-export const { useGetAllTopicQuery, useUseGetTopicNameQuery } = topicApi;
+export const { useGetAllTopicQuery, useUseGetTopicNameQuery, useUseCreatTopicMutation } = topicApi;

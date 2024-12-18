@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { UserNav } from "@/components/navbar";
 import StoreProvider from "@/app/StoreProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -52,6 +53,7 @@ export default function RootLayout({
               <main className="w-full">
               <SidebarTrigger />
               <UserNav />
+               <Toaster />
                 {children}
               </main>
             </SidebarProvider>

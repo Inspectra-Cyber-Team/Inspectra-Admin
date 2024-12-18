@@ -1,6 +1,6 @@
 "use client";
 
-import {  useState } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -34,7 +34,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useDeleteBlogMutation, useGetAllBlogQuery } from "@/redux/service/blog";
+import {
+  useDeleteBlogMutation,
+  useGetAllBlogQuery,
+} from "@/redux/service/blog";
 import { Blog } from "@/types/Blog";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -56,6 +59,7 @@ export function OverviewTab() {
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<Column[]>([
     { id: "title", label: "Title", checked: true },
+    { id: "user", label: "Author", checked: true },
     { id: "createdAt", label: "Created At", checked: true },
   ]);
   const router = useRouter();
@@ -72,11 +76,14 @@ export function OverviewTab() {
   });
 
   const blogs = blogData?.content || [];
+
+  console.log(blogs);
+
   const filteredBlogs = filterValue
     ? blogs.filter((blog: Blog) =>
         Object.entries(blog).some(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ([key, value]) =>
+          ([value]) =>
             value &&
             typeof value === "string" &&
             value.toLowerCase().includes(filterValue.toLowerCase())
@@ -84,7 +91,7 @@ export function OverviewTab() {
       )
     : blogs;
 
-   const [deleteBlog] = useDeleteBlogMutation(); 
+  const [deleteBlog] = useDeleteBlogMutation();
 
   // pagination
   const paginatedBlogs = filteredBlogs.slice(
@@ -163,6 +170,7 @@ export function OverviewTab() {
                       <TableHead key={column.id}>{column.label}</TableHead>
                     )
                 )}
+
                 <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -216,6 +224,18 @@ export function OverviewTab() {
                               typeof value === "string"
                             ) {
                               return convertToDayMonthYear(value); // Format date
+                            }
+
+                            if (
+                              column.id === "user" &&
+                              value &&
+                              typeof value === "object"
+                            ) {
+                              // Combine firstName and lastName for the author field
+                              if (Array.isArray(value)) {
+                                return value.join(", ");
+                              }
+                              return `${value?.firstName || ""} ${value?.lastName || ""}`.trim();
                             }
 
                             if (

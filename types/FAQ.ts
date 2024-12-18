@@ -4,3 +4,4 @@ export type FAQsType = {
     answer: string,
     createdAt: string,
 }
+

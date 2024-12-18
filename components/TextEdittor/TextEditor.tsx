@@ -25,6 +25,8 @@ const TextEditor: React.FC<TextEditorProps> = ({ value, onChange }) => {
             [{ align: [] }],
             ['code-block'],
             ['clean'],
+            ['image'],
+            ['file'],
           ],
         },
       });

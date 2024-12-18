@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { convertToDayMonthYear } from "@/lib/utils";
-import { useGetAllUserFeedbackQuery } from "@/redux/service/feedback";
+import { useGetAllUserFeedbackQuery , useDeleteFeedbackMutation } from "@/redux/service/feedback";
 import { feedbackType } from "@/types/Feedback";
 import { X } from "lucide-react";
 import {
@@ -15,10 +15,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import { useDeleteFeedbackMutation } from "@/redux/service/feedback";
-// import { useState } from "react";
+
 
 export default function FeedbackDashboard() {
+
   const { data } = useGetAllUserFeedbackQuery({ page: 0, size: 10 });
 
   const result = data?.content;
@@ -37,6 +37,16 @@ export default function FeedbackDashboard() {
       console.error(error);
     }
   };
+
+  if (data?.content.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <img className="w-full" src="/null.png" alt="Empty" />
+        </div>
+      </div>
+    )
+  }
 
   // const [currentPage, setCurrentPage] = useState(1);
 

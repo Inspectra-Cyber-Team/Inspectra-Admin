@@ -6,6 +6,7 @@ import { OverviewTab } from '@/components/blog/OverviewTab'
 import { CreateTab } from '@/components/blog/CreateTab'
 import { ReportTab } from '@/components/blog/ReportTab'
 import { BlogRequestTab } from '@/components/blog/BlogRequestTab'
+import TopicComponent from '@/components/blog/TopicComponent'
 
 export default function BlogDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
@@ -21,6 +22,7 @@ export default function BlogDashboard() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="create">Create</TabsTrigger>
           <TabsTrigger value="report">Report</TabsTrigger>
+          <TabsTrigger value="topic">Topic</TabsTrigger>
           <TabsTrigger value="blog-request">Blog Request</TabsTrigger>
         </TabsList>
 
@@ -30,6 +32,10 @@ export default function BlogDashboard() {
 
         <TabsContent value="create">
           <CreateTab />
+        </TabsContent>
+
+        <TabsContent value="topic">
+          <TopicComponent/>
         </TabsContent>
 
         <TabsContent value="report">

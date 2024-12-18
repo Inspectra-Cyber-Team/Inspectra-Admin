@@ -189,7 +189,7 @@ export function CreateTab() {
                   onDrop={handleDrop}
                 >
                   <p className="text-center font-medium">
-                    Drag and Drop Images Here
+                    Drag and Drop Thumbnail Here
                   </p>
                   <p className="text-center text-gray-500">or</p>
                   {/* Clicking this text opens the hidden file input */}
@@ -212,6 +212,8 @@ export function CreateTab() {
                     onChange={(e) => handleFileChange(e, setFieldValue)}
                     className="hidden"
                   />
+
+
                 </div>
 
                 {/* Preview Selected Thumbnails */}

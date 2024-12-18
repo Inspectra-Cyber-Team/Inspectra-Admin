@@ -15,21 +15,18 @@ import { DataItem } from '@/types/overviewPieType';
 
 export default function PageComponent() {
 
-  const { data:blogCount, error:BlogError, isLoading:blogLoading } = useCountBlogQuery({});
+  const { data:blogCount, isLoading:blogLoading } = useCountBlogQuery({});
 
-  const { data:userCount, error:UserError, isLoading:userLoading } = useCountUserQuery({});
+  const { data:userCount, isLoading:userLoading } = useCountUserQuery({});
 
-  const { data:feedbackCount, error:FeedbackError, isLoading:feedbackLoading } = useCountFeedbackQuery({});
+  const { data:feedbackCount, isLoading:feedbackLoading } = useCountFeedbackQuery({});
 
-  const {data:projectCount, error:ProjectError, isLoading:projectLoading} = useCountProjectQuery({});
+  const {data:projectCount, isLoading:projectLoading} = useCountProjectQuery({});
 
   if (blogLoading || userLoading || feedbackLoading || projectLoading) {
     return <div>Loading...</div>;
   }
 
-  if (BlogError || UserError || FeedbackError || ProjectError) {
-    return <div>Error loading data</div>;
-  }
 
 
   //handle this for pass value to component instead to see data 

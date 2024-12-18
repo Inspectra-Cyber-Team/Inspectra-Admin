@@ -16,26 +16,29 @@ type BlogDetailsProps = Readonly<{
 }>;
 
 export default function BlogPost({ uuid }: BlogDetailsProps) {
-
   const router = useRouter();
 
   const [blogData, setBlogData] = useState<Blog | undefined>();
 
-  const { data } = useGetBlogDetailsQuery({ uuid });
-
-  useEffect(() => {
-    if (data) {
-      setBlogData(data?.data);
-    }
-  }, [data]);
+  const { data: BlogData } = useGetBlogDetailsQuery({ uuid });
 
   const { data: reportData, isLoading: reportLoading } =
     useGetReportByBlogUuidQuery({ blogUuid: uuid });
 
-  
-   if (reportLoading) {
-    return <div>Loading...</div>; 
+  useEffect(() => {
+    if (BlogData) {
+      setBlogData(BlogData?.data);
+    }
+  }, [BlogData]);
 
+  if (reportLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const modifiedDescription = blogData?.description.replace(
+    /<img /g,
+    '<img style="max-width: 100%; height: auto; display: block; margin: 0 auto; object-fit: contain;" '
+  );
 
   return (
     <div className="container mx-auto p-4">
@@ -57,10 +60,9 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
                 alt="thumbnail"
               />
             )}
-            <p
-              className="mt-5 text-justify md:text-left"
-              dangerouslySetInnerHTML={{ __html: blogData?.description || "" }}
-            ></p>
+            <div
+              dangerouslySetInnerHTML={{ __html: modifiedDescription || "" }}
+            ></div>
           </div>
         </div>
 
@@ -115,7 +117,7 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
           {/* Report Section */}
           <div>
             <Button className="w-full lg:w-auto mb-5">Report</Button>
-            {reportData?.content?.map((report:any, index:any) => (
+            {reportData?.content?.map((report: any, index: any) => (
               <Card key={index} className="border-none shadow-none">
                 <CardContent className="space-y-4 p-6">
                   <div className="space-y-2">
@@ -125,8 +127,16 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
                         <dt>{report.reportedBy}</dt>
                       </div>
                       <div className="flex flex-col md:flex-row md:gap-2">
-                        <dt className="text-[#60935D]">Report at: {report?.name || "user"}</dt>
-                        <dt>{new Date(report?.createdAt).toISOString().split('T')[0]}</dt>
+                        <dt className="text-[#60935D]">
+                          Report at: {report?.name || "user"}
+                        </dt>
+                        <dt>
+                          {
+                            new Date(report?.createdAt)
+                              .toISOString()
+                              .split("T")[0]
+                          }
+                        </dt>
                       </div>
                       <p className="text-sm mt-2 text-justify md:text-left">
                         {report.message}
@@ -142,5 +152,4 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
       </div>
     </div>
   );
-}
 }
