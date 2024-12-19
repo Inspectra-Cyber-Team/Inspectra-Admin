@@ -6,7 +6,7 @@ import { IoEyeOffSharp, IoEyeSharp } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import ParticlesComponent from "@/components/ParticleBackground";
 import Link from "next/link";
-import { toast } from "@/components/hooks/use-toast";
+import {  useToast } from "@/components/hooks/use-toast";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
 type FormValues = {
@@ -15,6 +15,8 @@ type FormValues = {
 };
 
 const LogIn = () => {
+
+  const { toast } = useToast();
   //create route
   const router = useRouter();
 
@@ -53,16 +55,22 @@ const LogIn = () => {
 
         const userUUID = data?.user?.data?.uuid;
         localStorage.setItem("userUUID", userUUID);
-
+     
+        toast({
+          description: "Login successful",
+          variant: "success",
+        });
+         
         setIsSubmitting(false);
         router.push("/");
       } else {
-        setIsSubmitting(true);
+       
         toast({
           description: "Invalid email or password",
           variant: "error",
         });
         setMessage("Invalid email or password");
+        setIsSubmitting(true);
       }
     } catch (error) {
       console.log(error);

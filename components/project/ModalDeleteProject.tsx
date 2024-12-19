@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {  Trash2 } from "lucide-react";
 import { useDeleteProjectMutation } from "@/redux/service/project";
+import { useToast } from "@/hooks/use-toast";
 
 type DeleteProjectConfirmationModalProps = {
   projectName: string;
@@ -22,6 +23,10 @@ type DeleteProjectConfirmationModalProps = {
 // The component now accepts the typed props
 const DeleteProjectConfirmationModal =({projectName}: DeleteProjectConfirmationModalProps) => {
 
+    console.log(projectName);
+
+    const {toast} = useToast();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [deleteProject] = useDeleteProjectMutation();
@@ -30,10 +35,19 @@ const DeleteProjectConfirmationModal =({projectName}: DeleteProjectConfirmationM
 
       try {
         await deleteProject({projectName:projectName});
+
+        toast({
+          description: "Project deleted successfully",
+          variant: "success",
+        });
+
         setIsModalOpen(false);
       
-      } catch (error) {
-        console.error("Failed to delete project", error);
+      } catch {
+        toast({
+          description: "An error occurred while deleting the project",
+          variant: "error",
+        });
       }
     };
 

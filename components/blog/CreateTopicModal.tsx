@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUseCreatTopicMutation } from "@/redux/service/topic";
-import { useToast } from "../hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+
 
 interface CreatefaqModalProps {
   isOpen: boolean;
@@ -32,30 +33,26 @@ export function CreateTopicModal({ isOpen, onClose }: CreatefaqModalProps) {
   const handleCreate = async () => {
     try {
       setIsLoading(true);
-      console.log("res", topicName);
-      const res = await createTopic({name:topicName }).unwrap();
-
   
-      console.log(res);
+      const res = await createTopic({name:topicName }).unwrap();
 
       if (res.data) {
         
         toast({
-          title: "Topic Created",
           description: "Topic has been created successfully",
           variant: "success",
         });
 
 
       setTopicName(""); 
+      onClose(); 
 
       }
   
-      onClose(); // Close the modal after successful creation
+      // Close the modal after successful creation
     } catch (err) {
       console.error("Failed to create Topic:", err);
       toast({
-        title: "Failed to create Topic",
         description: "An error occurred while creating the Topic",
         variant: "error",
       });

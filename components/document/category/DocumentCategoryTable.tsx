@@ -15,16 +15,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit,
-  MoreHorizontal,
   Eye,
+  MoreHorizontal,
   Trash2,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -33,127 +33,90 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
-import { Input } from "@/components/ui/input";
-import { TopicType } from "@/types/Topic";
+} from "../../ui/dialog";
+import { Input } from "../../ui/input";
+import { DocumentCategoryType } from "@/types/Document";
 import { convertToDayMonthYear } from "@/lib/utils";
-import {
-  useGetAllTopicQuery,
-  useUseDeleleteTopicMutation,
-  useUseUpdateTopicMutation,
-} from "@/redux/service/topic";
-import { TopicTableFilter } from "./TopicTableFilter";
-import { useToast } from "@/hooks/use-toast";
+import { useUseGetAllDocumentCategoriesQueryQuery } from "@/redux/service/document";
+import DocumentCategoryTableFilter from "./DocumentCategory";
 
 const ITEMS_PER_PAGE = 10;
 
-type Column = {
-  id: keyof TopicType;
+interface Column {
+  id: keyof DocumentCategoryType;
   label: string;
   checked: boolean;
-};
+}
 
-export default function TopicComponent() {
-
-  const {toast} = useToast();
-  
+export function DocumentCategoryTable() {
   const [currentPage, setCurrentPage] = useState(1);
-
-  const [selectedFAQs, setSelectedFAQs] = useState<string[]>([]);
-
+  const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-
   const [editModalOpen, setEditModalOpen] = useState(false);
-
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [selectedItem, setSelectedItem] = useState<TopicType | null>(null);
-
-  const [editedAnswer, setEditedAnswer] = useState("");
-
+  const [selectedItem, setSelectedItem] = useState<DocumentCategoryType | null>(null);
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedDescription, setEditedDescription] = useState("");
+  const [editedDocumentCategoryName, setEditedDocumentCategoryName] =
+    useState("");
   const [filterValue, setFilterValue] = useState("");
-
   const [visibleColumns, setVisibleColumns] = useState<Column[]>([
-    { id: "name", label: "Name", checked: true },
+    { id: "name", label: "Category", checked: true },
     { id: "createdAt", label: "Created At", checked: true },
   ]);
-  // get data from RTK query
 
- 
   const {
-    data: topicData,
+    data: DocData,
     isLoading,
     isError,
-    refetch,
-  } = useGetAllTopicQuery({ page: currentPage - 1, pageSize: ITEMS_PER_PAGE });
+  } = useUseGetAllDocumentCategoriesQueryQuery({ page: 0, size: 10 });
 
+  const docs = DocData?.content || [];
 
-  const faqs = topicData?.content || [];
-  const filteredFaqs = faqs.filter((topic: TopicType) =>
+  const filteredDocs = docs.filter((doc: DocumentCategoryType) =>
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(topic).some(([value]) =>
+    Object.entries(doc).some(([value]) =>
       value.toString().toLowerCase().includes(filterValue.toLowerCase())
     )
   );
 
-  const [deleteTopic] = useUseDeleleteTopicMutation();
-  const [updateTopic] = useUseUpdateTopicMutation();
+  const totalPages = Math.ceil(filteredDocs.length / ITEMS_PER_PAGE);
+  const totalDocs = filteredDocs.length;
 
-  // pagination
-  const totalPages = topicData?.totalPages || 1;
-  const totalFaqs = topicData?.totalElements || 0;
-  const paginatedFaqs = filteredFaqs.slice(
+  const paginatedDocs = filteredDocs.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  //handlers
   const handleSelectAll = () => {
-    setSelectedFAQs(
-      selectedFAQs.length === faqs.length
+    setSelectedDocuments(
+      selectedDocuments.length === docs.length
         ? []
-        : faqs.map((faq: { uuid: unknown }) => faq.uuid)
+        : docs.map((faq: { uuid: unknown }) => faq.uuid)
     );
   };
 
-  const handleSelectFAQ = (uuid: string) => {
-    setSelectedFAQs((prev) =>
+  const handleSelectDocument = (uuid: string) => {
+    setSelectedDocuments((prev) =>
       prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
     );
   };
 
-  const handleEdit = async () => {
+  const handleEdit = () => {
     if (selectedItem) {
-      try {
-        await updateTopic({
-          uuid: selectedItem.uuid,
-          name: editedAnswer,
-        }).unwrap();
-        setEditModalOpen(false);
-        toast ({
-          description: "Topic updated successfully",
-          variant: "success",
-        })
-        refetch();
-      } catch (err) {
-        console.error("Failed to update FAQ:", err);
-      }
+      console.log("Editing Doc:", selectedItem.uuid, "New Data:", {
+        documentCategoryName: editedDocumentCategoryName,
+        title: editedTitle,
+        description: editedDescription,
+      });
+      setEditModalOpen(false);
     }
   };
 
-  const handleDeleteFAQ = async () => {
+  const handleDelete = () => {
     if (selectedItem) {
-      try {
-        await deleteTopic({ uuid: selectedItem.uuid }).unwrap();
-        setDeleteModalOpen(false);
-        toast ({
-          description: "Topic deleted successfully",
-          variant: "success",
-        })
-        refetch(); // Refresh the FAQs data
-      } catch (err) {
-        console.error("Failed to delete FAQ:", err);
-      }
+      console.log("Deleting Doc:", selectedItem.uuid);
+      setDeleteModalOpen(false);
     }
   };
 
@@ -167,9 +130,11 @@ export default function TopicComponent() {
   };
 
   if (isLoading) {
-    return <div className="loader-container">
-    <div className="loader"></div>
-  </div>;
+    return (
+      <div className="loader-container">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
   if (isError) {
@@ -178,17 +143,17 @@ export default function TopicComponent() {
 
   return (
     <div className="space-y-4">
-      <TopicTableFilter
+      <DocumentCategoryTableFilter
         onFilterChange={handleFilterChange}
         onColumnsChange={handleColumnsChange}
       />
-      <div className="rounded-md bg-card">
+      <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-12">
                 <Checkbox
-                  checked={selectedFAQs.length === paginatedFaqs.length}
+                  checked={selectedDocuments.length === paginatedDocs.length}
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
@@ -202,12 +167,12 @@ export default function TopicComponent() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedFaqs.map((faq: TopicType, index: number) => (
+            {paginatedDocs.map((doc: DocumentCategoryType, index: number) => (
               <TableRow key={index}>
                 <TableCell>
                   <Checkbox
-                    checked={selectedFAQs.includes(faq.uuid)}
-                    onCheckedChange={() => handleSelectFAQ(faq.uuid)}
+                    checked={selectedDocuments.includes(doc.uuid)}
+                    onCheckedChange={() => handleSelectDocument(doc.uuid)}
                   />
                 </TableCell>
                 {visibleColumns.map(
@@ -215,8 +180,8 @@ export default function TopicComponent() {
                     column.checked && (
                       <TableCell key={column.id}>
                         {column.id === "createdAt"
-                          ? convertToDayMonthYear(faq[column.id])
-                          : faq[column.id]}
+                          ? convertToDayMonthYear(doc[column.id])
+                          : doc[column.id]}
                       </TableCell>
                     )
                 )}
@@ -231,33 +196,35 @@ export default function TopicComponent() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         onClick={() => {
-                          setSelectedItem(faq);
+                          setSelectedItem(doc);
                           setViewModalOpen(true);
                         }}
                       >
-                        <Eye className="mr-2 h-4 w-4" /> View
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => {
-                          setSelectedItem(faq);
-                        
-                          setEditedAnswer(faq.name);
+                          setSelectedItem(doc);
+                          setEditedDocumentCategoryName(doc.name);
                           setEditModalOpen(true);
                         }}
                         className="text-yellow-600"
                       >
-                        <Edit className="mr-2 h-4 w-4" /> Edit
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         className="text-destructive"
                         onClick={() => {
-                          setSelectedItem(faq);
+                          setSelectedItem(doc);
                           setDeleteModalOpen(true);
                         }}
                       >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -271,12 +238,15 @@ export default function TopicComponent() {
         <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
           <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader>
-              <DialogTitle>View Topic Details</DialogTitle>
+              <DialogTitle>View Document Details</DialogTitle>
             </DialogHeader>
             {selectedItem && (
               <div className="grid gap-4 py-4">
                 <div>
-                  <strong>Topic Name:</strong> {selectedItem?.name}
+                  <strong>Category:</strong> {selectedItem?.name}
+                </div>
+                <div>
+                  <strong>Description:</strong> {selectedItem.description}
                 </div>
                 <div>
                   <strong>Created At:</strong>{" "}
@@ -291,15 +261,33 @@ export default function TopicComponent() {
         <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
           <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader>
-              <DialogTitle>Update Topic</DialogTitle>
+              <DialogTitle>Update Document</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div>
-                <h2 className="text-sm font-medium mb-2 block">Topic Name</h2>
+                <h2 className="text-sm font-medium mb-2 block">Category</h2>
                 <Input
-                  id="Answer"
-                  value={editedAnswer}
-                  onChange={(e) => setEditedAnswer(e.target.value)}
+                  id="Category"
+                  value={editedDocumentCategoryName}
+                  onChange={(e) =>
+                    setEditedDocumentCategoryName(e.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <h2 className="text-sm font-medium mb-2 block">Title</h2>
+                <Input
+                  id="Title"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                />
+              </div>
+              <div>
+                <h2 className="text-sm font-medium mb-2 block">Description</h2>
+                <Input
+                  id="Description"
+                  value={editedDescription}
+                  onChange={(e) => setEditedDescription(e.target.value)}
                 />
               </div>
             </div>
@@ -316,16 +304,18 @@ export default function TopicComponent() {
         <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
           <DialogContent className="bg-card w-full max-w-[90%] md:max-w-md lg:max-w-lg mx-auto h-fit p-6 md:p-10 rounded-xl">
             <DialogHeader>
-              <DialogTitle>Confirm Delete</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete this Topic?
+              <DialogTitle className="text-xl text-foreground">
+                Confirm Delete
+              </DialogTitle>
+              <DialogDescription className=" text-base my-2">
+                Are you sure you want to delete this document?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleDeleteFAQ} variant="destructive">
+              <Button variant="destructive" onClick={handleDelete}>
                 Delete
               </Button>
             </DialogFooter>
@@ -347,13 +337,8 @@ export default function TopicComponent() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span>
-              {totalFaqs === 0
-                ? "0"
-                : `${(currentPage - 1) * ITEMS_PER_PAGE + 1} - ${Math.min(
-                    currentPage * ITEMS_PER_PAGE,
-                    totalFaqs
-                  )}`}{" "}
-              of {totalFaqs}
+              {currentPage * ITEMS_PER_PAGE - ITEMS_PER_PAGE + 1} -{" "}
+              {Math.min(currentPage * ITEMS_PER_PAGE, totalDocs)} of {totalDocs}
             </span>
             <Button
               variant="ghost"

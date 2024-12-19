@@ -10,25 +10,25 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Blog } from "@/types/Blog"
+import { DocumentCategoryType } from "@/types/Document"
+import { CreateDocButton } from "../CreateDocButton"
 
 interface Column {
-  id: keyof Blog
+  id: keyof DocumentCategoryType
   label: string
   checked: boolean
 }
 
-interface BlogTableFilterProps {
+interface DocTableFilterProps {
   onFilterChange: (value: string) => void
   onColumnsChange: (columns: Column[]) => void
 }
 
-export function BlogRequestFilter({ onFilterChange, onColumnsChange }: BlogTableFilterProps) {
-  
+export default function DocumentCategoryTableFilter({ onFilterChange, onColumnsChange }: DocTableFilterProps) {
   const [filterValue, setFilterValue] = React.useState("")
   const [columns, setColumns] = React.useState<Column[]>([
-    { id: "title", label: "Title", checked: true },
-    { id: "createdAt", label: "CreatedAt", checked: true },
+    { id: "name", label: "Category", checked: true },
+    { id: "createdAt", label: "Created At", checked: true },
   ])
 
   const handleFilterChange = (value: string) => {
@@ -36,7 +36,7 @@ export function BlogRequestFilter({ onFilterChange, onColumnsChange }: BlogTable
     onFilterChange(value);
   };
 
-  const toggleColumn = (columnId: keyof Blog) => {
+  const toggleColumn = (columnId: keyof DocumentCategoryType) => {
     const updatedColumns = columns.map(column => 
       column.id === columnId 
         ? { ...column, checked: !column.checked }
@@ -49,12 +49,13 @@ export function BlogRequestFilter({ onFilterChange, onColumnsChange }: BlogTable
   return (
     <div className="flex items-center justify-between gap-4 w-full max-w-[1200px]">
       <div className="flex items-center flex-1">
+        
         <Input
           type="text"
-          placeholder="Filter blog..."
+          placeholder="Filter documents..."
           value={filterValue}
           onChange={(e) => handleFilterChange(e.target.value)}
-          className="max-w-sm  border-0 ring-1 ring-input bg-card"
+          className="max-w-sm bg-card border-0 ring-1 ring-input"
         />
       </div>
       <DropdownMenu>
@@ -76,6 +77,7 @@ export function BlogRequestFilter({ onFilterChange, onColumnsChange }: BlogTable
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+      <CreateDocButton/>
     </div>
   )
 }
