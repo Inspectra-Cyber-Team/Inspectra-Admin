@@ -1,6 +1,6 @@
 "use client";
 
-import {  Bell, ChevronsUpDown, LogOut, User } from "lucide-react";
+import {  ChevronsUpDown, LogOut, User } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -104,11 +104,6 @@ export function NavUser({
               <DropdownMenuItem onClick={() => router.push("/myProfile")} >
                 <User />
                 Account
-              </DropdownMenuItem>
-
-              <DropdownMenuItem >
-                <Bell />
-                Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
