@@ -16,15 +16,13 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import { useUploadFileMutation } from "@/redux/service/fileupload";
+import {useUploadMultipleFileMutation } from "@/redux/service/fileupload";
 import { useCreateBlogMutation } from "@/redux/service/blog";
 import { useToast } from "@/components/hooks/use-toast";
-import { MdCheckCircle} from "react-icons/md";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { useGetAllTopicQuery } from "@/redux/service/topic";
 import TextEditor from "../TextEdittor/TextEditor";
-import { XCircle } from "lucide-react";
+import { Plus, XCircle } from "lucide-react";
 
 const FILE_SIZE = 1024 * 1024 * 5; // 5MB
 const SUPPORTED_FORMATS = ["image/jpg", "image/jpeg", "image/png", "image/gif"];
@@ -48,7 +46,9 @@ const validationSchema = Yup.object().shape({
 });
 
 export function CreateTab() {
+
   const router = useRouter();
+
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -75,16 +75,9 @@ export function CreateTab() {
 
   const { data: topics } = useGetAllTopicQuery({ page: 0, pageSize: 10 });
 
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const handleClose = () => {
-    setModalOpen(false); // Close the modal
-    router.push("/blog"); // Redirect to the blog page
-  };
-
   const { toast } = useToast();
 
-  const [uploadFile] = useUploadFileMutation();
+  const [uploadFile] = useUploadMultipleFileMutation();
 
   const [createBlog] = useCreateBlogMutation();
 
@@ -133,11 +126,11 @@ export function CreateTab() {
           description: "Blog Created Successfully",
           variant: "success",
         });
-        setModalOpen(true);
+        router.push("/blog?tab=overview");
       }
       console.log(response.data);
-    } catch (error) {
-      console.error("Create Blog Error:", error);
+    } catch  {
+    
       toast({
         description: "Failed to create blog",
         variant: "error",
@@ -159,10 +152,10 @@ export function CreateTab() {
             }}
             validationSchema={validationSchema}
             onSubmit={async (values) => {
-              console.log("Form submitted with values:", values);
+             
               // Ensure uploaded images are processed
               const uploadedImages = await handleFileUpload(values.thumbnail);
-              console.log("Uploaded images:", uploadedImages);
+             
               if (uploadedImages.length > 0) {
                 const updatedValues = {
                   ...values,
@@ -184,25 +177,28 @@ export function CreateTab() {
                 <h2 className="text-center font-bold text-2xl">Create Blog</h2>
 
                 <div
-                  className="file-upload-design p-6 rounded-xl border-2 border-dashed flex items-center justify-center flex-col gap-2"
+                  className="file-upload-design mt-4 p-6 rounded-lg border-2 border-dashed ransition-all duration-300 ease-in-out hover:border-blue-400 "
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                 >
-                  <p className="text-center font-medium">
-                    Drag and Drop Thumbnail Here
-                  </p>
-                  <p className="text-center text-gray-500">or</p>
-                  {/* Clicking this text opens the hidden file input */}
-                  <span
-                    className="browse-button text-primary-foreground cursor-pointer justify-center bg-primary p-2 rounded-lg"
-                    onClick={() => {
-                      const thumbnailInput =
-                        document.getElementById("thumbnail");
-                      if (thumbnailInput) thumbnailInput.click();
-                    }}
-                  >
-                    Browse Files
-                  </span>
+                  <div className="flex flex-col items-center justify-center space-y-2 text-center">
+                    <p className="text-sm font-medium text-gray-700 dark:text-text_color_dark">
+                      Drag and Drop Thumbnail Here
+                    </p>
+                    {/* <p className="text-sm text-gray-500">or</p> */}
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center w-10 h-10 rounded-full  text-black  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                      onClick={() => {
+                        const thumbnailInput =
+                          document.getElementById("thumbnail");
+                        if (thumbnailInput) thumbnailInput.click();
+                      }}
+                    >
+                      <Plus className="h-6 w-6 dark:text-text_color_dark" />
+                      <span className="sr-only">Browse Files</span>
+                    </button>
+                  </div>
 
                   <Input
                     id="thumbnail"
@@ -214,11 +210,8 @@ export function CreateTab() {
                   <ErrorMessage
                     name="thumbnail"
                     component="p"
-                    className="text-red-500 text-sm mt-1"
+                    className="text-red-500 text-sm mt-2 text-center"
                   />
-
-
-
                 </div>
 
                 {/* Preview Selected Thumbnails */}
@@ -377,30 +370,7 @@ export function CreateTab() {
         </CardContent>
       </Card>
 
-      {/* Modal for Blog Creation Success */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="bg-white dark:bg-background_dark_mode max-w-md  p-[50px]  w-full mx-auto">
-          <MdCheckCircle size={100} className="text-primary_color mx-auto" />
-          <div className="text-center">
-            <p className="font-bold text-text_header_34">Create Success</p>
-            <p className="text-lg dark:text-text_color_desc_dark text-left">
-              Thank you for submitting your blog! <br />
-              <br /> Your post is currently under review by our admin team. Once
-              it has been approved, you will receive a confirmation email
-              notifying you of its successful publication. <br />
-              <br />
-              We appreciate your contribution and look forward to sharing your
-              insights with our community.
-            </p>
-          </div>
-          <Button
-            onClick={() => handleClose()}
-            className="mt-4 bg-primary_color text-black"
-          >
-            Visite Blog Page
-          </Button>
-        </DialogContent>
-      </Dialog>
+    
     </div>
   );
 }

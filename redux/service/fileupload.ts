@@ -10,7 +10,14 @@ export const fileApi = cyberApi.injectEndpoints({
         body: file,
       }),
     }),
+    uploadMultipleFile: builder.mutation<any, { file: object }>({
+      query: ({ file }) => ({
+        url: `files/multiple`,
+        method: "POST",
+        body: file,
+      }),
+    }),
   }),
 });
 
-export const { useUploadFileMutation } = fileApi;
+export const { useUploadFileMutation,useUploadMultipleFileMutation } = fileApi;

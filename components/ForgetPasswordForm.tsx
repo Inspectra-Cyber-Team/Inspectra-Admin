@@ -14,7 +14,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { useRequestPasswordResetMutation, useResetPasswordMutation } from "@/redux/service/auth";
+import {
+  useRequestPasswordResetMutation,
+  useResetPasswordMutation,
+} from "@/redux/service/auth";
 import { useToast } from "@/hooks/use-toast";
 import { IoEyeOffSharp, IoEyeSharp } from "react-icons/io5";
 
@@ -97,11 +100,8 @@ export default function ForgetPassowrdForm() {
     setOpenModal(false);
   };
 
-  const handleSubmit = (value: Email) => {
-   
-  };
-
   const [showPassword, setShowPassword] = useState(false);
+
   const [showPassword1, setShowPassword1] = useState(false);
 
   const handleShowPassword = () => {
@@ -113,7 +113,6 @@ export default function ForgetPassowrdForm() {
 
   const handleRequestPasswordReset = async (email: string) => {
     try {
-
       setEmail(email);
 
       const response = await requestPasswordReset({ email });
@@ -125,18 +124,18 @@ export default function ForgetPassowrdForm() {
         });
         setOpenModal(true);
       } else {
-        toast ({
+        toast({
           description: "Failed to send OTP. Please try again!",
           variant: "error",
-        })
+        });
       }
-    } catch  {
-      toast ({
+    } catch {
+      toast({
         description: "Failed to send OTP. Please try again!",
         variant: "error",
-      })
+      });
     }
-  }
+  };
 
   // handle submit change password
   const handleSubmitchangePassword = async (values: any) => {
@@ -163,7 +162,7 @@ export default function ForgetPassowrdForm() {
           variant: "error",
         });
       }
-    } catch  {
+    } catch {
       toast({
         description: "Failed to change password. Please try again!",
         variant: "error",
@@ -224,7 +223,6 @@ export default function ForgetPassowrdForm() {
                   disabled={isSubmitting}
                   type="submit"
                   className="inline-block w-full rounded-lg px-5 py-3 text-sm font-medium bg-primary text-primary-foreground"
-                
                 >
                   {isSubmitting ? (
                     <div className="spinner-border animate-spin inline-block w-4 h-4 border-2 rounded-full border-t-2 border-primary-foreground border-t-transparent"></div>
@@ -266,13 +264,22 @@ export default function ForgetPassowrdForm() {
                         name={fieldName}
                         maxLength={1}
                         value={values[fieldName]} // Ensures value is controlled
-                        onChange={handleChange}
-                        onKeyDown={(e: {
-                          key: string;
-                          target: { value: any };
-                        }) => {
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          handleChange(e);
+
+                          // Automatically move to the next field
+                          const nextField = document.getElementById(
+                            `otp${index + 2}`
+                          );
+                          if (e.target.value && nextField) {
+                            nextField.focus();
+                          }
+                        }}
+                        onKeyDown={(
+                          e: React.KeyboardEvent<HTMLInputElement>
+                        ) => {
                           if (e.key === "Backspace") {
-                            const value = e.target.value;
+                            const value = e.currentTarget.value;
                             if (!value && index > 0) {
                               const prevField = document.getElementById(
                                 `otp${index}`
@@ -312,7 +319,7 @@ export default function ForgetPassowrdForm() {
             }}
             validationSchema={validationSchema}
             onSubmit={async (Values) => {
-               await handleSubmitchangePassword(Values);
+              await handleSubmitchangePassword(Values);
             }}
           >
             {({ isSubmitting }) => (

@@ -44,6 +44,7 @@ import {
   useGetAllBlogUnVerifiedQuery,
   useVerifyBlogMutation,
 } from "@/redux/service/blog";
+import { useToast } from "@/hooks/use-toast";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -66,6 +67,8 @@ export function BlogRequestTab() {
   ]);
   const router = useRouter();
 
+  const {toast} = useToast();
+
   const [uuid, setUuid] = useState<string>("");
 
   const [verifyBlog] = useVerifyBlogMutation();
@@ -79,10 +82,18 @@ export function BlogRequestTab() {
       
       await deleteBlog({ uuid: uuid });
 
+      toast ({
+        description: "Blog deleted successfully",
+        variant: "success",
+      })
+     
       setDeleteModalOpen(false);
       
-    } catch (error) {
-      console.error("Error deleting blog", error);
+    } catch {
+      toast ({
+        description: "Error deleting blog",
+        variant: "error",
+      })
     }
   }
 
