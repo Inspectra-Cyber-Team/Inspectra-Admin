@@ -38,10 +38,9 @@ export default function ChangePasswordComponent({
 
   const handleChnagePassword = async (values: ChnagePassword) => {
     try {
-      console.log("Values:", values);
+ 
       const response = await changePassword({ data:values });
 
-      console.log("Response:", response);
       if (response.data) {
         toast({
           description: "Password changed successfully!",

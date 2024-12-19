@@ -3,9 +3,9 @@ import { cyberApi } from "../api";
 export const fileApi = cyberApi.injectEndpoints({
   endpoints: (builder) => ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    uploadFile: builder.mutation<any, { file: object }>({
+    uploadFile: builder.mutation<any, { file: FormData }>({
       query: ({ file }) => ({
-        url: `files/multiple`,
+        url: `files`,
         method: "POST",
         body: file,
       }),
