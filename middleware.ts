@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-// import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 export function middleware(request: NextRequest) {
   console.log("========| Middleware Running |========");
@@ -11,35 +11,31 @@ export function middleware(request: NextRequest) {
 
   const inspectraSessionToken = request.cookies.get("InspectraRefreshToken");
 
-  
-
-  // try {
-  //   const decodedToken = jwt.decode(inspectraSessionToken?.value || "");
-  //   console.log("=> Decoded Token: ", decodedToken);
-  //   if (
-  //     !decodedToken ||
-  //     typeof decodedToken !== "object" ||
-  //     !decodedToken.role
-  //   ) {
-  //     throw new Error("Token does not contain role information");
-  //   }
-
-  //   const role = decodedToken.role;
+  try {
     
-  //   console.log("=> Role: ", role);
+    const decodedToken = jwt.decode(inspectraSessionToken?.value || "");
+  
+    if (
+      !decodedToken ||
+      typeof decodedToken !== "object" ||
+      !decodedToken.role
+    ) {
+      throw new Error("Token does not contain role information");
+    }
 
-  //   // Check if the role is ADMIN
-  //   if (role !== "ADMIN") {
-  //     return NextResponse.redirect(
-  //       new URL("/auth/login", request.url).toString()
-  //     );
-  //   }
-  // } catch (error) {
-  //   console.error("Token decoding failed:", error);
-  //   return NextResponse.redirect(
-  //     new URL("/auth/login", request.url).toString()
-  //   );
-  // }
+    const role = decodedToken.role;
+
+    // Check if the role is ADMIN
+    // Check if the role array contains "ROLE_ADMIN"
+    if (!role.includes("ROLE_ADMIN")) {
+      return NextResponse.redirect("/auth/login");
+    }
+  } catch (error) {
+    console.error("Token decoding failed:", error);
+    return NextResponse.redirect(
+      new URL("/auth/login", request.url).toString()
+    );
+  }
 
   if (request.nextUrl.pathname != "auth/login/") {
     if (!inspectraSessionToken) {

@@ -38,24 +38,29 @@ const validationSchema = Yup.object({
 });
 
 export function CreateAdminModal({ isOpen, onClose }: CreateAdminModalProps) {
+
   const { toast } = useToast();
 
   const [createAdmin] = useCreateAdminMutation();
 
   const handleSubmit = async (values: any) => {
+    
     try {
-      console.log("submit value", values);
+   
       const response = await createAdmin({ data: values });
-
-      console.log(response);
 
       if (response.data) {
         toast({
-          description: "Comment liked successfully",
+          description: "Admin created successfully!",
           variant: "success",
         });
-      }
+      } else {
+        toast({
+          description: "Email or username already exists.",
+          variant: "error",
+        });
       onClose();
+      }
     } catch (error) {
       toast({
         description: "An error occurred. Please try again later.",

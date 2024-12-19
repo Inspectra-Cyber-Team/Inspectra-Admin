@@ -13,9 +13,9 @@ export const authApi = cyberApi.injectEndpoints({
 
     chnagePassword: builder.mutation<any, { data: object }>({
       query: ({ data }) => ({
-        url: `auth/change-password/`,
+        url: `auth/change-password`,
         method: "PUT",
-        body: { data },
+        body:  data ,
       }),
     }),
   }),

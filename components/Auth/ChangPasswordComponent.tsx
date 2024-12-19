@@ -3,6 +3,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useChnagePasswordMutation } from "@/redux/service/auth";
+import { useToast } from "@/hooks/use-toast";
 
 
 const validationSchema = Yup.object({
@@ -30,17 +31,37 @@ export default function ChangePasswordComponent({
   isOpen,
   onClose,
 }: ChangePasswordProps) {
+
   const [changePassword] = useChnagePasswordMutation();
+
+  const {toast} = useToast();
 
   const handleChnagePassword = async (values: ChnagePassword) => {
     try {
-      const response = await changePassword({ data: values }).unwrap();
+      console.log("Values:", values);
+      const response = await changePassword({ data:values });
 
+      console.log("Response:", response);
       if (response.data) {
+        toast({
+          description: "Password changed successfully!",
+          variant: "success",
+        })
         onClose();
+      }
+      else {
+        toast({
+          description: "Failed to change password. Please try again.",
+          variant: "error",
+        })
+       
       }
     } catch (error) {
       console.error("Failed to change password:", error);
+      toast({
+        description: "Failed to change password. Please try again.",
+        variant: "error",
+      });
     }
   };
 
