@@ -24,12 +24,12 @@ export function NavMain({
 }: {
   items: {
     title: string
-    url: string
+    href: string
     icon?: LucideIcon
     isActive?: boolean
     items?: {
       title: string
-      url: string
+      href: string
     }[]
   }[]
 }) {
@@ -57,7 +57,7 @@ export function NavMain({
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
-                        <Link href={subItem.url}>
+                        <Link href={subItem.href}>
                           <span>{subItem.title}</span>
                         </Link>
                       </SidebarMenuSubButton>

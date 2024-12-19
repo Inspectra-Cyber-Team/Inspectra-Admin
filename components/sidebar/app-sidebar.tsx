@@ -47,54 +47,54 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      href: "#",
       icon: BlocksIcon,
       items: [
         {
           title: "Overview",
-          url: "/",
+          href: "/",
         },
       ]
     },
     {
       title: "Management",
-      url: "#",
+      href: "#",
       icon: Settings2Icon,
       items: [
         {
           title: "Project",
-          url: "/project",
+          href: "/project",
         },
         {
           title: "Document",
-          url: "document",
+          href: "document",
         },
         {
           title: "Blog",
-          url: "/blog",
+          href: "/blog",
         },
         {
           title: "Feedback",
-          url: "/feedback",
+          href: "/feedback",
         },
         {
           title: "FAQs",
-          url: "/FAQs",
+          href: "/FAQs",
         },
       ],
     },
     {
       title: "User Management",
-      url: "#",
+      href: "#",
       icon: UserCogIcon,
       items: [
         {
           title: "User",
-          url: "/user",
+          href: "/user",
         },
         {
           title: "Admin",
-          url: "/admin",
+          href: "/admin",
         },
       ],
     },

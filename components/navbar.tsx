@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { ModeToggle } from "./modetoggle";
+import { Notification } from "./Notification";
 import { useRouter } from "next/navigation";
 import { useGetUserDetailQuery } from "@/redux/service/user";
 import { useState, useEffect } from "react";
@@ -58,6 +59,7 @@ export function UserNav() {
   return (
     <div className="flex justify-end items-center p-2">
       <div className="flex items-center space-x-4 px-8">
+      <Notification/>
         <ModeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
