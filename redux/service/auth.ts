@@ -1,3 +1,4 @@
+
 import { cyberApi } from "../api";
 
 export const authApi = cyberApi.injectEndpoints({
@@ -18,7 +19,25 @@ export const authApi = cyberApi.injectEndpoints({
         body:  data ,
       }),
     }),
+
+     requestPasswordReset: builder.mutation<any, { email: string }>({
+      query: ({ email }) => ({
+        url: `auth/request-reset-password?email=${email}`,
+        method: "PUT",
+      }),
+    }),
+
+    resetPassword: builder.mutation<any, { data: object }>({
+      query: ({ data }) => ({
+        url: `auth/reset-password`,
+        method: "PUT",
+        body: data,
+      }),
+    }),
+
+
+
   }),
 });
 
-export const { useLoginMutation, useChnagePasswordMutation } = authApi;
+export const { useLoginMutation, useChnagePasswordMutation, useRequestPasswordResetMutation, useResetPasswordMutation } = authApi;

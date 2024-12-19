@@ -4,6 +4,8 @@ import * as Yup from "yup";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useChnagePasswordMutation } from "@/redux/service/auth";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { IoEyeOffSharp, IoEyeSharp } from "react-icons/io5";
 
 
 const validationSchema = Yup.object({
@@ -64,6 +66,22 @@ export default function ChangePasswordComponent({
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
+
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+  const handleShowPassword1 = () => {
+    setShowPassword1(!showPassword1);
+  };
+  const handleShowPassword2 = () => {
+    setShowPassword2(!showPassword2);
+  };
+
+
+
   return (
     <section>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -87,7 +105,7 @@ export default function ChangePasswordComponent({
               <Form className="grid gap-6 mt-6 ">
                 {/* Emial */}
                 {/* Email Field */}
-                <div className="grid gap-2">
+                <div className="grid gap-2 relative">
                   <label
                     htmlFor="oldPassword"
                     className="block text-sm font-medium "
@@ -98,8 +116,21 @@ export default function ChangePasswordComponent({
                     className="w-full rounded-lg border p-4 text-sm"
                     name="oldPassword"
                     placeholder="Enter your old password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                   />
+                    {!showPassword ? (
+                    <IoEyeOffSharp
+                      className="cursor-pointer absolute right-4 top-[42px] text-gray-500"
+                      onClick={() => handleShowPassword()}
+                      size={20}
+                    />
+                  ) : (
+                    <IoEyeSharp
+                      className="cursor-pointer absolute right-4 top-[42px] text-gray-500"
+                      onClick={() => handleShowPassword()}
+                      size={20}
+                    />
+                  )}
 
                   <ErrorMessage
                     className="text-red-500 text-sm mt-1"
@@ -109,7 +140,7 @@ export default function ChangePasswordComponent({
                 </div>
 
                 {/* New Password */}
-                <div className="grid gap-2">
+                <div className="grid gap-2 relative">
                   <label
                     htmlFor="newPassword"
                     className="block text-sm font-medium "
@@ -120,8 +151,21 @@ export default function ChangePasswordComponent({
                     className="w-full rounded-lg border p-4 text-sm"
                     name="newPassword"
                     placeholder="Enter your new password"
-                    type="password"
+                    type={showPassword1 ? "text" : "password"}
                   />
+                    {!showPassword1 ? (
+                    <IoEyeOffSharp
+                      className="cursor-pointer absolute right-4 top-[42px] text-gray-500"
+                      onClick={() => handleShowPassword1()}
+                      size={20}
+                    />
+                  ) : (
+                    <IoEyeSharp
+                      className="cursor-pointer absolute right-4 top-[42px] text-gray-500"
+                      onClick={() => handleShowPassword1()}
+                      size={20}
+                    />
+                  )}
                   <ErrorMessage
                     className="text-red-500 text-sm mt-1"
                     component="div"
@@ -130,7 +174,7 @@ export default function ChangePasswordComponent({
                 </div>
 
                 {/* Confirm Password */}
-                <div className="grid gap-2">
+                <div className="grid gap-2 relative">
                   <label
                     htmlFor="confirmPassword"
                     className="block text-sm font-medium "
@@ -141,8 +185,21 @@ export default function ChangePasswordComponent({
                     className="w-full rounded-lg border p-4 text-sm"
                     name="confirmPassword"
                     placeholder="Confirm your new password"
-                    type="password"
+                    type={showPassword2 ? "text" : "password"}
                   />
+                    {!showPassword2 ? (
+                    <IoEyeOffSharp
+                      className="cursor-pointer absolute right-4 top-[42px] text-gray-500"
+                      onClick={() => handleShowPassword2()}
+                      size={20}
+                    />
+                  ) : (
+                    <IoEyeSharp
+                      className="cursor-pointer absolute right-4 top-[42px] text-gray-500"
+                      onClick={() => handleShowPassword2()}
+                      size={20}
+                    />
+                  )}
                   <ErrorMessage
                     className="text-red-500 text-sm mt-1"
                     component="div"
