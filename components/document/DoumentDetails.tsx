@@ -1,5 +1,5 @@
 'use client'
-import { useGetDocumentCategoryQuery } from '@/redux/service/document';
+import { useGetDocoumentQuery, useGetDocumentCategoryQuery } from '@/redux/service/document';
 import React from 'react'
 import DOMPurify from 'dompurify';
 import {
@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/breadcrumb"
 
 
-type DocumentCategoryDetailsProps = {
+type DocumentDetailsProps = {
   readonly uuid: string;
 }
 
-export default function DocumentCategoryDetails({uuid}:DocumentCategoryDetailsProps) {
+export default function DocumentDetails({uuid}:DocumentDetailsProps) {
 
-  const {data,isLoading} = useGetDocumentCategoryQuery({uuid:uuid});
+  const {data,isLoading} = useGetDocoumentQuery({uuid:uuid});
 
   if(isLoading) return <div>Loading...</div>
 
@@ -42,11 +42,11 @@ export default function DocumentCategoryDetails({uuid}:DocumentCategoryDetailsPr
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/document?tab=document-category">Document Category</BreadcrumbLink>
+          <BreadcrumbLink href="/document?tab=document">Document</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbPage>{data?.data?.name}</BreadcrumbPage>
+          <BreadcrumbPage>{data?.data?.title}</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
@@ -54,7 +54,7 @@ export default function DocumentCategoryDetails({uuid}:DocumentCategoryDetailsPr
       <section className='bg-card rounded-md h-full p-4'>
         <div className='flex flex-col space-y-4'>
           <div className='flex flex-col space-y-2'>
-            <h1 className='text-md text-2xl font-semibold'>{data?.data?.name}</h1>
+            <h1 className='text-md font-bold text-2xl font-semibold'>{data?.data?.title}</h1>
           </div>
           <div className='flex flex-col space-y-2'>
            {/* Render sanitized description */}

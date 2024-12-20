@@ -53,6 +53,6 @@ const baseQueryWithReAuth = async (args: any, api: any, extraOptions: any) => {
 export const cyberApi = createApi({
     reducerPath: "cyberApi",
     baseQuery: baseQueryWithReAuth,
-    tagTypes: ["Feedback", "Report","Blog","Feedback","USER","Topic","Project"],
+    tagTypes: ["Feedback", "Report","Blog","Feedback","USER","Topic","Project","Document"],
     endpoints: () => ({}),
 });

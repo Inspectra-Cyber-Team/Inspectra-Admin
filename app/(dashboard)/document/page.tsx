@@ -13,7 +13,7 @@ export default function Page() {
 
   const searchParams = useSearchParams()
 
-  const [activeTab, setActiveTab] = useState("overview")
+  const [activeTab, setActiveTab] = useState("document-category")
 
   useEffect(() => {
     // Sync the tab with the `tab` query parameter
@@ -36,11 +36,11 @@ export default function Page() {
       
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className='mb-6'>
-          <TabsTrigger value="documenr-category">Document Category</TabsTrigger>
+          <TabsTrigger value="document-category">Document Category</TabsTrigger>
           <TabsTrigger value="document">Document</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="documenr-category">
+        <TabsContent value="document-category">
           <DocumentCategoryTable/>
           </TabsContent>
 

@@ -37,8 +37,10 @@ import {
 import { Input } from "../../ui/input";
 import { DocumentCategoryType } from "@/types/Document";
 import { convertToDayMonthYear } from "@/lib/utils";
-import { useUseGetAllDocumentCategoriesQueryQuery } from "@/redux/service/document";
+import { useDeleteDocumentCategoryMutation, useUseGetAllDocumentCategoriesQueryQuery } from "@/redux/service/document";
 import DocumentCategoryTableFilter from "./DocumentCategory";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -49,17 +51,29 @@ interface Column {
 }
 
 export function DocumentCategoryTable() {
+
+  const router = useRouter();
+
   const [currentPage, setCurrentPage] = useState(1);
+
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
+
   const [viewModalOpen, setViewModalOpen] = useState(false);
+
   const [editModalOpen, setEditModalOpen] = useState(false);
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const [selectedItem, setSelectedItem] = useState<DocumentCategoryType | null>(null);
+
   const [editedTitle, setEditedTitle] = useState("");
+
   const [editedDescription, setEditedDescription] = useState("");
-  const [editedDocumentCategoryName, setEditedDocumentCategoryName] =
-    useState("");
+
+  const [editedDocumentCategoryName, setEditedDocumentCategoryName] =useState("");
+
   const [filterValue, setFilterValue] = useState("");
+  
   const [visibleColumns, setVisibleColumns] = useState<Column[]>([
     { id: "name", label: "Category", checked: true },
     { id: "createdAt", label: "Created At", checked: true },
@@ -69,7 +83,7 @@ export function DocumentCategoryTable() {
     data: DocData,
     isLoading,
     isError,
-  } = useUseGetAllDocumentCategoriesQueryQuery({ page: 0, size: 10 });
+  } = useUseGetAllDocumentCategoriesQueryQuery({ page: currentPage-1, size: ITEMS_PER_PAGE });
 
   const docs = DocData?.content || [];
 
@@ -81,6 +95,7 @@ export function DocumentCategoryTable() {
   );
 
   const totalPages = Math.ceil(filteredDocs.length / ITEMS_PER_PAGE);
+
   const totalDocs = filteredDocs.length;
 
   const paginatedDocs = filteredDocs.slice(
@@ -113,12 +128,6 @@ export function DocumentCategoryTable() {
     }
   };
 
-  const handleDelete = () => {
-    if (selectedItem) {
-      console.log("Deleting Doc:", selectedItem.uuid);
-      setDeleteModalOpen(false);
-    }
-  };
 
   const handleFilterChange = (value: string) => {
     setFilterValue(value);
@@ -128,6 +137,40 @@ export function DocumentCategoryTable() {
   const handleColumnsChange = (columns: Column[]) => {
     setVisibleColumns(columns);
   };
+
+  const [deleteDoucmentCategory] = useDeleteDocumentCategoryMutation();
+
+  const handleDeteleDocumentCategory = async (uuid: string) => {
+    try {
+    
+      const res = await deleteDoucmentCategory({uuid: uuid});
+
+      if(res.data==null)
+      {
+        toast ({
+          description: "Document Category Deleted Successfully",
+          variant: "success",
+        })
+        setDeleteModalOpen(false);
+      }
+   
+      else {
+        toast ({
+          description: "Error Deleting Document Category",
+          variant: "error",
+        })
+        setDeleteModalOpen(false);
+      }
+
+    } catch {
+      
+      toast ({
+        description: "Error Deleting Document Category",
+        variant: "error",
+      })
+
+    }
+  }
 
   if (isLoading) {
     return (
@@ -197,7 +240,7 @@ export function DocumentCategoryTable() {
                       <DropdownMenuItem
                         onClick={() => {
                           setSelectedItem(doc);
-                          setViewModalOpen(true);
+                          router.push(`/document-category/${doc?.uuid}`);
                         }}
                       >
                         <Eye className="mr-2 h-4 w-4" />
@@ -208,7 +251,7 @@ export function DocumentCategoryTable() {
                         onClick={() => {
                           setSelectedItem(doc);
                           setEditedDocumentCategoryName(doc.name);
-                          setEditModalOpen(true);
+                          router.push(`/document-category/${doc?.uuid}/update`);
                         }}
                         className="text-yellow-600"
                       >
@@ -308,14 +351,14 @@ export function DocumentCategoryTable() {
                 Confirm Delete
               </DialogTitle>
               <DialogDescription className=" text-base my-2">
-                Are you sure you want to delete this document?
+                Are you sure you want to delete this document category?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleDelete}>
+              <Button variant="destructive" onClick={()=>handleDeteleDocumentCategory(selectedItem?.uuid ?? "")}>
                 Delete
               </Button>
             </DialogFooter>

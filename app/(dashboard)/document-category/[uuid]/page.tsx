@@ -1,7 +1,6 @@
-
+import DocumentCategoryDetails from '@/components/document/category/DocumentCategoryDetails';
 import React from 'react'
 import { Metadata } from 'next';
-import DocumentDetails from '@/components/document/DoumentDetails';
 
 export const config: Metadata = {
   title: 'Document Category Details',
@@ -16,7 +15,7 @@ export default async function page({ params }: { params: Promise<{ uuid: string 
 
   return (
     <section>
-      <DocumentDetails uuid={uuid} />
+      <DocumentCategoryDetails uuid={uuid} />
     </section>
   )
 }

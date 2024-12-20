@@ -38,7 +38,9 @@ import { Input } from "../ui/input";
 import { DocumentType } from "@/types/Document";
 import { DocTableFilter } from "./DocTableFilter";
 import { convertToDayMonthYear } from "@/lib/utils";
-import { useGetAllDocumentQuery } from "@/redux/service/document";
+import { useDeletDocumentMutation, useGetAllDocumentQuery } from "@/redux/service/document";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -49,6 +51,14 @@ interface Column {
 }
 
 export function DocumentsTable() {
+
+  const router = useRouter();
+
+  const {toast} = useToast();
+
+  const [deleteDocument] = useDeletDocumentMutation();
+
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -66,7 +76,7 @@ export function DocumentsTable() {
   ]);
 
   const { data: DocData, isLoading, isError } = useGetAllDocumentQuery();
-  console.log(DocData);
+ 
 
   const docs = DocData?.data || [];
   const filteredDocs = docs.filter((doc: DocumentType) =>
@@ -109,12 +119,7 @@ export function DocumentsTable() {
     }
   };
 
-  const handleDelete = () => {
-    if (selectedItem) {
-      console.log("Deleting Doc:", selectedItem.uuid);
-      setDeleteModalOpen(false);
-    }
-  };
+
 
   const handleFilterChange = (value: string) => {
     setFilterValue(value);
@@ -134,6 +139,34 @@ export function DocumentsTable() {
   if (isError ) {
     return <div>No FAQs found.</div>;
   }
+
+
+  const handleDeleteDocument = async (uuid: string) => {
+    try {
+      const res = await deleteDocument({uuid: uuid});
+      
+      if (res.data == null) {
+        
+        toast({
+          description: "Document deleted successfully",
+          variant: "success",
+        })
+        setDeleteModalOpen(false);
+      } else {
+        toast({
+          description: "Failed to delete document",
+          variant: "error",
+        })
+        setDeleteModalOpen(false);
+      }
+
+    } catch  {
+      toast({
+        description: "Failed to delete document",
+        variant: "error",
+      })
+  }
+}
 
   return (
    <div className="space-y-4">
@@ -182,7 +215,8 @@ export function DocumentsTable() {
                     <DropdownMenuItem
                       onClick={() => {
                         setSelectedItem(doc);
-                        setViewModalOpen(true);
+                        // setViewModalOpen(true);
+                        router.push(`/document/${doc?.uuid}`);
                       }}
                     >
                       <Eye className="mr-2 h-4 w-4" />
@@ -194,7 +228,7 @@ export function DocumentsTable() {
                         setSelectedItem(doc);
                         setEditedDocumentCategoryName(doc.documentCategoryName);
                         setEditedTitle(doc.title);
-                        setEditModalOpen(true);
+                        router.push(`/document/${doc?.uuid}/update`);
                       }}
                       className="text-yellow-600"
                     >
@@ -301,7 +335,7 @@ export function DocumentsTable() {
             <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="destructive" onClick={()=> handleDeleteDocument(selectedItem?.uuid ?? "")}>
               Delete
             </Button>
           </DialogFooter>

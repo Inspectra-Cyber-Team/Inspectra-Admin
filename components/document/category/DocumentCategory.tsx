@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DocumentCategoryType } from "@/types/Document"
 import { CreateDocButton } from "../CreateDocButton"
+import { CreateDocumentCategoryButton } from "./CreateDocumentCategoryButton"
 
 interface Column {
   id: keyof DocumentCategoryType
@@ -25,7 +26,9 @@ interface DocTableFilterProps {
 }
 
 export default function DocumentCategoryTableFilter({ onFilterChange, onColumnsChange }: DocTableFilterProps) {
+  
   const [filterValue, setFilterValue] = React.useState("")
+  
   const [columns, setColumns] = React.useState<Column[]>([
     { id: "name", label: "Category", checked: true },
     { id: "createdAt", label: "Created At", checked: true },
@@ -77,7 +80,7 @@ export default function DocumentCategoryTableFilter({ onFilterChange, onColumnsC
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      <CreateDocButton/>
+      <CreateDocumentCategoryButton/>
     </div>
   )
 }

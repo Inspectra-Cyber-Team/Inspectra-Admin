@@ -26,6 +26,7 @@ import { Plus, XCircle } from "lucide-react";
 
 const FILE_SIZE = 1024 * 1024 * 5; // 5MB
 const SUPPORTED_FORMATS = ["image/jpg", "image/jpeg", "image/png", "image/gif"];
+
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is Required"),
   description: Yup.string().required("Description is Required"),
@@ -139,7 +140,7 @@ export function CreateTab() {
   };
 
   return (
-    <div>
+    <section>
       <Card className="border-0">
         <CardContent>
           <Formik
@@ -371,6 +372,6 @@ export function CreateTab() {
       </Card>
 
     
-    </div>
+    </section>
   );
 }
