@@ -124,7 +124,7 @@ export function BlogRequestTab() {
       !blog.isVerified && // Ensure isVerified is false
       (!filterValue ||
         Object.entries(blog).some(
-          ([ value]) =>
+          ([key, value]) =>
             value &&
             typeof value === "string" &&
             value.toLowerCase().includes(filterValue.toLowerCase())

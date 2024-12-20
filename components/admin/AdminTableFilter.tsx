@@ -25,6 +25,7 @@ interface AdminTableFilterProps {
 }
 
 export function AdminTableFilter({ onFilterChange, onColumnsChange }: AdminTableFilterProps) {
+  
   const [filterValue, setFilterValue] = React.useState("")
   const [columns, setColumns] = React.useState<Column[]>([
     { id: "name", label: "Username", checked: true },

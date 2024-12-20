@@ -24,7 +24,9 @@ interface ProjectTableFilterProps {
 }
 
 export function ProjectTableFilter({ onFilterChange, onColumnsChange }: ProjectTableFilterProps) {
+
   const [filterValue, setFilterValue] = React.useState("")
+  
   const [columns, setColumns] = React.useState<Column[]>([
     { id: "projectName", label: "Project Name", checked: true },
     { id: "createdAt", label: "Created At", checked: true },

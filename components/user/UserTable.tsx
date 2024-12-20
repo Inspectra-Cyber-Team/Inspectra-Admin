@@ -91,7 +91,7 @@ export function UsersTable() {
     ? users.filter((user: UserDetail) =>
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         Object.entries(user).some(
-          ([ value]) =>
+          ([key, value]) =>
             value &&
             typeof value === "string" &&
             value.toLowerCase().includes(filterValue.toLowerCase())

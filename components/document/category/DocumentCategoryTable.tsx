@@ -38,9 +38,10 @@ import { Input } from "../../ui/input";
 import { DocumentCategoryType } from "@/types/Document";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { useDeleteDocumentCategoryMutation, useUseGetAllDocumentCategoriesQueryQuery } from "@/redux/service/document";
-import DocumentCategoryTableFilter from "./DocumentCategory";
+
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { DocumentCategoryTableFilter } from "./DocumentCategoryFilter";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -89,7 +90,7 @@ export function DocumentCategoryTable() {
 
   const filteredDocs = docs.filter((doc: DocumentCategoryType) =>
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(doc).some(([value]) =>
+    Object.entries(doc).some(([key,value]) =>
       value.toString().toLowerCase().includes(filterValue.toLowerCase())
     )
   );

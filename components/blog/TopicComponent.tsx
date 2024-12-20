@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -84,14 +84,15 @@ export default function TopicComponent() {
     data: topicData,
     isLoading,
     isError,
-    refetch,
-  } = useGetAllTopicQuery({ page: currentPage - 1, pageSize: ITEMS_PER_PAGE });
+  } = useGetAllTopicQuery({ page: currentPage - 1, pageSize: 20});
+
+
 
 
   const faqs = topicData?.content || [];
   const filteredFaqs = faqs.filter((topic: TopicType) =>
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(topic).some(([value]) =>
+    Object.entries(topic).some(([key,value]) =>
       value.toString().toLowerCase().includes(filterValue.toLowerCase())
     )
   );
@@ -100,21 +101,23 @@ export default function TopicComponent() {
   const [updateTopic] = useUseUpdateTopicMutation();
 
   // pagination
-  const totalPages = topicData?.totalPages || 1;
-  const totalFaqs = topicData?.totalElements || 0;
-  const paginatedFaqs = filteredFaqs.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  //handlers
-  const handleSelectAll = () => {
-    setSelectedFAQs(
-      selectedFAQs.length === faqs.length
-        ? []
-        : faqs.map((faq: { uuid: unknown }) => faq.uuid)
+    // pagination
+    const totalPages = Math.ceil(filteredFaqs.length / ITEMS_PER_PAGE); // Use filteredFaqs length for total pages
+    const totalFaqs = filteredFaqs.length; // Length of the filtered list
+    const paginatedFaqs = filteredFaqs.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
     );
-  };
+  
+    //handlers
+    const handleSelectAll = () => {
+      setSelectedFAQs(
+        selectedFAQs.length === filteredFaqs.length
+          ? []
+          : filteredFaqs.map((faq: { uuid: unknown }) => faq.uuid)
+      );
+    };
+
 
   const handleSelectFAQ = (uuid: string) => {
     setSelectedFAQs((prev) =>
@@ -134,7 +137,7 @@ export default function TopicComponent() {
           description: "Topic updated successfully",
           variant: "success",
         })
-        refetch();
+       
       } catch (err) {
         console.error("Failed to update FAQ:", err);
       }
@@ -150,7 +153,7 @@ export default function TopicComponent() {
           description: "Topic deleted successfully",
           variant: "success",
         })
-        refetch(); // Refresh the FAQs data
+      
       } catch (err) {
         console.error("Failed to delete FAQ:", err);
       }

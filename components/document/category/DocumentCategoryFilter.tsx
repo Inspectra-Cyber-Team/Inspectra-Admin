@@ -10,28 +10,27 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { UserDetail } from "@/types/UserDetail"
+import { DocumentCategoryType } from "@/types/Document"
+import { CreateDocButton } from "../CreateDocButton"
 
 interface Column {
-  id: keyof UserDetail
+  id: keyof DocumentCategoryType
   label: string
   checked: boolean
 }
 
-interface UserTableFilterProps {
+interface DocTableFilterProps {
   onFilterChange: (value: string) => void
   onColumnsChange: (columns: Column[]) => void
 }
 
-export function UserTableFilter({ onFilterChange, onColumnsChange }: UserTableFilterProps) {
-  
+export function DocumentCategoryTableFilter({ onFilterChange, onColumnsChange }: DocTableFilterProps) {
+
   const [filterValue, setFilterValue] = React.useState("")
 
   const [columns, setColumns] = React.useState<Column[]>([
-    { id: "name", label: "Username", checked: true },
-    { id: "email", label: "Email", checked: true },
+    { id: "name", label: "Category", checked: true },
     { id: "createdAt", label: "Created At", checked: true },
-    { id: "isActive", label: "Status", checked: true },
   ])
 
   const handleFilterChange = (value: string) => {
@@ -39,7 +38,7 @@ export function UserTableFilter({ onFilterChange, onColumnsChange }: UserTableFi
     onFilterChange(value);
   };
 
-  const toggleColumn = (columnId: keyof UserDetail) => {
+  const toggleColumn = (columnId: keyof DocumentCategoryType) => {
     const updatedColumns = columns.map(column => 
       column.id === columnId 
         ? { ...column, checked: !column.checked }
@@ -52,12 +51,13 @@ export function UserTableFilter({ onFilterChange, onColumnsChange }: UserTableFi
   return (
     <div className="flex items-center justify-between gap-4 w-full max-w-[1200px]">
       <div className="flex items-center flex-1">
+        
         <Input
           type="text"
-          placeholder="Filter users..."
+          placeholder="Filter documents category..."
           value={filterValue}
           onChange={(e) => handleFilterChange(e.target.value)}
-          className="max-w-sm  border-0 ring-1 ring-input bg-card"
+          className="max-w-sm bg-card border-0 ring-1 ring-input"
         />
       </div>
       <DropdownMenu>
@@ -79,6 +79,7 @@ export function UserTableFilter({ onFilterChange, onColumnsChange }: UserTableFi
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+      <CreateDocButton/>
     </div>
   )
 }

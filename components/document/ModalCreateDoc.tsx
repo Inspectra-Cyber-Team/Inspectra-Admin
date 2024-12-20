@@ -11,8 +11,11 @@ interface CreateDocModalProps {
 }
 
 export function CreateDocModal({ isOpen, onClose }: CreateDocModalProps) {
+
   const [documentCategoryName, setdocumentCategoryName] = useState('')
+
   const [title, setTitle] = useState('')
+  
   const [content, setContent] = useState('')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

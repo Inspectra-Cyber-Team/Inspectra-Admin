@@ -56,9 +56,8 @@ export function ProjectTable() {
   const projects = projectsData?.content || [];
 
   const filteredProjects = projects.filter((project: ProjectNameType) =>
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     Object.entries(project).some(([key, value]) =>
-      value.toString().toLowerCase().includes(filterValue.toLowerCase())
+      value != null && value.toString().toLowerCase().includes(filterValue.toLowerCase())
     )
   );
 
@@ -94,7 +93,7 @@ export function ProjectTable() {
   };
 
   const handleDeleteConfirm = () => {
-    console.log("Delete confirmed!");
+ 
     // Implement delete logic here
     setIsModalOpen(false);
   };

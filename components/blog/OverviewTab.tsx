@@ -77,13 +77,11 @@ export function OverviewTab() {
 
   const blogs = blogData?.content || [];
 
-  console.log(blogs);
-
   const filteredBlogs = filterValue
     ? blogs.filter((blog: Blog) =>
         Object.entries(blog).some(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ([value]) =>
+          ([key,value]) =>
             value &&
             typeof value === "string" &&
             value.toLowerCase().includes(filterValue.toLowerCase())

@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { DocumentCategoryType } from "@/types/Document"
-import { CreateDocButton } from "../CreateDocButton"
 import { CreateDocumentCategoryButton } from "./CreateDocumentCategoryButton"
 
 interface Column {
@@ -48,6 +47,7 @@ export default function DocumentCategoryTableFilter({ onFilterChange, onColumnsC
     setColumns(updatedColumns)
     onColumnsChange(updatedColumns)
   }
+
 
   return (
     <div className="flex items-center justify-between gap-4 w-full max-w-[1200px]">
