@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "4013:3000"
+      - "4016:3000"
     environment:
       - NODE_ENV=production
       - GENERATE_SOURCEMAP=false
