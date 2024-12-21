@@ -174,12 +174,12 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: lyhou123
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }} # Store password in GitHub Secrets
+          password: Lyhou168@
 
       - name: Build and Push Docker Image using Docker Compose
         run: |
           docker-compose -f docker-compose.yml build
-          docker-compose -f docker-compose.yml push
+          docker-compose -f docker-compose.ymlz push
           docker tag lyhou123/nextjs-app:${{ github.sha }} lyhou123/nextjs-app:latest
           docker push lyhou123/nextjs-app:latest
 
