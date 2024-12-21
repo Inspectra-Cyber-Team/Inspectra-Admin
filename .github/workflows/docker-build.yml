@@ -347,9 +347,9 @@ jobs:
       - name: SSH Command to Deploy
         run: |
           sshpass -p '123' ssh -o StrictHostKeyChecking=no -p 22 'cyber'@'136.228.158.126' << EOF
-            docker login -u lyhou123 -p Lyhou168@
-            docker pull lyhou123/admin:latest
-            docker stop admin || true
-            docker rm admin || true
-            docker run -d --name admin -p 4016:3000 lyhou123/admin:latest
+            sudo docker login -u lyhou123 -p Lyhou168@
+            sudo docker pull lyhou123/admin:latest
+            sudo docker stop admin || true
+            sudo docker rm admin || true
+            sudo docker run -d --name admin -p 4016:3000 lyhou123/admin:latest
           EOF
