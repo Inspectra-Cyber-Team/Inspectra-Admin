@@ -118,14 +118,10 @@ jobs:
         run: |
           sshpass -p '123' ssh -o StrictHostKeyChecking=no -p 22 'cyber'@'136.228.158.126' << EOF
             sudo docker login -u lyhou123 -p Lyhou168@
-            if sudo docker images -q lyhou123/admin:latest; then
-              echo "Image exists, removing it..."
-             sudo docker rmi lyhou123/admin:latest || true
-            else
-             echo "Image does not exist, proceeding..."
-            fi 
-            sudo docker pull lyhou123/admin:latest
             sudo docker stop admin || true
             sudo docker rm admin || true
+            # Force remove the image
+            sudo docker rmi -f lyhou123/admin:latest || true
+            sudo docker pull lyhou123/admin:latest
             sudo docker run -d --name admin -p 4016:3000 lyhou123/admin:latest
           EOF
