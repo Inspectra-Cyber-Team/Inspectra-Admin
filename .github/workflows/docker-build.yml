@@ -81,6 +81,76 @@
 
 
 
+# name: Docker Build, Push, and Deploy
+
+# on:
+#   push:
+#     branches:
+#       - lyhou
+
+# jobs:
+#   build-and-push:
+#     runs-on: ubuntu-latest
+#     # environment: DOCKER
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
+
+#       - name: Set up Docker Compose
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y docker-compose
+
+#       - name: Log in to Docker Hub
+#         uses: docker/login-action@v2
+#         with:
+#           username: lyhou123 # Replace with your Docker Hub username
+#           password: Lyhou168@ # Replace with your Docker Hub password
+
+#       - name: Build and Push Docker Image using Docker Compose
+#         run: |
+#           # Build the Docker images using docker-compose
+#           docker-compose -f docker-compose.yml build
+          
+#           # Push the images to Docker Hub
+#           docker-compose -f docker-compose.yml push
+          
+#           # Optionally, tag the image as 'latest' for easier reference
+#           docker tag lyhou123/nextjs-app:${{ github.sha }} lyhou123/nextjs-app:latest
+#           docker push lyhou123/nextjs-app:latest
+
+#   deploy:
+#     runs-on: ubuntu-latest
+#     needs: build-and-push
+#     steps:
+#       - name: Checkout Code (Deploy)
+#         uses: actions/checkout@v3
+
+#       - name: Set up SSH Password Authentication
+#         run: |
+#           echo "Setting up SSH password authentication..."
+#           # Install sshpass tool to provide password for SSH login
+#           sudo apt-get install -y sshpass
+
+#       - name: SSH Command to Deploy
+#         run: |
+#           # Use sshpass to provide the password for SSH login
+#           sshpass -p '123' ssh -o StrictHostKeyChecking=no -p 22 'cyber'@'136.228.158.126' << EOF
+#             # Log in to Docker Hub on the remote server
+#             docker login -u lyhou123 -p Lyhou168@ 
+
+#             # Pull the latest Docker image from Docker Hub
+#             docker pull lyhou123/nextjs-app:latest
+
+#             # Stop and remove the running container if it exists
+#             docker stop nextjs-app || true
+#             docker rm nextjs-app || true
+
+#             # Run the container with the latest image
+#             docker run -d --name nextjs-app -p 3000:4016 lyhou123/nextjs-app:latest
+#           EOF
+
+
 name: Docker Build, Push, and Deploy
 
 on:
@@ -91,7 +161,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    # environment: DOCKER
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -104,18 +173,13 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: lyhou123 # Replace with your Docker Hub username
-          password: Lyhou168@ # Replace with your Docker Hub password
+          username: lyhou123
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }} # Store password in GitHub Secrets
 
       - name: Build and Push Docker Image using Docker Compose
         run: |
-          # Build the Docker images using docker-compose
           docker-compose -f docker-compose.yml build
-          
-          # Push the images to Docker Hub
           docker-compose -f docker-compose.yml push
-          
-          # Optionally, tag the image as 'latest' for easier reference
           docker tag lyhou123/nextjs-app:${{ github.sha }} lyhou123/nextjs-app:latest
           docker push lyhou123/nextjs-app:latest
 
@@ -126,26 +190,18 @@ jobs:
       - name: Checkout Code (Deploy)
         uses: actions/checkout@v3
 
-      - name: Set up SSH Password Authentication
+      - name: Set up SSH Key Authentication
         run: |
-          echo "Setting up SSH password authentication..."
-          # Install sshpass tool to provide password for SSH login
-          sudo apt-get install -y sshpass
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
       - name: SSH Command to Deploy
         run: |
-          # Use sshpass to provide the password for SSH login
-          sshpass -p '123' ssh -o StrictHostKeyChecking=no -p 22 'cyber'@'136.228.158.126' << EOF
-            # Log in to Docker Hub on the remote server
-            docker login -u lyhou123 -p Lyhou168@ 
-
-            # Pull the latest Docker image from Docker Hub
+          ssh -o StrictHostKeyChecking=no -p 22 'cyber'@'136.228.158.126' << EOF
+            docker login -u lyhou123 -p Lyhou168@
             docker pull lyhou123/nextjs-app:latest
-
-            # Stop and remove the running container if it exists
             docker stop nextjs-app || true
             docker rm nextjs-app || true
-
-            # Run the container with the latest image
-            docker run -d --name nextjs-app -p 3000:4016 lyhou123/nextjs-app:latest
+            docker run -d --name nextjs-app -p 4016:3000 lyhou123/nextjs-app:latest
           EOF
