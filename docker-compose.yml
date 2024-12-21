@@ -2,8 +2,11 @@ version: '3'
 services:
   inspectra-admin-test:
     container_name: inspectra-admin-test
-    image: lyhou123/admin:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
+    image: lyhou123/admin:latest
     ports:
       - "4016:3000"
     environment:
