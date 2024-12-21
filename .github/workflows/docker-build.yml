@@ -207,6 +207,50 @@
 #           EOF
 
 
+# name: Docker Build, Push, and Deploy
+
+# on:
+#   push:
+#     branches:
+#       - lyhou
+
+# jobs:
+#   build-and-push:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
+
+#       - name: Log in to Docker Hub
+#         uses: docker/login-action@v2
+#         with:
+#           username: lyhou123
+#           password: Lyhou168@
+
+#       - name: Build Docker Image
+#         run: |
+#           docker build -t lyhou123/admin:${{ github.sha }} .
+#           docker tag lyhou123/admin:${{ github.sha }} lyhou123/admin:latest
+#           docker push lyhou123/admin:${{ github.sha }}
+#           docker push lyhou123/admin:latest
+
+#   deploy:
+#     runs-on: ubuntu-latest
+#     needs: build-and-push
+#     steps:
+#       - name: SSH Command to Deploy
+#         run: |
+#           ssh -o StrictHostKeyChecking=no -p 22 'cyber'@'136.228.158.126' << EOF
+#             docker login -u lyhou123 -p Lyhou168@
+#             docker pull lyhou123/admin:latest
+#             docker stop inspectra-admin-test || true
+#             docker rm inspectra-admin-test || true
+#             docker run -d --name inspectra-admin-test -p 4016:3000 lyhou123/admin:latest
+#           EOF
+
+
+
+
 name: Docker Build, Push, and Deploy
 
 on:
@@ -221,29 +265,44 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: lyhou123
           password: Lyhou168@
 
-      - name: Build Docker Image
+      - name: Build and Push Docker Image using Docker Compose
         run: |
-          docker build -t lyhou123/admin:${{ github.sha }} .
+          docker-compose -f docker-compose.yml build
+          docker-compose -f docker-compose.yml push
           docker tag lyhou123/admin:${{ github.sha }} lyhou123/admin:latest
-          docker push lyhou123/admin:${{ github.sha }}
           docker push lyhou123/admin:latest
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
     steps:
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
       - name: SSH Command to Deploy
         run: |
-          ssh -o StrictHostKeyChecking=no -p 22 'cyber'@'136.228.158.126' << EOF
-            docker login -u lyhou123 -p Lyhou168@
-            docker pull lyhou123/admin:latest
-            docker stop inspectra-admin-test || true
-            docker rm inspectra-admin-test || true
-            docker run -d --name inspectra-admin-test -p 4016:3000 lyhou123/admin:latest
+          sshpass -p '123' ssh -o StrictHostKeyChecking=no -p 22 cyber@136.228.158.126 << EOF
+            # Log in to Docker Hub
+            sudo docker login -u lyhou123 -p Lyhou168@
+            
+            # Pull the latest image
+            sudo docker pull lyhou123/admin:latest
+            
+            # Stop and remove any existing container
+            sudo docker stop inspectra-admin-test || true
+            sudo docker rm inspectra-admin-test || true
+            
+            # Run the container with the latest image
+            sudo docker run -d --name inspectra-admin-test -p 4016:3000 lyhou123/admin:latest
           EOF
