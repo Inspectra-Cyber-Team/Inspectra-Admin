@@ -22,11 +22,11 @@ export function UserNav() {
   const router = useRouter();
 
   useEffect(() => {
-    setUserUUID(localStorage.getItem("userUUID") || "");
-  });
-  console.log(localStorage.getItem("userUUID"));
-  console.log(userData);
-
+    const storedUUID = localStorage.getItem("userUUID");
+    if (storedUUID) {
+      setUserUUID(storedUUID);
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -46,8 +46,7 @@ export function UserNav() {
         throw new Error(`Logout failed: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      console.log("Data from logout:", data);
+      await response.json();
 
       // Assuming the logout is successful, redirect to the login page
       router.push("/auth/login");
@@ -59,7 +58,7 @@ export function UserNav() {
   return (
     <div className="flex justify-end items-center p-2">
       <div className="flex items-center space-x-4 px-8">
-      <Notification/>
+        <Notification />
         <ModeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -77,14 +76,16 @@ export function UserNav() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{userData?.data?.name}</p>
+                <p className="text-sm font-medium leading-none">
+                  {userData?.data?.name}
+                </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                {userData?.data?.email}
+                  {userData?.data?.email}
                 </p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={()=> router.push("/myProfile")}>
+            <DropdownMenuItem onClick={() => router.push("/myProfile")}>
               <User className="mr-2 h-4 w-4" />
               <span>My profile</span>
             </DropdownMenuItem>

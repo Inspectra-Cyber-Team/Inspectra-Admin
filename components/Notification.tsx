@@ -12,13 +12,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 
 const notifications = [
-  { id: 1, title: "Blog Request", description: "You have a new blog request from Phiv Lyhou", time: "5m ago" },
-  { id: 2, title: "Blog Request", description: "You have a new blog request from Naikim", time: "10m ago" },
-  { id: 3, title: "Blog Request", description: "You have a new blog request from Votey", time: "1h ago" },
+  {
+    id: 1,
+    title: "Blog Request",
+    description: "You have a new blog request from Phiv Lyhou",
+    time: "5m ago",
+  },
+  {
+    id: 2,
+    title: "Blog Request",
+    description: "You have a new blog request from Naikim",
+    time: "10m ago",
+  },
+  {
+    id: 3,
+    title: "Blog Request",
+    description: "You have a new blog request from Votey",
+    time: "1h ago",
+  },
 ];
 
 export function Notification() {
   const [unreadCount, setUnreadCount] = React.useState(notifications.length);
+
   const router = useRouter();
 
   const handleNotificationClick = () => {
@@ -51,8 +67,12 @@ export function Notification() {
                   <div className="h-2 w-2 mt-2 rounded-full bg-blue-500" />
                   <div className="flex-1 space-y-1">
                     <p className="font-medium">{notification.title}</p>
-                    <p className="text-sm text-muted-foreground">{notification.description}</p>
-                    <p className="text-xs text-muted-foreground">{notification.time}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {notification.description}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {notification.time}
+                    </p>
                   </div>
                 </div>
               ))}

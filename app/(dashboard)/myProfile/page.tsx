@@ -38,7 +38,6 @@ export default function MyProfileComponent() {
         variant: "success",
       });
     } catch {
-    
       toast({
         description: "Failed to update profile. Please try again.",
         variant: "error",
@@ -70,23 +69,18 @@ export default function MyProfileComponent() {
     initialValues,
     enableReinitialize: true,
     onSubmit: async (values) => {
-
       const updatedValues = {
         ...values,
         profile: previewImage || values.profile,
       };
 
       try {
-       
-         await handleUpdateProfile(updatedValues); 
-
+        await handleUpdateProfile(updatedValues);
       } catch {
-       
         toast({
           description: "Failed to update profile. Please try again.",
           variant: "error",
         });
-
       }
     },
   });
@@ -110,21 +104,19 @@ export default function MyProfileComponent() {
         // Optionally, set the preview image to the uploaded file URL
         setPreviewImage(fileUrl);
       }
-    } 
+    }
   };
 
   const [uploadFile] = useUploadFileMutation();
 
   const handleFileUpload = async (file: any) => {
-
     const formData = new FormData();
 
     formData.append("file", file);
 
-  
     try {
       const response = await uploadFile({ file: formData }).unwrap();
-  
+
       // Check the response structure to ensure `fullUrl` exists
       if (response?.data?.fullUrl) {
         return response.data.fullUrl; // Return the full URL
@@ -135,15 +127,14 @@ export default function MyProfileComponent() {
         });
         return ""; // Return an empty string in case of failure
       }
-    } catch  {
-      toast ({
+    } catch {
+      toast({
         description: "Failed to upload file. Please try again.",
         variant: "error",
-      })
+      });
       return ""; // Return an empty string if an error occurs
     }
   };
-  
 
   return (
     <div>

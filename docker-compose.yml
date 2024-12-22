@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   inspectra-admin-test:
     container_name: inspectra-admin-test
@@ -6,9 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    image: lyhou123/admin:latest
+    image: lyhou123/inspectra-admin:latest
     ports:
-      - "4016:3000"
+      - "4013:3000"
     environment:
       - NODE_ENV=production
       - GENERATE_SOURCEMAP=false
