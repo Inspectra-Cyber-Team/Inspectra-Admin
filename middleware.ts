@@ -66,5 +66,6 @@ export const config = {
     "/FAQs",
     "/feedback",
     "/document",
+    "/blog",
   ],
 };
