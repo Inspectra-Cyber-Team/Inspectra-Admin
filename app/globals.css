@@ -124,12 +124,12 @@ body {
   }
 }
 
-ol {
-  list-style-type: decimal; /* For ordered lists */
-  padding-left: 20px; /* Indentation for ordered lists */
+/* ol {
+  list-style-type: decimal; 
+  padding-left: 20px; 
 }
 
 ul {
-  list-style-type: disc; /* For unordered lists */
-  padding-left: 20px; /* Indentation for unordered lists */
-}
+  list-style-type: disc; 
+  padding-left: 20px;
+} */
