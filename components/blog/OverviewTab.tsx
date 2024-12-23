@@ -81,7 +81,7 @@ export function OverviewTab() {
     ? blogs.filter((blog: Blog) =>
         Object.entries(blog).some(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ([key,value]) =>
+          ([key, value]) =>
             value &&
             typeof value === "string" &&
             value.toLowerCase().includes(filterValue.toLowerCase())
@@ -136,9 +136,11 @@ export function OverviewTab() {
   };
 
   if (isLoading) {
-    return <div className="loader-container">
-    <div className="loader"></div>
-  </div>;
+    return (
+      <div className="loader-container">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
   if (isError) {
@@ -235,7 +237,9 @@ export function OverviewTab() {
                               if (Array.isArray(value)) {
                                 return value.join(", ");
                               }
-                              return `${value?.firstName || ""} ${value?.lastName || ""}`.trim();
+                              return `${value?.firstName || ""} ${
+                                value?.lastName || ""
+                              }`.trim();
                             }
 
                             if (
