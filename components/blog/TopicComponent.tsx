@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -54,9 +54,8 @@ type Column = {
 };
 
 export default function TopicComponent() {
+  const { toast } = useToast();
 
-  const {toast} = useToast();
-  
   const [currentPage, setCurrentPage] = useState(1);
 
   const [selectedFAQs, setSelectedFAQs] = useState<string[]>([]);
@@ -79,45 +78,42 @@ export default function TopicComponent() {
   ]);
   // get data from RTK query
 
- 
   const {
     data: topicData,
     isLoading,
     isError,
-  } = useGetAllTopicQuery({ page: currentPage - 1, pageSize: 20});
-
-
-
+  } = useGetAllTopicQuery({
+    page: currentPage - 1,
+    pageSize: ITEMS_PER_PAGE,
+  });
 
   const faqs = topicData?.content || [];
+
   const filteredFaqs = faqs.filter((topic: TopicType) =>
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(topic).some(([key,value]) =>
+    Object.entries(topic).some(([key, value]) =>
       value.toString().toLowerCase().includes(filterValue.toLowerCase())
     )
   );
+
+  const totalPages = topicData?.totalPages || 0;
+  const totalFaqs = topicData?.totalElements || 0;
+  const paginatedFaqs = topicData?.content || [];
 
   const [deleteTopic] = useUseDeleleteTopicMutation();
   const [updateTopic] = useUseUpdateTopicMutation();
 
   // pagination
-    // pagination
-    const totalPages = Math.ceil(filteredFaqs.length / ITEMS_PER_PAGE); // Use filteredFaqs length for total pages
-    const totalFaqs = filteredFaqs.length; // Length of the filtered list
-    const paginatedFaqs = filteredFaqs.slice(
-      (currentPage - 1) * ITEMS_PER_PAGE,
-      currentPage * ITEMS_PER_PAGE
-    );
-  
-    //handlers
-    const handleSelectAll = () => {
-      setSelectedFAQs(
-        selectedFAQs.length === filteredFaqs.length
-          ? []
-          : filteredFaqs.map((faq: { uuid: unknown }) => faq.uuid)
-      );
-    };
+  // pagination
 
+  //handlers
+  const handleSelectAll = () => {
+    setSelectedFAQs(
+      selectedFAQs.length === paginatedFaqs.length
+        ? []
+        : paginatedFaqs.map((faq: { uuid: unknown }) => faq.uuid)
+    );
+  };
 
   const handleSelectFAQ = (uuid: string) => {
     setSelectedFAQs((prev) =>
@@ -133,11 +129,10 @@ export default function TopicComponent() {
           name: editedAnswer,
         }).unwrap();
         setEditModalOpen(false);
-        toast ({
+        toast({
           description: "Topic updated successfully",
           variant: "success",
-        })
-       
+        });
       } catch (err) {
         console.error("Failed to update FAQ:", err);
       }
@@ -149,11 +144,10 @@ export default function TopicComponent() {
       try {
         await deleteTopic({ uuid: selectedItem.uuid }).unwrap();
         setDeleteModalOpen(false);
-        toast ({
+        toast({
           description: "Topic deleted successfully",
           variant: "success",
-        })
-      
+        });
       } catch (err) {
         console.error("Failed to delete FAQ:", err);
       }
@@ -162,7 +156,6 @@ export default function TopicComponent() {
 
   const handleFilterChange = (value: string) => {
     setFilterValue(value);
-    setCurrentPage(1);
   };
 
   const handleColumnsChange = (columns: Column[]) => {
@@ -170,9 +163,11 @@ export default function TopicComponent() {
   };
 
   if (isLoading) {
-    return <div className="loader-container">
-    <div className="loader"></div>
-  </div>;
+    return (
+      <div className="loader-container">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
   if (isError) {
@@ -205,7 +200,7 @@ export default function TopicComponent() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedFaqs.map((faq: TopicType, index: number) => (
+            {filteredFaqs.map((faq: TopicType, index: number) => (
               <TableRow key={index}>
                 <TableCell>
                   <Checkbox
@@ -244,7 +239,7 @@ export default function TopicComponent() {
                       <DropdownMenuItem
                         onClick={() => {
                           setSelectedItem(faq);
-                        
+
                           setEditedAnswer(faq.name);
                           setEditModalOpen(true);
                         }}

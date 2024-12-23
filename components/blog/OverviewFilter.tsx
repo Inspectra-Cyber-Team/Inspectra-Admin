@@ -1,34 +1,37 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronDown } from 'lucide-react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import { ChevronDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Blog } from "@/types/Blog"
+} from "@/components/ui/dropdown-menu";
+import { Blog } from "@/types/Blog";
 
 interface Column {
-  id: keyof Blog
-  label: string
-  checked: boolean
+  id: keyof Blog;
+  label: string;
+  checked: boolean;
 }
 
 interface BlogTableFilterProps {
-  onFilterChange: (value: string) => void
-  onColumnsChange: (columns: Column[]) => void
+  onFilterChange: (value: string) => void;
+  onColumnsChange: (columns: Column[]) => void;
 }
 
-export function OverviewFilter({ onFilterChange, onColumnsChange }: BlogTableFilterProps) {
-  const [filterValue, setFilterValue] = React.useState("")
+export function OverviewFilter({
+  onFilterChange,
+  onColumnsChange,
+}: BlogTableFilterProps) {
+  const [filterValue, setFilterValue] = React.useState("");
   const [columns, setColumns] = React.useState<Column[]>([
     { id: "title", label: "Title", checked: true },
     { id: "createdAt", label: "Created At", checked: true },
-  ])
+  ]);
 
   const handleFilterChange = (value: string) => {
     setFilterValue(value);
@@ -36,17 +39,15 @@ export function OverviewFilter({ onFilterChange, onColumnsChange }: BlogTableFil
   };
 
   const toggleColumn = (columnId: keyof Blog) => {
-    const updatedColumns = columns.map(column => 
-      column.id === columnId 
-        ? { ...column, checked: !column.checked }
-        : column
-    )
-    setColumns(updatedColumns)
-    onColumnsChange(updatedColumns)
-  }
+    const updatedColumns = columns.map((column) =>
+      column.id === columnId ? { ...column, checked: !column.checked } : column
+    );
+    setColumns(updatedColumns);
+    onColumnsChange(updatedColumns);
+  };
 
   return (
-    <div className="flex items-center justify-between gap-4 w-full max-w-[1200px]">
+    <div className="flex items-center justify-between gap-4 w-full ">
       <div className="flex items-center flex-1">
         <Input
           type="text"
@@ -58,7 +59,10 @@ export function OverviewFilter({ onFilterChange, onColumnsChange }: BlogTableFil
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="bg-card border-0 ring-1 ring-input">
+          <Button
+            variant="outline"
+            className="bg-card border-0 ring-1 ring-input"
+          >
             Columns
             <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
@@ -76,6 +80,5 @@ export function OverviewFilter({ onFilterChange, onColumnsChange }: BlogTableFil
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }
-

@@ -19,7 +19,7 @@ interface Column {
   checked: boolean;
 }
 
-interface FaqTableFilterProps {
+interface TopicTableFilterProps {
   onFilterChange: (value: string) => void;
   onColumnsChange: (columns: Column[]) => void;
 }
@@ -27,7 +27,7 @@ interface FaqTableFilterProps {
 export function TopicTableFilter({
   onFilterChange,
   onColumnsChange,
-}: FaqTableFilterProps) {
+}: TopicTableFilterProps) {
   const [filterValue, setFilterValue] = React.useState("");
 
   const [columns, setColumns] = React.useState<Column[]>([
@@ -35,27 +35,33 @@ export function TopicTableFilter({
     { id: "createdAt", label: "Created At", checked: true },
   ]);
 
-  const handleFilterChange = (value: string) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     setFilterValue(value);
     onFilterChange(value);
   };
 
-  const toggleColumn = (columnId: keyof TopicType) => {
-    const updatedColumns = columns.map((column) =>
-      column.id === columnId ? { ...column, checked: !column.checked } : column
-    );
-    setColumns(updatedColumns);
-    onColumnsChange(updatedColumns);
-  };
+  const toggleColumn = React.useCallback(
+    (columnId: keyof TopicType) => {
+      const updatedColumns = columns.map((column) =>
+        column.id === columnId
+          ? { ...column, checked: !column.checked }
+          : column
+      );
+      setColumns(updatedColumns);
+      onColumnsChange(updatedColumns);
+    },
+    [columns, onColumnsChange] // dependencies
+  );
 
   return (
-    <div className="flex items-center justify-between gap-4 w-full max-w-[1200px]">
+    <div className="flex items-center justify-between gap-4 w-full">
       <div className="flex items-center flex-1">
         <Input
           type="text"
           placeholder="Filter topic..."
           value={filterValue}
-          onChange={(e) => handleFilterChange(e.target.value)}
+          onChange={handleFilterChange}
           className="max-w-sm bg-card border-0 ring-1 ring-input"
         />
       </div>

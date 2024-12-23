@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import {useUploadMultipleFileMutation } from "@/redux/service/fileupload";
+import { useUploadMultipleFileMutation } from "@/redux/service/fileupload";
 import { useCreateBlogMutation } from "@/redux/service/blog";
 import { useToast } from "@/components/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -47,7 +47,6 @@ const validationSchema = Yup.object().shape({
 });
 
 export function CreateTab() {
-
   const router = useRouter();
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -130,8 +129,7 @@ export function CreateTab() {
         router.push("/blog?tab=overview");
       }
       console.log(response.data);
-    } catch  {
-    
+    } catch {
       toast({
         description: "Failed to create blog",
         variant: "error",
@@ -153,10 +151,9 @@ export function CreateTab() {
             }}
             validationSchema={validationSchema}
             onSubmit={async (values) => {
-             
               // Ensure uploaded images are processed
               const uploadedImages = await handleFileUpload(values.thumbnail);
-             
+
               if (uploadedImages.length > 0) {
                 const updatedValues = {
                   ...values,
@@ -217,13 +214,13 @@ export function CreateTab() {
 
                 {/* Preview Selected Thumbnails */}
                 {previewImages.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                  <div className="w-1/3 mx-auto">
                     {previewImages.map((src, index) => (
                       <div key={index} className="relative">
                         <img
                           src={src}
                           alt={`Preview ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-md border"
+                          className="w-full  object-container rounded-md border"
                         />
                         <XCircle
                           type="button"
@@ -370,8 +367,6 @@ export function CreateTab() {
           </Formik>
         </CardContent>
       </Card>
-
-    
     </section>
   );
 }
