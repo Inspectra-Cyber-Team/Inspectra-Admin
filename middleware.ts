@@ -12,9 +12,8 @@ export function middleware(request: NextRequest) {
   const inspectraSessionToken = request.cookies.get("InspectraRefreshToken");
 
   try {
-    
     const decodedToken = jwt.decode(inspectraSessionToken?.value || "");
-  
+
     if (
       !decodedToken ||
       typeof decodedToken !== "object" ||
@@ -67,6 +66,5 @@ export const config = {
     "/FAQs",
     "/feedback",
     "/document",
-    "/blog",
   ],
 };

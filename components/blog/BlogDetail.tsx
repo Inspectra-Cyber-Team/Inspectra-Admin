@@ -32,15 +32,21 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
   }, [BlogData]);
 
   if (reportLoading) {
-    return <div className="loader-container">
-      <div className="loader"></div>
-    </div>;
+    return (
+      <div className="loader-container">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
-  const modifiedDescription = blogData?.description.replace(
-    /<img /g,
-    '<img style="max-width: 100%; height: auto; display: block; margin: 0 auto; object-fit: contain;" '
-  );
+  const modifiedDescription = blogData?.description
+    ?.replace(
+      /<img /g,
+      '<img style="max-width: 100%; height: auto; display: block; margin: 0 auto; object-fit: contain;" '
+    )
+    .replace(/<li><br><\/li>/g, "<li>Item</li>");
+
+  console.log(modifiedDescription);
 
   return (
     <div className="container mx-auto p-4">
@@ -129,9 +135,7 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
                         <dt>{report?.name}</dt>
                       </div>
                       <div className="flex flex-col md:flex-row md:gap-2">
-                        <dt className="text-[#60935D]">
-                          Report at: 
-                        </dt>
+                        <dt className="text-[#60935D]">Report at:</dt>
                         <dt>
                           {
                             new Date(report?.createdAt)

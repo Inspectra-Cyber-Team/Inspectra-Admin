@@ -84,7 +84,6 @@ body {
   }
 }
 
-
 /* Center the loader in the middle of the screen */
 .loader-container {
   position: fixed;
@@ -99,7 +98,7 @@ body {
   z-index: 9999; /* Ensure it's on top of other elements */
 }
 
-/* From Uiverse.io by doniaskima */ 
+/* From Uiverse.io by doniaskima */
 .loader {
   width: fit-content;
   font-weight: bold;
@@ -121,6 +120,16 @@ body {
 
 @keyframes l24 {
   100% {
-    background-position: left
+    background-position: left;
   }
+}
+
+ol {
+  list-style-type: decimal; /* For ordered lists */
+  padding-left: 20px; /* Indentation for ordered lists */
+}
+
+ul {
+  list-style-type: disc; /* For unordered lists */
+  padding-left: 20px; /* Indentation for unordered lists */
 }
