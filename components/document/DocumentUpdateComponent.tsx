@@ -1,15 +1,17 @@
-'use client'
-import { useToast } from '@/hooks/use-toast';
-import { useGetDocoumentQuery,useUpdateDocumentMutation } from '@/redux/service/document';
-import { useRouter } from 'next/navigation';
-import React from 'react'
-import * as Yup from 'yup';
+"use client";
+import { useToast } from "@/hooks/use-toast";
+import {
+  useGetDocoumentQuery,
+  useUpdateDocumentMutation,
+} from "@/redux/service/document";
+import { useRouter } from "next/navigation";
+import React from "react";
+import * as Yup from "yup";
 import { Card, CardContent } from "@/components/ui/card";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Input } from '../ui/input';
-import TextEditor from '../TextEdittor/TextEditor';
-import { Button } from '../ui/button';
-import { Label } from '../ui/label';
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,14 +19,14 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
+import RichTextEditor from "../test";
 
 type DocumentUpdateProps = {
   readonly uuid: string;
-}
+};
 
 const validationSchema = Yup.object().shape({
-
   title: Yup.string()
     .required("Document title is Required")
     .trim("Document  title cannot contain only spaces")
@@ -38,74 +40,66 @@ const validationSchema = Yup.object().shape({
     .min(1, "Description cannot be blank"),
 });
 
-
-export default function DocumentUpdateComponent({uuid}:DocumentUpdateProps) {
-
+export default function DocumentUpdateComponent({ uuid }: DocumentUpdateProps) {
   const router = useRouter();
 
-  const {toast} = useToast();
+  const { toast } = useToast();
 
-  const { data, isLoading } = useGetDocoumentQuery({uuid:uuid});
+  const { data, isLoading } = useGetDocoumentQuery({ uuid: uuid });
 
   const [updateDocument] = useUpdateDocumentMutation();
 
   if (isLoading) return <div>Loading...</div>;
 
-
   const handleUpdateDocument = async (uuid: string, body: object) => {
-
     try {
+      const res = await updateDocument({ uuid: uuid, body: body });
 
-      const res = await updateDocument({uuid:uuid, body:body});
-      
-      if (res.data)
-      {
-        toast ({
-           description: "Document updated successfully",
-           variant: "success"
-        })
+      if (res.data) {
+        toast({
+          description: "Document updated successfully",
+          variant: "success",
+        });
 
         router.push("/document?tab=document");
-      }
-      else {
-        toast ({
+      } else {
+        toast({
           description: "Document update failed",
-          variant: "error"
-        })
+          variant: "error",
+        });
       }
-
     } catch {
-      toast ({
+      toast({
         description: "Document update failed",
-        variant: "error"
-      })
+        variant: "error",
+      });
     }
-
-  }
+  };
 
   const initValue = {
     title: data?.data?.title,
-    description: data?.data?.description
-  }
-  
+    description: data?.data?.description,
+  };
 
   return (
     <section className="flex-1 space-y-4 px-8">
-        <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/document?tab=document">Document</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>Update Document</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/document?tab=document">
+              Document
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Update Document</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <Card className="border-0">
         <CardContent>
           <Formik
@@ -156,7 +150,7 @@ export default function DocumentUpdateComponent({uuid}:DocumentUpdateProps) {
                           {({ field, form }: any) => (
                             <div>
                               {/* Ensure onChange is properly called with setFieldValue */}
-                              <TextEditor
+                              <RichTextEditor
                                 value={field.value}
                                 onChange={(value: any) =>
                                   form.setFieldValue("description", value)
@@ -179,9 +173,7 @@ export default function DocumentUpdateComponent({uuid}:DocumentUpdateProps) {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() =>
-                      router.push("/document?tab=document")
-                    }
+                    onClick={() => router.push("/document?tab=document")}
                   >
                     Cancel
                   </Button>
@@ -193,5 +185,5 @@ export default function DocumentUpdateComponent({uuid}:DocumentUpdateProps) {
         </CardContent>
       </Card>
     </section>
-  )
+  );
 }

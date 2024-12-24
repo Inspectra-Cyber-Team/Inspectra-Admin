@@ -13,7 +13,6 @@ import {
   useGetBlogByUuidQuery,
 } from "@/redux/service/blog";
 import { useRouter } from "next/navigation";
-import TextEditor from "@/components/TextEdittor/TextEditor";
 import { XCircle } from "lucide-react";
 import RichTextEditor from "../test";
 

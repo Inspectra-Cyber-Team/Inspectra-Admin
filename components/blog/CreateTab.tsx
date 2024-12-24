@@ -21,7 +21,6 @@ import { useCreateBlogMutation } from "@/redux/service/blog";
 import { useToast } from "@/components/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useGetAllTopicQuery } from "@/redux/service/topic";
-import TextEditor from "../TextEdittor/TextEditor";
 import { Plus, XCircle } from "lucide-react";
 import RichTextEditor from "../test";
 

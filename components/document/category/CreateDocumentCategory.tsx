@@ -5,11 +5,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Label } from "@/components/ui/label";
 import { Input } from "../../ui/input";
-import TextEditor from "@/components/TextEdittor/TextEditor";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useCreateDocumentCategoryMutation } from "@/redux/service/document";
 import { useToast } from "@/components/hooks/use-toast";
+import RichTextEditor from "@/components/test";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string()
@@ -26,7 +26,6 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function CreateDocumentCategory() {
-
   const { toast } = useToast();
 
   const router = useRouter();
@@ -34,14 +33,10 @@ export default function CreateDocumentCategory() {
   const [CreateDocumentCategory] = useCreateDocumentCategoryMutation();
 
   const handleCreateDocumentCategory = async (values: any) => {
-   
     try {
-        
       const res = await CreateDocumentCategory({ body: values }).unwrap();
 
-      if (res.data)
-      {
-
+      if (res.data) {
         toast({
           description: "Document Category Created Successfully",
           variant: "success",
@@ -53,17 +48,16 @@ export default function CreateDocumentCategory() {
           variant: "error",
         });
       }
-      
     } catch (error: any) {
+      console.log(error?.data?.error?.description);
 
-        console.log(error?.data?.error?.description )
-        
       if (
-       
-        error?.data?.error?.code === "400 BAD_REQUEST" 
+        error?.data?.error?.code === "400 BAD_REQUEST"
         // error?.data?.error?.description?.includes("Document Category already exists")
       ) {
-        const existingName = error?.data?.error?.description.split(":")[1].trim();
+        const existingName = error?.data?.error?.description
+          .split(":")[1]
+          .trim();
         toast({
           description: `Document Category with name "${existingName}" already exists`,
           variant: "error",
@@ -132,7 +126,7 @@ export default function CreateDocumentCategory() {
                           {({ field, form }: any) => (
                             <div>
                               {/* Ensure onChange is properly called with setFieldValue */}
-                              <TextEditor
+                              <RichTextEditor
                                 value={field.value}
                                 onChange={(value: any) =>
                                   form.setFieldValue("description", value)

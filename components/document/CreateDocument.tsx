@@ -5,11 +5,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Label } from "@/components/ui/label";
 import { Input } from "../ui/input";
-import TextEditor from "@/components/TextEdittor/TextEditor";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {  useCreateDocumentMutation } from "@/redux/service/document";
 import { useToast } from "@/components/hooks/use-toast";
+import RichTextEditor from "../test";
 
 const validationSchema = Yup.object().shape({
 
@@ -146,7 +146,7 @@ export default function CreateDocument() {
                           {({ field, form }: any) => (
                             <div>
                               {/* Ensure onChange is properly called with setFieldValue */}
-                              <TextEditor
+                              <RichTextEditor
                                 value={field.value}
                                 onChange={(value: any) =>
                                   form.setFieldValue("description", value)
