@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { useGetAllTopicQuery } from "@/redux/service/topic";
 import TextEditor from "../TextEdittor/TextEditor";
 import { Plus, XCircle } from "lucide-react";
+import RichTextEditor from "../test";
 
 const FILE_SIZE = 1024 * 1024 * 5; // 5MB
 const SUPPORTED_FORMATS = ["image/jpg", "image/jpeg", "image/png", "image/gif"];
@@ -73,7 +74,7 @@ export function CreateTab() {
     setPreviewImages(updatedPreviews);
   };
 
-  const { data: topics } = useGetAllTopicQuery({ page: 0, pageSize: 10 });
+  const { data: topics } = useGetAllTopicQuery({ page: 0, pageSize: 25 });
 
   const { toast } = useToast();
 
@@ -128,7 +129,6 @@ export function CreateTab() {
         });
         router.push("/blog?tab=overview");
       }
-      console.log(response.data);
     } catch {
       toast({
         description: "Failed to create blog",
@@ -266,7 +266,13 @@ export function CreateTab() {
                           {({ field, form }: any) => (
                             <div>
                               {/* Ensure onChange is properly called with setFieldValue */}
-                              <TextEditor
+                              {/* <TextEditor
+                                value={field.value}
+                                onChange={(value: any) =>
+                                  form.setFieldValue("description", value)
+                                }
+                              /> */}
+                              <RichTextEditor
                                 value={field.value}
                                 onChange={(value: any) =>
                                   form.setFieldValue("description", value)
@@ -355,8 +361,9 @@ export function CreateTab() {
 
                 <div className="mt-4 flex gap-2">
                   <Button
+                    type="button"
                     variant="outline"
-                    onClick={() => router.push("/blog")}
+                    onClick={() => router.push("/blog?tab=overview")}
                   >
                     Cancel
                   </Button>

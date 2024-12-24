@@ -10,6 +10,8 @@ import { Button } from "../ui/button";
 import { convertToDayMonthYear } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { useGetReportByBlogUuidQuery } from "@/redux/service/report";
+import hljs from "highlight.js";
+import "highlight.js/styles/atom-one-dark.css";
 
 type BlogDetailsProps = Readonly<{
   uuid: string;
@@ -31,6 +33,16 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
     }
   }, [BlogData]);
 
+  useEffect(() => {
+    if (blogData?.description) {
+      setTimeout(() => {
+        document.querySelectorAll("pre code").forEach((block) => {
+          hljs.highlightElement(block as HTMLElement);
+        });
+      }, 0);
+    }
+  });
+
   if (reportLoading) {
     return (
       <div className="loader-container">
@@ -38,15 +50,6 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
       </div>
     );
   }
-
-  const modifiedDescription = blogData?.description
-    ?.replace(
-      /<img /g,
-      '<img style="max-width: 100%; height: auto; display: block; margin: 0 auto; object-fit: contain;" '
-    )
-    .replace(/<li><br><\/li>/g, "<li>Item</li>");
-
-  console.log(modifiedDescription);
 
   return (
     <div className="container mx-auto p-4">
@@ -69,7 +72,9 @@ export default function BlogPost({ uuid }: BlogDetailsProps) {
               />
             )}
             <div
-              dangerouslySetInnerHTML={{ __html: modifiedDescription || "" }}
+              dangerouslySetInnerHTML={{
+                __html: blogData?.description || "",
+              }}
             ></div>
           </div>
         </div>

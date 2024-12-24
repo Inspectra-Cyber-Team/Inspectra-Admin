@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import TextEditor from "@/components/TextEdittor/TextEditor";
 import { XCircle } from "lucide-react";
+import RichTextEditor from "../test";
 
 type UpdateBlogComponentProps = {
   uuid: string;
@@ -163,9 +164,7 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
           >
             {({ setFieldValue }) => (
               <Form className="space-y-8 bg-card p-6">
-                <h2 className="text-center font-bold text-2xl">
-                  Update Blog
-                </h2>
+                <h2 className="text-center font-bold text-2xl">Update Blog</h2>
 
                 {/* Thumbnail Upload */}
                 <div
@@ -216,15 +215,16 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
                           updatedFiles.splice(index, 1);
                           setPreviewImages(updatedFiles);
                         }}
-                      >
-                      </XCircle>
+                      ></XCircle>
                     </div>
                   ))}
                 </div>
 
                 {/* Title */}
                 <div>
-                  <Label htmlFor="title" className="text-sm font-medium">Title</Label>
+                  <Label htmlFor="title" className="text-sm font-medium">
+                    Title
+                  </Label>
                   <Field
                     as={Input}
                     type="text"
@@ -242,12 +242,23 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
 
                 {/* Description */}
                 <div className="col-span-full mt-4">
-                  <Label htmlFor="description" className="text-sm font-medium">Description</Label>
-                  <Field name="description" className="mt-2 p-3 border rounded-md w-full ">
+                  <Label htmlFor="description" className="text-sm font-medium">
+                    Description
+                  </Label>
+                  <Field
+                    name="description"
+                    className="mt-2 p-3 border rounded-md w-full "
+                  >
                     {({ field }: any) => (
-                      <TextEditor
-                        value={field.value}
-                        onChange={(value) => setFieldValue("description", value)}
+                      // <TextEditor
+                      //   value={field.value}
+                      //   onChange={(value) => setFieldValue("description", value)}
+                      // />
+                      <RichTextEditor
+                        content={field.value}
+                        onChange={(value: any) =>
+                          setFieldValue("description", value)
+                        }
                       />
                     )}
                   </Field>
@@ -260,12 +271,13 @@ export const UpdateBlogComponent = ({ uuid }: UpdateBlogComponentProps) => {
 
                 {/* Submit Button */}
                 <div className="mt-4 flex gap-2">
-                  <Button variant="outline" onClick={() => router.push("/blog")}>
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push("/blog")}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" >
-                    Update Blog
-                  </Button>
+                  <Button type="submit">Update Blog</Button>
                 </div>
               </Form>
             )}
